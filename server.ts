@@ -113,18 +113,17 @@ app.use(express.static(path.join(process.cwd(), 'static'))); // Safe double-moun
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const isProd = process.env.APP_ENV === 'production';
-if (isProd) {
-  app.set('trust proxy', 1);
-}
+app.set('trust proxy', 1);
+
 app.use(session({
-  secret: process.env.SECRET_KEY || 'shreevedha-fallback-secret-key-12345',
-  resave: false,
+  secret: process.env.SECRET_KEY || 'shreevedha-admin-secure-session-key-9988',
+  resave: true,
   saveUninitialized: true,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax'
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days persistence
+    httpOnly: true,
+    secure: false, // Ensures session works seamlessly across all HTTP and HTTPS proxy environments
+    sameSite: 'lax'
   }
 }));
 app.use(flash());
@@ -904,7 +903,8 @@ function requireLogin(req: express.Request, res: express.Response, next: express
 
 function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
   if (!(req.session as any)?.admin_logged_in) {
-    return res.redirect('/admin/login');
+    req.flash('error', 'Session expired or invalid. Please log in again to access the Admin Panel.');
+    return res.redirect('/admin/login?expired=1');
   }
   next();
 }
@@ -1103,13 +1103,18 @@ app.get('/event/:id', (req, res) => {
   const updates = loadJson('livetrack.json');
   const events = loadJson('events.json');
   const allEvents = [...updates, ...events];
-  const id = req.params.id;
-  const event = allEvents.find(e => String(e._id) === String(id) || String(e.id) === String(id));
+  const id = String(req.params.id);
+  const event = allEvents.find(e => {
+    const eId = String(e._id ?? e.id ?? '');
+    const titleSlug = (e.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return eId === id || titleSlug === id.toLowerCase();
+  });
   if (!event) {
     req.flash('error', 'Event details not found.');
     return res.redirect('/livetrack');
   }
-  const otherEvents = allEvents.filter(e => String(e._id) !== String(id) && String(e.id) !== String(id));
+  const eventId = String(event._id ?? event.id ?? '');
+  const otherEvents = allEvents.filter(e => String(e._id ?? e.id ?? '') !== eventId);
   res.render('event_detail.html', { event, otherEvents, allEvents });
 });
 

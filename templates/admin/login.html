@@ -170,6 +170,20 @@
         </form>
         <a href="{{ url_for('home') }}" class="back-link">← Back to Website</a>
     </div>
+    <!-- Session Expired Dialogue Modal -->
+    <div id="sessionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:1.25rem; padding:2.2rem; max-width:420px; width:90%; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.35); border-top:6px solid #EF4444;">
+            <div style="width:60px; height:60px; background:#FEE2E2; color:#DC2626; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem auto; font-size:2rem; font-weight:800;">
+                ⚠️
+            </div>
+            <h3 style="font-size:1.4rem; color:#0A2647; margin-bottom:0.6rem; font-weight:800;">Session Expired</h3>
+            <p style="color:#64748B; font-size:0.95rem; margin-bottom:1.8rem; line-height:1.6;">Your admin session has expired. Please log in again to continue managing the Admin Panel.</p>
+            <button onclick="document.getElementById('sessionModal').style.display='none'" style="background:#0A2647; color:white; border:none; padding:0.8rem 2rem; border-radius:2rem; font-weight:800; font-size:1rem; cursor:pointer; width:100%; transition:background 0.3s;">
+                Understood, Sign In →
+            </button>
+        </div>
+    </div>
+
     <script>
     function toggleTheme() {
         const html = document.documentElement;
@@ -187,6 +201,13 @@
             document.getElementById('themeIcon').setAttribute('data-lucide', 'sun');
         }
         lucide.createIcons();
+
+        // Check if redirected due to session expiry
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('expired') === '1' || params.get('logout') === '1') {
+            const modal = document.getElementById('sessionModal');
+            if (modal) modal.style.display = 'flex';
+        }
     })();
     </script>
 </body>

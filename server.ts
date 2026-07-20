@@ -919,12 +919,13 @@ app.get('/', (req, res) => {
   const benefits = loadJson('why_shreevedha.json');
   const events = loadJson('events.json');
   const livetrack = loadJson('livetrack.json');
+  const combinedEvents = [...livetrack, ...events];
   res.render('index.html', {
     courses: COURSES_DATA.slice(0, 3),
     testimonials: TESTIMONIALS_DATA,
     benefits: benefits,
     events: events,
-    livetrackEvents: livetrack,
+    livetrackEvents: combinedEvents.length > 0 ? combinedEvents : livetrack,
     maps_api_key: process.env.GOOGLE_MAPS_API_KEY || '',
     office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
     office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'

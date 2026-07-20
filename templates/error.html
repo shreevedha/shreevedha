@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Error | Shreevedha Solutions{% endblock %}
+
+{% block content %}
+<section style="padding: 5rem 1rem; text-align: center;">
+    <div class="container">
+        <h1 style="font-size: 3rem; color: var(--primary-blue, #0A2647); margin-bottom: 1rem;">Oops!</h1>
+        <p style="font-size: 1.2rem; color: #64748B; margin-bottom: 2rem;">
+            {{ error_message or "An unexpected error occurred. Please return to the home page." }}
+        </p>
+        <a href="{{ url_for('index') if url_for else '/' }}" class="btn-gold" style="padding: 0.8rem 2rem; font-weight: 700; border-radius: 2rem; text-decoration: none;">
+            Return to Homepage →
+        </a>
+    </div>
+</section>
+{% endblock %}

@@ -1205,7 +1205,7 @@ app.post('/lms/login', (req, res) => {
   if (user) {
     if (user.status !== 'active') {
       req.flash('error', 'Your account is not active. Please contact admin.');
-      return res.redirect('/lms/login');
+      return req.session.save(() => res.redirect('/lms/login'));
     }
     (req.session as any).user = {
       is_authenticated: true,
@@ -1216,10 +1216,13 @@ app.post('/lms/login', (req, res) => {
       points: user.points || 0
     };
     req.flash('success', `Welcome back, ${user.name}!`);
-    res.redirect('/lms/dashboard');
+    req.session.save((err) => {
+      if (err) console.error('LMS Session save error:', err);
+      res.redirect('/lms/dashboard');
+    });
   } else {
     req.flash('error', 'Invalid email or password.');
-    res.redirect('/lms/login');
+    req.session.save(() => res.redirect('/lms/login'));
   }
 });
 
@@ -1715,10 +1718,15 @@ app.post('/admin/login', (req, res) => {
     (req.session as any).admin_logged_in = true;
     (req.session as any).admin_user = username;
     req.flash('success', 'Welcome back, Admin!');
-    res.redirect('/admin/dashboard');
+    req.session.save((err) => {
+      if (err) console.error('Session save error:', err);
+      res.redirect('/admin/dashboard');
+    });
   } else {
     req.flash('error', 'Invalid username or password');
-    res.redirect('/admin/login');
+    req.session.save(() => {
+      res.redirect('/admin/login');
+    });
   }
 });
 

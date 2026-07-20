@@ -178,13 +178,20 @@
             </div>
             <h3 style="font-size:1.4rem; color:#0A2647; margin-bottom:0.6rem; font-weight:800;">Session Expired</h3>
             <p style="color:#64748B; font-size:0.95rem; margin-bottom:1.8rem; line-height:1.6;">Your admin session has expired. Please log in again to continue managing the Admin Panel.</p>
-            <button onclick="document.getElementById('sessionModal').style.display='none'" style="background:#0A2647; color:white; border:none; padding:0.8rem 2rem; border-radius:2rem; font-weight:800; font-size:1rem; cursor:pointer; width:100%; transition:background 0.3s;">
+            <button onclick="closeSessionModal()" style="background:#0A2647; color:white; border:none; padding:0.8rem 2rem; border-radius:2rem; font-weight:800; font-size:1rem; cursor:pointer; width:100%; transition:background 0.3s;">
                 Understood, Sign In →
             </button>
         </div>
     </div>
 
     <script>
+    function closeSessionModal() {
+        const modal = document.getElementById('sessionModal');
+        if (modal) modal.style.display = 'none';
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
     function toggleTheme() {
         const html = document.documentElement;
         const icon = document.getElementById('themeIcon');

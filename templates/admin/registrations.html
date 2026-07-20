@@ -1,0 +1,53 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Registrations{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Registrations</h1>
+        <p>Course &amp; program enquiries submitted through the website</p>
+    </div>
+    <span class="badge badge-info">{{ registrations|length }} enquir{{ 'y' if registrations|length == 1 else 'ies' }}</span>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Course / Program</th>
+                    <th>Mode</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in registrations %}
+                <tr>
+                    <td><strong>{{ r.name }}</strong></td>
+                    <td><a href="mailto:{{ r.email }}" style="color:var(--primary-blue);">{{ r.email }}</a></td>
+                    <td>{{ r.phone or '-' }}</td>
+                    <td>{{ r.course or r.workshop_name or r.internship_domain or r.domain or '-' }}</td>
+                    <td>{{ r.mode or r.payment_mode or '-' }}</td>
+                    <td style="white-space:nowrap;">{{  (r.timestamp or '').slice(0, 10) if r.timestamp else '-'  }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_delete_registration', id=r._id if r._id is defined else r.id) }}" onsubmit="return confirm('Delete this registration?');" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7"><div class="empty-state"><i data-lucide="clipboard-list"></i><p>No registrations yet.</p></div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

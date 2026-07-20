@@ -1,0 +1,43 @@
+# Secrets & local config — never commit these
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.bak_phase1
+venv/
+.venv/
+
+# Local database & generated data (ephemeral in prod anyway)
+*.db
+*.db.bak
+*.sqlite3
+
+# Runtime LMS uploads only — course files, submissions, generated certificates
+# (may contain PII). Site/brand assets & gallery images under static/uploads/
+# ship with the app and ARE committed so they deploy to Vercel.
+static/uploads/lms/
+
+# Pre-change backups — old code/DB/data, never publish
+_backup/
+
+# Submitted PII captured by public forms — do NOT publish to a public repo
+static/data/contacts.json
+static/data/registrations.json
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+.vercel
+.env*
+node_modules/
+dist/
+scratch/
+*.log
+*.png
+*.csv

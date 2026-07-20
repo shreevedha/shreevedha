@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Live Track | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .livetrack-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+        position: relative;
+    }
+    .livetrack-hero h1 {
+        font-size: 2.5rem;
+        color: var(--primary-gold, #f5a623);
+    }
+    .add-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 2rem;
+        background: var(--primary-gold, #f5a623);
+        color: black;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+    .add-btn:hover {
+        transform: scale(1.1);
+        background: var(--primary-blue, #1a3a6b);
+        color: white;
+    }
+    .updates-feed {
+        max-width: 900px;
+        margin: 3rem auto;
+    }
+    .update-card {
+        background: var(--card-bg, white);
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    .update-card:hover {
+        transform: translateY(-5px);
+    }
+    .update-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+    }
+    .update-content {
+        padding: 1.5rem;
+    }
+    .update-title {
+        font-size: 1.4rem;
+        color: var(--primary-blue, #1a3a6b);
+        margin-bottom: 0.5rem;
+    }
+    .update-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+        font-size: 0.85rem;
+        color: var(--text-light, #666);
+    }
+    .update-badge {
+        background: var(--primary-gold, #f5a623);
+        color: black;
+        padding: 0.2rem 0.6rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .update-description {
+        color: var(--text-light, #666);
+        line-height: 1.5;
+    }
+    .no-updates {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(5px);
+        z-index: 1001;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-overlay.active {
+        display: flex;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 550px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 2rem;
+        position: relative;
+        animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+        color: #666;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        color: var(--primary-blue, #1a3a6b);
+    }
+    .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+    }
+    .btn-submit {
+        background: var(--primary-blue, #1a3a6b);
+        color: white;
+        border: none;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        width: 100%;
+        font-weight: 600;
+    }
+    .btn-submit:hover {
+        background: var(--primary-gold, #f5a623);
+        color: black;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="livetrack-hero">
+    <div class="container">
+        <h1>Live Track</h1>
+        <p>Real‑time updates on Shreevedha's programs, events, and marketing activities</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="updates-feed">
+        {% if updates %}
+            {% for update in updates %}
+            <div class="update-card">
+                <img src="{{ url_for('static', filename='uploads/livetrack/' + update.image_filename) }}" alt="{{ update.title }}" class="update-image">
+                <div class="update-content">
+                    <div class="update-meta">
+                        <span class="update-badge">{{ update.update_type | title }}</span>
+                        <span>📅 {{ update.event_date }}</span>
+                    </div>
+                    <h3 class="update-title">{{ update.title }}</h3>
+                    <p class="update-description">{{ update.description }}</p>
+                    {% if update.link_url %}
+                    <div style="margin-top: 1.2rem;">
+                        <a href="{{ update.link_url }}" class="btn" style="background: var(--primary-blue, #1a3a6b); color: white; border-radius: 2rem; padding: 0.5rem 1.4rem; text-decoration: none; display: inline-block; font-weight: 700; transition: 0.3s;">
+                            {{ update.link_text or 'Pay / Visit' }} →
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-updates">
+                <i data-lucide="megaphone" style="width: 48px; height: 48px; color: var(--primary-gold, #f5a623);"></i>
+                <p>No updates yet. Check back soon for updates!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>lucide.createIcons();</script>
+{% endblock %}

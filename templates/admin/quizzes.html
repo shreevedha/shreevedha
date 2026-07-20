@@ -1,0 +1,69 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Quizzes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Quiz Management</h1>
+        <p>Create and manage course quizzes</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Quizzes ({{ quizzes|length }})</div>
+        <button class="btn btn-primary" onclick="document.getElementById('quizModal').classList.add('active')">+ Create Quiz</button>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Title</th><th>Course</th><th>Questions</th><th>Max Marks</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% if not quizzes %}
+                <tr><td colspan="6"><div class="empty-state"><i data-lucide="help-circle"></i><p>No quizzes yet.</p></div></td></tr>
+                {% endif %}
+                {% for q in quizzes %}
+                <tr>
+                    <td>#{{ q.id }}</td>
+                    <td>{{ q.title }}</td>
+                    <td>{{ q.course.title }}</td>
+                    <td>{{ q.questions|length }}</td>
+                    <td>{{ q.max_marks }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="{{ url_for('admin_edit_quiz', quiz_id=q.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('admin_delete_quiz', quiz_id=q.id) }}" onsubmit="return confirm('Delete?');" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-overlay" id="quizModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('quizModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Create Quiz</h3>
+        <form method="POST" action="{{ url_for('admin_create_quiz') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label>Title</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+            <div class="form-group"><label>Max Marks</label><input type="number" name="max_marks" value="100"></div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

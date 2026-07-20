@@ -1,0 +1,32 @@
+[
+  {
+    "title": "New Batch Starting June 2026",
+    "subtitle": "Enroll now for Python, Full Stack, Data Science, and AI/ML courses. Limited seats available!",
+    "link": "/courses",
+    "link_text": "Explore Courses",
+    "order": 0,
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:59.005603",
+    "_id": 1
+  },
+  {
+    "title": "100% Placement Assistance",
+    "subtitle": "Join 8000+ successful students who transformed their careers with Shreevedha.",
+    "link": "/placement",
+    "link_text": "Learn More",
+    "order": 1,
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:59.006615",
+    "_id": 2
+  },
+  {
+    "title": "AICTE Approved Programs",
+    "subtitle": "Industry-recognized certifications and collaborations with top colleges and universities.",
+    "link": "/about",
+    "link_text": "Know More",
+    "order": 2,
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:59.023767",
+    "_id": 3
+  }
+]

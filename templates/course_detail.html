@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ course.name }} | Shreevedha Solutions{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="grid-2">
+            <div>
+                <img src="{{ course.image }}" alt="{{ course.name }}" style="width:100%; border-radius: 1rem;">
+            </div>
+            <div>
+                <h1>{{ course.name }}</h1>
+                <p>{{ course.description }}</p>
+                <div><strong>Duration:</strong> {{ course.duration }}</div>
+                <div><strong>Mode:</strong> {{ course.mode }}</div>
+                <div><strong>Price (Online):</strong> {{ course.price_online }}</div>
+                <div><strong>Price (Offline):</strong> {{ course.price_offline }}</div>
+                <a href="{{ url_for('registration') }}" class="btn btn-primary" style="margin-top: 1rem;">Enroll Now</a>
+            </div>
+        </div>
+        <div style="margin-top: 3rem;">
+            <h2>Syllabus</h2>
+            <ul>
+                {% for topic in course.syllabus %}
+                <li>{{ topic }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <h2>Tools & Technologies</h2>
+            <ul>
+                {% for tool in course.tools %}
+                <li>{{ tool }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <h2>Projects</h2>
+            <ul>
+                {% for project in course.projects %}
+                <li>{{ project }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}

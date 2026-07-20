@@ -1,0 +1,51 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Contacts{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Contact Messages</h1>
+        <p>Messages submitted through the website contact form</p>
+    </div>
+    <span class="badge badge-info">{{ contacts|length }} message{{ '' if contacts|length == 1 else 's' }}</span>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contacts %}
+                <tr>
+                    <td><strong>{{ c.name }}</strong></td>
+                    <td><a href="mailto:{{ c.email }}" style="color:var(--primary-blue);">{{ c.email }}</a></td>
+                    <td>{{ c.phone or '-' }}</td>
+                    <td style="max-width: 280px;">{{ c.message or '-' }}</td>
+                    <td style="white-space:nowrap;">{{  (c.timestamp or '').slice(0, 10) if c.timestamp else '-'  }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_delete_contact', id=c._id if c._id is defined else c.id) }}" onsubmit="return confirm('Delete this contact message?');" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6"><div class="empty-state"><i data-lucide="mail"></i><p>No contact messages yet.</p></div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

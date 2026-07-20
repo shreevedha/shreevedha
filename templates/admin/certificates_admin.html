@@ -1,0 +1,103 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Certificates{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Certificates</h1>
+        <p>Issue and manage certificates</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Certificates ({{ certificates|length }})</div>
+        <div class="table-actions">
+            <a href="{{ url_for('admin_export', data_type='certificates') }}" class="btn btn-outline">Export CSV</a>
+            <button class="btn btn-primary" onclick="document.getElementById('certModal').classList.add('active')">+ Issue Certificate</button>
+            <button class="btn btn-success" onclick="document.getElementById('bulkCertModal').classList.add('active')">Bulk Issue</button>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Cert ID</th><th>Student</th><th>Course</th><th>Issue Date</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not certificates %}
+                <tr><td colspan="5"><div class="empty-state"><i data-lucide="award"></i><p>No certificates issued yet.</p></div></td></tr>
+                {% endif %}
+                {% for c in certificates %}
+                <tr>
+                    <td><code>{{ c.certificate_id }}</code></td>
+                    <td>{{ c.student.name }}</td>
+                    <td>{{ c.course.title }}</td>
+                    <td>{{ c.issue_date.strftime('%Y-%m-%d') if c.issue_date else '-' }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="{{ url_for('verify_certificate', cert_id=c.certificate_id) }}" target="_blank" class="btn btn-primary btn-sm">Verify</a>
+                            <a href="{{ url_for('admin_download_certificate', cert_id=c.id) }}" class="btn btn-success btn-sm">Download</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bulk Issue Modal -->
+<div class="modal-overlay" id="bulkCertModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('bulkCertModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Bulk Issue Certificates</h3>
+        <form method="POST" action="{{ url_for('admin_bulk_certificates') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Students (hold Ctrl/Cmd to select multiple)</label>
+                <select name="user_ids" multiple required size="6" style="min-height: 150px;">
+                    {% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Issue to Selected</button>
+        </form>
+    </div>
+</div>
+
+<!-- Issue Modal -->
+<div class="modal-overlay" id="certModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('certModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Issue Certificate</h3>
+        <form method="POST" action="{{ url_for('admin_issue_certificate') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="user_id" required>
+                    {% for u in users %}
+                    <option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}">{{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Issue Certificate</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

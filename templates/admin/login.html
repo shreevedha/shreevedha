@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Shreevedha Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #0A2647;
+            --primary-blue-light: #1B3A5C;
+            --primary-gold: #F5C518;
+            --primary-gold-light: #FFD700;
+            --dark: #0F172A;
+            --light: #FFFFFF;
+            --gray: #64748B;
+            --card-bg: #FFFFFF;
+            --text-color: #0F172A;
+            --input-bg: #FFFFFF;
+            --input-border: #cbd5e1;
+        }
+        [data-theme="dark"] {
+            --primary-blue: #1B3A5C;
+            --primary-gold: #FFD700;
+            --card-bg: #1E293B;
+            --text-color: #E2E8F0;
+            --input-bg: #334155;
+            --input-border: #475569;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .login-card {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header img {
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+        .login-header h1 {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin-bottom: 0.25rem;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        .login-header p { color: var(--gray); font-size: 0.9rem; }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.15);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            background: var(--primary-gold);
+            color: black;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .back-link:hover { color: var(--primary-blue); }
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+        @media (max-width: 480px) {
+            .login-card { padding: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode"><i data-lucide="moon" id="themeIcon"></i></button>
+    <div class="login-card">
+        <div class="login-header">
+            <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Shreevedha">
+            <h1>Admin Login</h1>
+            <p>Shreevedha Solutions Admin Panel</p>
+        </div>
+        {% set messages = get_flashed_messages({ with_categories: true }) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter password">
+            </div>
+            <button type="submit" class="btn-login">Sign In</button>
+        </form>
+        <a href="{{ url_for('home') }}" class="back-link">← Back to Website</a>
+    </div>
+    <script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const icon = document.getElementById('themeIcon');
+        const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        icon.setAttribute('data-lucide', newTheme === 'dark' ? 'sun' : 'moon');
+        lucide.createIcons();
+    }
+    (function() {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').setAttribute('data-lucide', 'sun');
+        }
+        lucide.createIcons();
+    })();
+    </script>
+</body>
+</html>

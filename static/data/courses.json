@@ -1,0 +1,140 @@
+[
+  {
+    "id": "python-programming",
+    "category": "Programming",
+    "name": "Python Programming",
+    "title": "Python Programming",
+    "description": "Master Python from basics to advanced concepts including OOP, file handling, and modules.",
+    "duration": "60 days",
+    "mode": "Online / Offline / Hybrid",
+    "price_online": "Rs. 2,999",
+    "price_offline": "Rs. 9,999",
+    "price_hybrid": "Rs. 7,999",
+    "syllabus": [
+      "Python Basics",
+      "Data Structures",
+      "Functions & Modules",
+      "OOP",
+      "File Handling",
+      "Error Handling",
+      "Database Connectivity"
+    ],
+    "tools": [
+      "Python 3.x",
+      "PyCharm",
+      "Jupyter Notebook",
+      "Git"
+    ],
+    "projects": [
+      "Calculator App",
+      "Student Management System",
+      "Weather App",
+      "Blog Website"
+    ],
+    "image": "https://picsum.photos/id/0/300/200",
+    "thumbnail": "https://picsum.photos/id/0/300/200"
+  },
+  {
+    "id": "full-stack-web",
+    "category": "Full Stack",
+    "name": "Full Stack Web Development",
+    "title": "Full Stack Web Development",
+    "description": "Become a complete web developer with MERN stack, responsive design, and deployment.",
+    "duration": "60 days",
+    "mode": "Online / Offline / Hybrid",
+    "price_online": "Rs. 2,999",
+    "price_offline": "Rs. 9,999",
+    "price_hybrid": "Rs. 7,999",
+    "syllabus": [
+      "HTML/CSS/JS",
+      "React.js",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "Authentication",
+      "Deployment"
+    ],
+    "tools": [
+      "VS Code",
+      "MongoDB Compass",
+      "Postman",
+      "Git/GitHub"
+    ],
+    "projects": [
+      "E-commerce Site",
+      "Task Manager",
+      "Chat Application",
+      "Portfolio Builder"
+    ],
+    "image": "https://picsum.photos/id/1/300/200",
+    "thumbnail": "https://picsum.photos/id/1/300/200"
+  },
+  {
+    "id": "data-science",
+    "category": "Data Science",
+    "name": "Data Science & Analytics",
+    "title": "Data Science & Analytics",
+    "description": "Learn data analysis, visualization, statistics, and machine learning fundamentals.",
+    "duration": "60 days",
+    "mode": "Online / Offline / Hybrid",
+    "price_online": "Rs. 2,999",
+    "price_offline": "Rs. 9,999",
+    "price_hybrid": "Rs. 7,999",
+    "syllabus": [
+      "Python for Data Science",
+      "NumPy & Pandas",
+      "Matplotlib & Seaborn",
+      "Statistics",
+      "SQL",
+      "Machine Learning Basics"
+    ],
+    "tools": [
+      "Jupyter",
+      "Anaconda",
+      "Tableau",
+      "Scikit-learn"
+    ],
+    "projects": [
+      "Exploratory Data Analysis",
+      "Sales Prediction",
+      "Customer Segmentation",
+      "Dashboard Creation"
+    ],
+    "image": "https://picsum.photos/id/20/300/200",
+    "thumbnail": "https://picsum.photos/id/20/300/200"
+  },
+  {
+    "id": "ai-ml",
+    "category": "AI & ML",
+    "name": "Artificial Intelligence & Machine Learning",
+    "title": "Artificial Intelligence & Machine Learning",
+    "description": "Deep dive into AI/ML algorithms, neural networks, and real-world applications.",
+    "duration": "60 days",
+    "mode": "Online / Offline / Hybrid",
+    "price_online": "Rs. 2,999",
+    "price_offline": "Rs. 9,999",
+    "price_hybrid": "Rs. 7,999",
+    "syllabus": [
+      "ML Algorithms",
+      "Deep Learning",
+      "TensorFlow/Keras",
+      "NLP",
+      "Computer Vision",
+      "Model Deployment"
+    ],
+    "tools": [
+      "Python",
+      "TensorFlow",
+      "PyTorch",
+      "Google Colab"
+    ],
+    "projects": [
+      "Image Classifier",
+      "Chatbot",
+      "Recommendation System",
+      "Face Detection"
+    ],
+    "image": "https://picsum.photos/id/26/300/200",
+    "thumbnail": "https://picsum.photos/id/26/300/200"
+  }
+]

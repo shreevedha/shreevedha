@@ -1,0 +1,120 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Payment Management</h1>
+        <p>Track student fee payments</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Payments ({{ payments|length }})</div>
+        <div class="table-actions">
+            <a href="{{ url_for('admin_export', data_type='payments') }}" class="btn btn-outline">Export CSV</a>
+            <button class="btn btn-primary" onclick="document.getElementById('payModal').classList.add('active')">+ Add Payment</button>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Student</th><th>Course</th><th>Amount</th><th>Method</th><th>Status</th><th>Transaction ID</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% if not payments %}
+                <tr><td colspan="8"><div class="empty-state"><i data-lucide="credit-card"></i><p>No payments yet.</p></div></td></tr>
+                {% endif %}
+                {% for p in payments %}
+                <tr>
+                    <td>#{{ p.id }}</td>
+                    <td>{{ p.user.name }}</td>
+                    <td>{{ p.course.title }}</td>
+                    <td>₹{{ p.amount }}</td>
+                    <td>{{ p.payment_method or '-' }}</td>
+                    <td><span class="badge badge-{% if p.status == 'paid' %}success{% elseif p.status == 'pending' %}warning{% else %}danger{% endif %}">{{ p.status|title }}</span></td>
+                    <td><code>{{ p.transaction_id or '-' }}</code></td>
+                    <td>
+                        <div class="table-actions">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openEditPay('{{ p.id }}', '{{ p.status }}', '{{ p.transaction_id or '' }}')">Edit</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-overlay" id="payModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('payModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Add Payment</h3>
+        <form method="POST" action="{{ url_for('admin_create_payment') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="user_id" required>
+                    {% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label>Amount (₹)</label><input type="number" name="amount" step="0.01" required></div>
+                <div class="form-group"><label>Method</label><input type="text" name="payment_method" placeholder="Cash / UPI / Card"></div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label>Status</label>
+                    <select name="status">
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Transaction ID</label><input type="text" name="transaction_id"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Payment</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="editPayModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('editPayModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Update Payment</h3>
+        <form method="POST" id="editPayForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" id="payStatus">
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Transaction ID</label><input type="text" name="transaction_id" id="payTrans"></div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditPay(id, status, trans) {
+    document.getElementById('editPayForm').action = '/admin/payments/' + id + '/update';
+    document.getElementById('payStatus').value = status;
+    document.getElementById('payTrans').value = trans;
+    document.getElementById('editPayModal').classList.add('active');
+}
+window.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('payModal')) document.getElementById('payModal').classList.remove('active');
+    if (e.target === document.getElementById('editPayModal')) document.getElementById('editPayModal').classList.remove('active');
+});
+</script>
+{% endblock %}

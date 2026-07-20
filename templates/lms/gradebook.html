@@ -1,0 +1,83 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Gradebook{% endblock %}
+{% block page_title %}My Grades{% endblock %}
+
+{% block content %}
+{% for item in grades %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold m-0" style="color: var(--primary-blue);">{{ item.enrollment.course.title }}</h5>
+            <small class="text-muted">Progress: {{ item.enrollment.progress }}%</small>
+        </div>
+        <span class="badge bg-{{ 'success' if item.enrollment.status == 'completed' else 'primary' }}">{{ item.enrollment.status|title }}</span>
+    </div>
+    <div class="card-body">
+        <!-- Assignment Grades -->
+        {% if item.assignments %}
+        <h6 class="fw-bold mb-3">Assignments</h6>
+        <div class="table-responsive mb-4">
+            <table class="table table-sm">
+                <thead><tr><th>Assignment</th><th>Max Marks</th><th>Your Score</th><th>Feedback</th></tr></thead>
+                <tbody>
+                    {% for ag in item.assignments %}
+                    <tr>
+                        <td>{{ ag.assignment.title }}</td>
+                        <td>{{ ag.assignment.max_marks }}</td>
+                        <td>
+                            {% if ag.submission and ag.submission.grade is not none %}
+                            <span class="badge bg-primary">{{ ag.submission.grade }}/{{ ag.assignment.max_marks }}</span>
+                            {% elif ag.submission %}
+                            <span class="badge bg-secondary">Grading</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Not Submitted</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ ag.submission.feedback or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Quiz Grades -->
+        {% if item.quizzes %}
+        <h6 class="fw-bold mb-3">Quizzes</h6>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead><tr><th>Quiz</th><th>Total Marks</th><th>Your Score</th><th>Percentage</th></tr></thead>
+                <tbody>
+                    {% for qg in item.quizzes %}
+                    <tr>
+                        <td>{{ qg.quiz.title }}</td>
+                        <td>{{ qg.quiz.max_marks }}</td>
+                        <td>
+                            {% if qg.attempt %}
+                            <span class="badge bg-primary">{{ qg.attempt.score }}/{{ qg.attempt.total_marks }}</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Not Attempted</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if qg.attempt %}
+                            {{ (qg.attempt.score / qg.attempt.total_marks * 100)|round(1) }}%
+                            {% else %}-{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-light text-center py-5">
+    <i class="bi bi-journal-text fs-1 text-muted mb-3 d-block"></i>
+    <h5>No grades yet</h5>
+    <p class="text-muted">Enroll in courses to see your grades here.</p>
+</div>
+{% endfor %}
+{% endblock %}

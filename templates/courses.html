@@ -1,0 +1,673 @@
+{% extends "base.html" %}
+
+{% block title %}All Courses | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Hero ── */
+    .courses-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #1A1A2E 100%);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .courses-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle at 60% 40%, rgba(245,197,24,0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .courses-hero h1 { font-size: 2.8rem; color: var(--primary-gold); font-weight: 800; margin-bottom: 0.75rem; }
+    .courses-hero p  { font-size: 1.1rem; opacity: 0.85; max-width: 600px; margin: 0 auto; }
+    .hero-stats { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; flex-wrap: wrap; }
+    .hero-stat strong { display: block; font-size: 1.8rem; color: var(--primary-gold); font-weight: 800; }
+    .hero-stat span   { font-size: 0.85rem; opacity: 0.7; }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 0;
+        position: sticky;
+        top: 70px;
+        z-index: 100;
+    }
+    .filter-bar .container { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .filter-btn {
+        padding: 0.38rem 0.9rem;
+        border-radius: 2rem;
+        border: 2px solid #e2e8f0;
+        background: white;
+        color: var(--dark);
+        font-weight: 500;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: 0.2s;
+        font-family: 'Outfit', sans-serif;
+    }
+    .filter-btn:hover, .filter-btn.active {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+    }
+
+    /* ── Main ── */
+    .courses-main { padding: 2.5rem 0 4rem; }
+
+    /* ── 4-per-row flat grid ── */
+    .all-courses-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ── Card ── */
+    .course-card {
+        background: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #f0f0f0;
+        position: relative;
+    }
+    .course-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        border-color: var(--primary-gold);
+    }
+    .course-img-wrap { position: relative; overflow: hidden; flex-shrink: 0; }
+    .course-img-wrap img {
+        width: 100%; height: 155px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+        display: block;
+    }
+    .course-card:hover .course-img-wrap img { transform: scale(1.06); }
+    .category-tag {
+        position: absolute; top: 0.75rem; left: 0.75rem;
+        background: var(--primary-blue); color: white;
+        padding: 0.2rem 0.65rem; border-radius: 0.3rem;
+        font-size: 0.7rem; font-weight: 600;
+    }
+    /* NEW badge for DSA & CRT */
+    .new-badge {
+        position: absolute; top: 0.75rem; right: 0.75rem;
+        background: #10b981; color: white;
+        padding: 0.18rem 0.6rem; border-radius: 0.3rem;
+        font-size: 0.68rem; font-weight: 800;
+        letter-spacing: 0.04em;
+    }
+
+    /* Pricing block on image */
+    .price-block {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        background: linear-gradient(to top, rgba(10,38,71,0.93), transparent);
+        padding: 1.2rem 0.75rem 0.55rem;
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+    .price-pill {
+        font-size: 0.66rem;
+        font-weight: 700;
+        padding: 0.16rem 0.5rem;
+        border-radius: 0.3rem;
+        white-space: nowrap;
+    }
+    .price-online  { background: #dbeafe; color: #1e3a8a; }
+    .price-offline { background: #fce7f3; color: #9d174d; }
+    .price-hybrid  { background: #d1fae5; color: #064e3b; }
+
+    .course-content {
+        padding: 1.1rem;
+        display: flex; flex-direction: column; flex: 1;
+    }
+    .course-content h3 {
+        font-size: 0.96rem; color: var(--primary-blue);
+        font-weight: 700; margin-bottom: 0.45rem; line-height: 1.4;
+    }
+    .mode-pills { display: flex; gap: 0.3rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+    .mode-pill  { font-size: 0.66rem; padding: 0.12rem 0.5rem; border-radius: 0.25rem; font-weight: 600; }
+    .pill-online  { background: #dbeafe; color: #1d4ed8; }
+    .pill-offline { background: #fce7f3; color: #be185d; }
+    .pill-hybrid  { background: #d1fae5; color: #065f46; }
+    .course-content p {
+        color: #64748b; font-size: 0.81rem;
+        line-height: 1.55; margin-bottom: 0.7rem; flex: 1;
+    }
+    .course-tools { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.85rem; }
+    .tool-chip {
+        background: #f1f5f9; color: #475569;
+        padding: 0.12rem 0.5rem; border-radius: 0.25rem;
+        font-size: 0.68rem; font-weight: 500;
+    }
+    .course-meta {
+        display: flex; justify-content: space-between; align-items: center;
+        padding-top: 0.65rem; border-top: 1px solid #f0f0f0; margin-top: auto;
+    }
+    .duration-badge {
+        background: #f0fdf4; color: #16a34a;
+        padding: 0.18rem 0.6rem; border-radius: 0.3rem;
+        font-size: 0.71rem; font-weight: 600;
+    }
+    .btn-outline-gold {
+        border: 2px solid var(--primary-gold); background: transparent;
+        padding: 0.28rem 0.85rem; border-radius: 2rem;
+        font-weight: 600; transition: 0.25s;
+        color: var(--primary-blue); text-decoration: none;
+        font-size: 0.76rem; white-space: nowrap;
+        font-family: 'Outfit', sans-serif;
+    }
+    .btn-outline-gold:hover { background: var(--primary-gold); color: black; }
+
+    /* ══ COMBO CARD ══ */
+    .combo-section { margin-top: 2.5rem; }
+    .combo-section-label { text-align: center; margin-bottom: 1.25rem; }
+    .combo-section-label h2 {
+        font-size: 1.5rem; color: var(--primary-blue); font-weight: 800;
+        display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .combo-section-label h2::before,
+    .combo-section-label h2::after {
+        content: ''; display: inline-block;
+        width: 50px; height: 3px;
+        background: var(--primary-gold); border-radius: 3px;
+    }
+    .combo-card {
+        background: linear-gradient(135deg, #0A2647 0%, #1B3A5C 60%, #0A2647 100%);
+        border-radius: 1.2rem; overflow: hidden;
+        border: 2px solid var(--primary-gold);
+        box-shadow: 0 10px 40px rgba(10,38,71,0.25);
+        display: grid; grid-template-columns: 1fr 1fr;
+        position: relative; transition: all 0.3s;
+    }
+    .combo-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(10,38,71,0.35); }
+    .combo-card::before {
+        content: '';
+        position: absolute; top: -60px; right: -60px;
+        width: 220px; height: 220px;
+        background: radial-gradient(circle, rgba(245,197,24,0.12) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .combo-badge {
+        position: absolute; top: 1.2rem; right: 1.2rem;
+        background: #ef4444; color: white;
+        font-size: 0.72rem; font-weight: 800;
+        padding: 0.3rem 0.9rem; border-radius: 2rem;
+        letter-spacing: 0.05em; animation: pulse 1.8s infinite; z-index: 2;
+    }
+    @keyframes pulse {
+        0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+        50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+    }
+    .combo-left { padding: 2rem 2rem 2rem 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+    .combo-left h3 { font-size: 1.5rem; color: var(--primary-gold); font-weight: 800; margin-bottom: 0.5rem; line-height: 1.3; }
+    .combo-tagline { color: rgba(255,255,255,0.85); font-size: 0.88rem; margin-bottom: 1.2rem; line-height: 1.6; }
+    .combo-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.4rem; }
+    .combo-topic {
+        background: rgba(245,197,24,0.15); border: 1px solid rgba(245,197,24,0.35);
+        color: var(--primary-gold); padding: 0.25rem 0.7rem; border-radius: 2rem;
+        font-size: 0.75rem; font-weight: 600;
+    }
+    .combo-duration { color: rgba(255,255,255,0.7); font-size: 0.82rem; margin-bottom: 1.2rem; }
+    .combo-duration strong { color: white; }
+    .btn-combo {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        background: var(--primary-gold); color: #0A2647;
+        padding: 0.75rem 2rem; border-radius: 2rem;
+        font-weight: 800; font-size: 0.95rem; text-decoration: none;
+        transition: 0.3s; width: fit-content; font-family: 'Outfit', sans-serif;
+    }
+    .btn-combo:hover { background: #FFD700; transform: scale(1.04); color: #0A2647; }
+    .combo-right { padding: 2rem 2.5rem 2rem 1.5rem; display: flex; flex-direction: column; justify-content: center; gap: 1rem; }
+    .combo-price-row {
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 0.8rem; padding: 1rem 1.25rem;
+        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .combo-price-row.highlight { background: rgba(245,197,24,0.12); border-color: rgba(245,197,24,0.4); }
+    .combo-price-label { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.75); display: flex; align-items: center; gap: 0.4rem; }
+    .combo-price-label .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-online  { background: #60a5fa; }
+    .dot-offline { background: var(--primary-gold); }
+    .dot-hybrid  { background: #34d399; }
+    .combo-price-amount { text-align: right; }
+    .combo-price-amount .actual { font-size: 1.25rem; font-weight: 800; color: white; line-height: 1; }
+    .combo-price-amount .actual.gold { color: var(--primary-gold); }
+    .combo-price-amount .strikethrough { font-size: 0.78rem; color: rgba(255,255,255,0.4); text-decoration: line-through; display: block; margin-top: 0.15rem; }
+    .combo-price-amount .save-tag { font-size: 0.68rem; font-weight: 700; background: #ef4444; color: white; padding: 0.1rem 0.45rem; border-radius: 0.25rem; display: inline-block; margin-top: 0.2rem; }
+
+    /* ── CTA Banner ── */
+    .cta-banner { background: linear-gradient(135deg, var(--primary-blue), #1B3A5C); border-radius: 1.2rem; padding: 2.5rem; text-align: center; margin-top: 3rem; }
+    .cta-banner h2 { color: var(--primary-gold); font-size: 1.8rem; margin-bottom: 0.75rem; }
+    .cta-banner p  { color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .cta-btns a { padding: 0.75rem 2rem; border-radius: 2rem; font-weight: 700; text-decoration: none; transition: 0.3s; font-family: 'Outfit', sans-serif; }
+    .cta-btn-gold    { background: var(--primary-gold); color: black; }
+    .cta-btn-gold:hover { background: #e6b800; }
+    .cta-btn-outline { background: transparent; color: white; border: 2px solid white; }
+    .cta-btn-outline:hover { background: white; color: var(--primary-blue); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1200px) { .all-courses-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 900px)  { .all-courses-grid { grid-template-columns: repeat(2, 1fr); } .courses-hero h1 { font-size: 2rem; } .combo-card { grid-template-columns: 1fr; } .combo-right { padding: 0 2rem 2rem; } }
+    @media (max-width: 560px)  { .all-courses-grid { grid-template-columns: 1fr; } .hero-stats { gap: 1.5rem; } .combo-left { padding: 2rem 1.5rem 1rem; } .combo-right { padding: 0 1.5rem 1.5rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="courses-hero">
+    <div class="container">
+        <h1>🎓 Our Courses</h1>
+        <p>Choose your learning path – Online, Offline, or Hybrid. Get industry-ready skills in 60 days.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><strong>10+</strong><span>Programs</span></div>
+            <div class="hero-stat"><strong>60</strong><span>Days Duration</span></div>
+            <div class="hero-stat"><strong>3</strong><span>Learning Modes</span></div>
+            <div class="hero-stat"><strong>100%</strong><span>Placement Support</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div class="container">
+        <button class="filter-btn active" onclick="filterCat('all',this)">All Courses</button>
+        <button class="filter-btn" onclick="filterCat('Programming',this)">💻 Programming</button>
+        <button class="filter-btn" onclick="filterCat('DSA',this)">🧩 DSA</button>
+        <button class="filter-btn" onclick="filterCat('Full Stack',this)">🌐 Full Stack</button>
+        <button class="filter-btn" onclick="filterCat('Data Science',this)">📊 Data Science</button>
+        <button class="filter-btn" onclick="filterCat('AI & ML',this)">🤖 AI & ML</button>
+        <button class="filter-btn" onclick="filterCat('Generative AI',this)">✨ Generative AI</button>
+        <button class="filter-btn" onclick="filterCat('Cloud & DevOps',this)">☁️ Cloud & DevOps</button>
+        <button class="filter-btn" onclick="filterCat('Cyber Security',this)">🔐 Cyber Security</button>
+        <button class="filter-btn" onclick="filterCat('CRT',this)">🎯 CRT</button>
+    </div>
+</div>
+
+<!-- All Courses -->
+<div class="courses-main">
+<div class="container">
+
+    <div class="all-courses-grid" id="coursesGrid">
+
+        <!-- 1. Python Programming -->
+        <div class="course-card" data-category="Programming">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=200&fit=crop" alt="Python Programming">
+                <span class="category-tag">Programming</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Python Programming</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Master Python from basics to advanced — OOP, file handling, database connectivity, error handling, and real-world projects.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">Python 3.x</span>
+                    <span class="tool-chip">PyCharm</span>
+                    <span class="tool-chip">Jupyter</span>
+                    <span class="tool-chip">Git</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/python-programming" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. DSA — NEW -->
+        <div class="course-card" data-category="DSA">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=200&fit=crop" alt="Data Structures & Algorithms">
+                <span class="category-tag">DSA</span>
+                <span class="new-badge">NEW</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Data Structures & Algorithms</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Master arrays, linked lists, trees, graphs, sorting, searching, and dynamic programming to crack top tech interviews.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">Python / Java</span>
+                    <span class="tool-chip">LeetCode</span>
+                    <span class="tool-chip">HackerRank</span>
+                    <span class="tool-chip">VS Code</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/dsa" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Full Stack -->
+        <div class="course-card" data-category="Full Stack">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=400&h=200&fit=crop" alt="Full Stack Web Development">
+                <span class="category-tag">Full Stack</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Full Stack Web Development</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Become a complete MERN stack developer — React, Node.js, Express, MongoDB, authentication, and cloud deployment.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">React.js</span>
+                    <span class="tool-chip">Node.js</span>
+                    <span class="tool-chip">MongoDB</span>
+                    <span class="tool-chip">Postman</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/full-stack-web" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Data Science -->
+        <div class="course-card" data-category="Data Science">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" alt="Data Science & Analytics">
+                <span class="category-tag">Data Science</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Data Science & Analytics</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Learn data analysis, visualization, statistics, SQL, and machine learning fundamentals with industry-relevant projects.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">Pandas</span>
+                    <span class="tool-chip">Seaborn</span>
+                    <span class="tool-chip">Tableau</span>
+                    <span class="tool-chip">Scikit-learn</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/data-science" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. AI & ML -->
+        <div class="course-card" data-category="AI & ML">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&h=200&fit=crop" alt="AI & ML">
+                <span class="category-tag">AI & ML</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Artificial Intelligence & Machine Learning</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Deep dive into ML algorithms, neural networks, NLP, computer vision, and deploy real-world AI applications.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">TensorFlow</span>
+                    <span class="tool-chip">PyTorch</span>
+                    <span class="tool-chip">Keras</span>
+                    <span class="tool-chip">Google Colab</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/ai-ml" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Generative AI -->
+        <div class="course-card" data-category="Generative AI">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=200&fit=crop" alt="Generative AI & Prompt Engineering">
+                <span class="category-tag">Generative AI</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Generative AI & Prompt Engineering</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Master LLMs, transformers, GPT/LLaMA, prompt engineering, LangChain, and build production-ready AI applications.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">OpenAI API</span>
+                    <span class="tool-chip">LangChain</span>
+                    <span class="tool-chip">HuggingFace</span>
+                    <span class="tool-chip">Streamlit</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/generative-ai" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Cloud & DevOps -->
+        <div class="course-card" data-category="Cloud & DevOps">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=400&h=200&fit=crop" alt="Cloud Computing & DevOps">
+                <span class="category-tag">Cloud & DevOps</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Cloud Computing & DevOps</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Learn AWS, Docker, Kubernetes, Jenkins CI/CD pipelines, Terraform, and production-grade cloud architecture.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">AWS</span>
+                    <span class="tool-chip">Docker</span>
+                    <span class="tool-chip">Kubernetes</span>
+                    <span class="tool-chip">Jenkins</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/cloud-devops" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Cyber Security -->
+        <div class="course-card" data-category="Cyber Security">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=200&fit=crop" alt="Cyber Security">
+                <span class="category-tag">Cyber Security</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Cyber Security Fundamentals</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Learn network security, ethical hacking, cryptography, web security, risk management, and incident response.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">Kali Linux</span>
+                    <span class="tool-chip">Wireshark</span>
+                    <span class="tool-chip">Metasploit</span>
+                    <span class="tool-chip">Burp Suite</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/cyber-security" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. CRT — NEW -->
+        <div class="course-card" data-category="CRT">
+            <div class="course-img-wrap">
+                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=200&fit=crop" alt="Campus Recruitment Training">
+                <span class="category-tag">CRT</span>
+                <span class="new-badge">NEW</span>
+                <div class="price-block">
+                    <span class="price-pill price-online">🌐 Online: ₹2,999</span>
+                    <span class="price-pill price-offline">🏫 Offline: ₹9,999</span>
+                    <span class="price-pill price-hybrid">🔀 Hybrid: ₹7,999</span>
+                </div>
+            </div>
+            <div class="course-content">
+                <h3>Campus Recruitment Training (CRT)</h3>
+                <div class="mode-pills">
+                    <span class="mode-pill pill-online">Online</span>
+                    <span class="mode-pill pill-offline">Offline</span>
+                    <span class="mode-pill pill-hybrid">Hybrid</span>
+                </div>
+                <p>Complete placement prep — aptitude, reasoning, verbal ability, group discussions, technical rounds, and mock interviews with top MNCs.</p>
+                <div class="course-tools">
+                    <span class="tool-chip">Aptitude</span>
+                    <span class="tool-chip">Reasoning</span>
+                    <span class="tool-chip">Mock Interviews</span>
+                    <span class="tool-chip">GD Training</span>
+                </div>
+                <div class="course-meta">
+                    <span class="duration-badge">⏱ 60 Days</span>
+                    <a href="/course/crt" class="btn-outline-gold">View Details →</a>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end .all-courses-grid -->
+
+    <!-- ══ SPECIAL COMBO COURSE ══ -->
+    <div class="combo-section" id="comboSection">
+        <div class="combo-section-label">
+            <h2>🌟 Special Combo Package 🌟</h2>
+        </div>
+        <div class="combo-card">
+            <span class="combo-badge">🔥 BEST VALUE</span>
+            <div class="combo-left">
+                <h3>AI Automation Master Program</h3>
+                <p class="combo-tagline">
+                    The future belongs to people who can <strong style="color:var(--primary-gold);">Automate</strong>, not just code.
+                    Industries today need professionals who automate workflows using AI — this program transforms you into one.
+                </p>
+                <div class="combo-topics">
+                    <span class="combo-topic">🐍 Python</span>
+                    <span class="combo-topic">📊 Data Science</span>
+                    <span class="combo-topic">🤖 Machine Learning</span>
+                    <span class="combo-topic">🧠 Deep Learning</span>
+                    <span class="combo-topic">🌐 Artificial Intelligence</span>
+                    <span class="combo-topic">🕵️ Agentic AI</span>
+                    <span class="combo-topic">✨ Prompt Engineering</span>
+                </div>
+                <p class="combo-duration">
+                    Duration: <strong>6 Months</strong> &nbsp;|&nbsp; Mode: <strong>Online / Offline / Hybrid</strong>
+                </p>
+                <a href="/registration" class="btn-combo">🚀 Enroll Now</a>
+            </div>
+            <div class="combo-right">
+                <div class="combo-price-row">
+                    <div class="combo-price-label"><span class="dot dot-online"></span> Online</div>
+                    <div class="combo-price-amount"><span class="actual">₹7,999</span></div>
+                </div>
+                <div class="combo-price-row highlight">
+                    <div class="combo-price-label"><span class="dot dot-offline"></span> Offline</div>
+                    <div class="combo-price-amount">
+                        <span class="actual gold">₹14,999</span>
+                        <span class="strikethrough">₹29,999</span>
+                        <span class="save-tag">SAVE 50%</span>
+                    </div>
+                </div>
+                <div class="combo-price-row">
+                    <div class="combo-price-label"><span class="dot dot-hybrid"></span> Hybrid</div>
+                    <div class="combo-price-amount"><span class="actual">₹11,999</span></div>
+                </div>
+                <p style="color:rgba(255,255,255,0.45); font-size:0.72rem; margin-top:0.5rem; text-align:center;">
+                    * Offline limited seats. EMI available on request.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Banner -->
+    <div class="cta-banner">
+        <h2>Not sure which course to pick?</h2>
+        <p>Talk to our counsellors and get a free career guidance session tailored to your goals.</p>
+        <div class="cta-btns">
+            <a href="/contact" class="cta-btn-gold">📞 Talk to Counsellor</a>
+            <a href="/registration" class="cta-btn-outline">✍️ Register Now</a>
+        </div>
+    </div>
+
+</div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterCat(cat, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.style.display = (cat === 'all' || card.dataset.category === cat) ? 'flex' : 'none';
+        });
+        document.getElementById('comboSection').style.display = 'block';
+    }
+</script>
+{% endblock %}

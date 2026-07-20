@@ -1,0 +1,45 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "course_id": "full-stack-web",
+    "progress": 35,
+    "status": "active",
+    "enrolled_at": "2026-07-10T12:21:44.682Z",
+    "course": {
+      "id": "full-stack-web",
+      "category": "Full Stack",
+      "name": "Full Stack Web Development",
+      "title": "Full Stack Web Development",
+      "description": "Become a complete web developer with MERN stack, responsive design, and deployment.",
+      "duration": "60 days",
+      "mode": "Online / Offline / Hybrid",
+      "price_online": "Rs. 2,999",
+      "price_offline": "Rs. 9,999",
+      "price_hybrid": "Rs. 7,999",
+      "syllabus": [
+        "HTML/CSS/JS",
+        "React.js",
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+        "Authentication",
+        "Deployment"
+      ],
+      "tools": [
+        "VS Code",
+        "MongoDB Compass",
+        "Postman",
+        "Git/GitHub"
+      ],
+      "projects": [
+        "E-commerce Site",
+        "Task Manager",
+        "Chat Application",
+        "Portfolio Builder"
+      ],
+      "image": "https://picsum.photos/id/1/300/200",
+      "thumbnail": "https://picsum.photos/id/1/300/200"
+    }
+  }
+]

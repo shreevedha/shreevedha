@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "icon": "users",
+    "title": "Industry Trainers",
+    "description": "4+ years corporate experience"
+  },
+  {
+    "id": "2",
+    "icon": "eye",
+    "title": "Live Monitoring",
+    "description": "Daily progress tracking"
+  },
+  {
+    "id": "3",
+    "icon": "file-text",
+    "title": "Daily Assignments",
+    "description": "Topic-wise practice"
+  },
+  {
+    "id": "4",
+    "icon": "calendar",
+    "title": "Weekly Exams",
+    "description": "Regular assessments"
+  },
+  {
+    "id": "5",
+    "icon": "briefcase",
+    "title": "Industrial Projects",
+    "description": "SIH & SDG collaborations"
+  },
+  {
+    "id": "6",
+    "icon": "award",
+    "title": "Certifications",
+    "description": "Internship + Merit + College"
+  },
+  {
+    "id": "7",
+    "icon": "linkedin",
+    "title": "Personal Branding",
+    "description": "LinkedIn, GitHub, Portfolio"
+  },
+  {
+    "id": "8",
+    "icon": "briefcase",
+    "title": "100% Job Assistance",
+    "description": "Placement support"
+  }
+]

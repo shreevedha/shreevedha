@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "event-1",
+    "title": "Full Stack Web Development Workshop",
+    "description": "Learn the MERN stack in our interactive live session with hands-on labs and deployment tips.",
+    "date": "2026-08-15",
+    "time": "10:00 AM - 1:00 PM",
+    "location": "Online / Zoom",
+    "image_url": "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=600",
+    "link": "/registration",
+    "timestamp": "2026-07-19T20:40:00Z"
+  },
+  {
+    "_id": "event-2",
+    "title": "Python & AI Bootcamp",
+    "description": "Comprehensive weekend bootcamp covering Python fundamentals and modern AI API integrations.",
+    "date": "2026-08-22",
+    "time": "2:00 PM - 5:00 PM",
+    "location": "Guntur Office",
+    "image_url": "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=600",
+    "link": "/registration",
+    "timestamp": "2026-07-19T20:41:00Z"
+  }
+]

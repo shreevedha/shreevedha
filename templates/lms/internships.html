@@ -1,0 +1,131 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Internships{% endblock %}
+{% block page_title %}Internship Programs{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-3" style="color: var(--primary-blue);">Why Intern with Shreevedha?</h4>
+                <p class="text-muted">Our internships are designed for students and fresh graduates to bridge the gap between academic knowledge and corporate expectations. You'll work under expert mentors, contribute to live projects, and receive a certificate of completion. Top performers get pre-placement offers.</p>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                            <i class="bi bi-clock-history fs-2 text-warning"></i>
+                            <div><h6 class="fw-bold m-0">3-6 Months</h6><small class="text-muted">Flexible duration</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                            <i class="bi bi-people fs-2 text-primary"></i>
+                            <div><h6 class="fw-bold m-0">Live Projects</h6><small class="text-muted">Work on real client tasks</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                            <i class="bi bi-award fs-2 text-success"></i>
+                            <div><h6 class="fw-bold m-0">Certificate</h6><small class="text-muted">Industry-recognized</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                            <i class="bi bi-briefcase fs-2 text-danger"></i>
+                            <div><h6 class="fw-bold m-0">Stipend</h6><small class="text-muted">Performance-based</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Available Domains</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100">
+                            <h6 class="fw-bold">Full Stack Development</h6>
+                            <p class="text-muted small mb-0">MERN stack, responsive design, deployment, and real-world web applications.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100">
+                            <h6 class="fw-bold">Data Science & Analytics</h6>
+                            <p class="text-muted small mb-0">Python, NumPy, Pandas, visualization, statistics, and ML fundamentals.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100">
+                            <h6 class="fw-bold">AI / Machine Learning</h6>
+                            <p class="text-muted small mb-0">Neural networks, deep learning, TensorFlow, NLP, and computer vision.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100">
+                            <h6 class="fw-bold">Cloud & DevOps</h6>
+                            <p class="text-muted small mb-0">AWS, Docker, Kubernetes, CI/CD pipelines, and cloud architecture.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100">
+                            <h6 class="fw-bold">Cyber Security</h6>
+                            <p class="text-muted small mb-0">Network security, ethical hacking, cryptography, and security audits.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded h-100">
+                            <h6 class="fw-bold">Digital Marketing</h6>
+                            <p class="text-muted small mb-0">SEO, social media marketing, content strategy, and analytics.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Apply for Internship</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('registration') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="course" value="Internship Program">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" name="name" class="form-control" required value="{{ current_user.name }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="email" class="form-control" required value="{{ current_user.email }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone *</label>
+                        <input type="tel" name="phone" class="form-control" required value="{{ current_user.phone or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Internship Domain</label>
+                        <select name="internship_domain" class="form-select">
+                            <option>Full Stack Development</option>
+                            <option>Data Science & Analytics</option>
+                            <option>AI / Machine Learning</option>
+                            <option>Cloud & DevOps</option>
+                            <option>Cyber Security</option>
+                            <option>Digital Marketing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Additional Message</label>
+                        <textarea name="message" class="form-control" rows="3" placeholder="Tell us why you're interested..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100">Apply Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

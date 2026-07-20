@@ -1,0 +1,26 @@
+[
+  {
+    "title": "E-Commerce Platform",
+    "description": "A complete MERN stack e-commerce application with payment gateway integration and admin dashboard.",
+    "github_link": "https://github.com/shreevedha",
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:58.970001",
+    "_id": 1
+  },
+  {
+    "title": "AI Chatbot Assistant",
+    "description": "An intelligent chatbot built using Python, NLP, and OpenAI API for customer support automation.",
+    "github_link": "",
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:58.971050",
+    "_id": 2
+  },
+  {
+    "title": "Student Management System",
+    "description": "Full-fledged student management portal with attendance, grades, and report generation.",
+    "github_link": "https://github.com/shreevedha",
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:58.988633",
+    "_id": 3
+  }
+]

@@ -1,0 +1,130 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Courses</h6>
+                    <h3 class="fw-bold m-0" style="color: var(--primary-blue);">{{ total_courses }}</h3>
+                </div>
+                <i class="bi bi-book fs-1 text-warning"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Completed</h6>
+                    <h3 class="fw-bold m-0" style="color: var(--primary-blue);">{{ completed }}</h3>
+                </div>
+                <i class="bi bi-check-circle fs-1 text-success"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Certificates</h6>
+                    <h3 class="fw-bold m-0" style="color: var(--primary-blue);">{{ certificates }}</h3>
+                </div>
+                <i class="bi bi-award fs-1 text-primary"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Pending</h6>
+                    <h3 class="fw-bold m-0" style="color: var(--primary-blue);">{{ assignments_pending }}</h3>
+                </div>
+                <i class="bi bi-journal-text fs-1 text-danger"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Points</h6>
+                    <h3 class="fw-bold m-0" style="color: var(--primary-blue);">{{ user_points }}</h3>
+                </div>
+                <i class="bi bi-star-fill fs-1 text-warning"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Rank</h6>
+                    <h3 class="fw-bold m-0" style="color: var(--primary-blue);">#{{ user_rank }}</h3>
+                </div>
+                <i class="bi bi-trophy fs-1 text-warning"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">My Enrolled Courses</h5>
+            </div>
+            <div class="card-body">
+                {% if enrollments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr><th>Course</th><th>Progress</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for e in enrollments %}
+                            <tr>
+                                <td>{{ e.course.title }}</td>
+                                <td>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: {{ e.progress }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ e.progress }}%</small>
+                                </td>
+                                <td><span class="badge bg-{{ 'success' if e.status == 'completed' else 'primary' }}">{{ e.status|title }}</span></td>
+                                <td><a href="{{ url_for('lms_course_detail', course_id=e.course_id) }}" class="btn btn-sm btn-primary-custom">View</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-book fs-1 d-block mb-2"></i>
+                    No enrolled courses yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Quick Links</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('lms_courses') }}" class="btn btn-outline-primary"><i class="bi bi-book"></i> Browse Courses</a>
+                    <a href="{{ url_for('lms_assignments') }}" class="btn btn-outline-primary"><i class="bi bi-journal-check"></i> My Assignments</a>
+                    <a href="{{ url_for('lms_certificates') }}" class="btn btn-outline-primary"><i class="bi bi-award"></i> My Certificates</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

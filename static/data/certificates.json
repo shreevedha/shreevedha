@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "certificate_id": "CERT-FSW-001",
+    "user_id": 1,
+    "course_id": "full-stack-web",
+    "issue_date": "2026-07-15T10:00:00.000Z",
+    "student": { "name": "Jane Student" },
+    "course": { "title": "Full Stack Web Development" }
+  }
+]

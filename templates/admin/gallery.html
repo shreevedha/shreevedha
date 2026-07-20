@@ -1,0 +1,127 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Gallery Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Gallery Management</h1>
+    <p>Add or remove gallery projects and images</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Upload New Image</div>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_gallery') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Project Title *</label>
+                <input type="text" name="title" required placeholder="e.g., AI-Powered Chatbot">
+            </div>
+            <div class="form-group">
+                <label>GitHub Link (optional)</label>
+                <input type="url" name="github_link" placeholder="https://github.com/...">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" rows="3" required placeholder="Brief description of the project..."></textarea>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Upload Image *</label>
+                <input type="file" name="image" accept="image/*" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add to Gallery</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Gallery Items ({{ projects|length }})</div>
+    </div>
+    {% if projects %}
+    <div class="admin-gallery-grid">
+        {% for p in projects %}
+        <div class="admin-gallery-card">
+            <img src="{{ url_for('static', filename='uploads/gallery/' + p.image_filename) }}" alt="{{ p.title }}">
+            <div class="info">
+                <h4>{{ p.title }}</h4>
+                <p>{{  (p.description or '').slice(0, 60)  }}{% if p.description|length > 60 %}...{% endif %}</p>
+            </div>
+            <div class="actions">
+                {% if p.github_link %}
+                <a href="{{ p.github_link }}" target="_blank" class="btn btn-outline" style="font-size:0.75rem;"><i data-lucide="github"></i> Code</a>
+                {% endif %}
+                <button type="button" class="btn btn-primary edit-gallery-btn" style="font-size:0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;"
+                    data-id="{{ p._id }}"
+                    data-title="{{ p.title }}"
+                    data-github="{{ p.github_link or '' }}"
+                    data-description="{{ p.description }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                <form method="POST" action="{{ url_for('admin_delete_gallery', id=p._id) }}" onsubmit="return confirm('Delete this item?');" style="display:inline; flex:1;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger" style="width:100%; font-size:0.75rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No gallery items yet. Upload your first image above.</div>
+    {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editGalleryModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeEditGalleryModal()">&times;</button>
+        <h3>Edit Gallery Item</h3>
+        <form method="POST" id="editGalleryForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Project Title *</label>
+                    <input type="text" name="title" id="editGalleryTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>GitHub Link (optional)</label>
+                    <input type="url" name="github_link" id="editGalleryGithub">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description *</label>
+                <textarea name="description" id="editGalleryDescription" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Replace Image (leave empty to keep current)</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Update Gallery Item</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    document.querySelectorAll('.edit-gallery-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('editGalleryForm').action = '/admin/gallery/' + id + '/update';
+            document.getElementById('editGalleryTitle').value = this.dataset.title;
+            document.getElementById('editGalleryGithub').value = this.dataset.github;
+            document.getElementById('editGalleryDescription').value = this.dataset.description;
+            document.getElementById('editGalleryModal').classList.add('active');
+        });
+    });
+    function closeEditGalleryModal() {
+        document.getElementById('editGalleryModal').classList.remove('active');
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editGalleryModal')) closeEditGalleryModal();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Q&A{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Course Q&A</h1>
+        <p>Answer student questions</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><div class="card-title">All Questions ({{ questions|length }})</div></div>
+    {% if not questions %}
+    <div class="empty-state"><i data-lucide="messages-square"></i><p>No questions yet.</p></div>
+    {% endif %}
+    {% for q in questions %}
+    <div style="padding:1rem; margin-bottom:1rem; border:1px solid var(--border); border-radius:0.6rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+            <div class="table-actions">
+                <span class="badge badge-info">{{ q.course.title }}</span>
+                <span class="badge badge-{{ 'success' if q.is_answered else 'warning' }}">{{ 'Answered' if q.is_answered else 'Pending' }}</span>
+            </div>
+            <small class="text-muted">{{ q.student.name }} | {{ q.created_at.strftime('%Y-%m-%d') }}</small>
+        </div>
+        <p style="font-weight:600; margin-top:0.75rem;">Q: {{ q.question }}</p>
+        {% if q.is_answered %}
+        <div style="padding:0.6rem 0.75rem; background:#f8fafc; border-radius:0.5rem; margin-top:0.5rem;">
+            <p style="color:#059669; margin:0;"><strong>A:</strong> {{ q.answer }}</p>
+        </div>
+        {% else %}
+        <form method="POST" action="{{ url_for('admin_answer_question', question_id=q.id) }}" style="margin-top:0.5rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <textarea name="answer" rows="2" placeholder="Type your answer..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Post Answer</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Register | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reg-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+    }
+    .reg-hero h1 {
+        font-size: 2.5rem;
+        color: var(--primary-gold);
+    }
+    .reg-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .reg-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        color: var(--primary-blue);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-gold);
+        box-shadow: 0 0 0 3px rgba(245,197,24,0.2);
+    }
+    .payment-info {
+        background: #F8FAFC;
+        border-radius: 0.8rem;
+        padding: 1.2rem;
+        margin: 1.5rem 0;
+        border-left: 4px solid var(--primary-gold);
+    }
+    .payment-info p {
+        margin: 0.5rem 0;
+    }
+    .upi-id {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        background: white;
+        display: inline-block;
+        padding: 0.2rem 0.8rem;
+        border-radius: 2rem;
+    }
+    .btn-submit {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 0.9rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .btn-submit:hover {
+        background: var(--primary-gold);
+        color: black;
+        transform: translateY(-2px);
+    }
+    .alert {
+        margin-top: 1rem;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+    }
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    .note {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    @media (max-width: 640px) {
+        .reg-card { padding: 1.5rem; }
+        .reg-hero h1 { font-size: 1.8rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="reg-hero">
+    <div class="container">
+        <h1>Student Registration</h1>
+        <p>Join Shreevedha and accelerate your career</p>
+    </div>
+</section>
+
+<div class="reg-container">
+    <div class="reg-card">
+        <form method="POST" action="{{ url_for('registration') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" name="name" required placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" name="email" required placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" name="phone" required placeholder="+91 XXXXX XXXXX">
+            </div>
+            <div class="form-group">
+                <label>Select Course *</label>
+                <select name="course" required>
+                    <option value="">-- Select a course --</option>
+                    <option>Python Programming</option>
+                    <option>Full Stack Development</option>
+                    <option>Data Science & Analytics</option>
+                    <option>Artificial Intelligence & ML</option>
+                    <option>Generative AI & Prompt Engineering</option>
+                    <option>Cloud Computing & DevOps</option>
+                    <option>Cyber Security Fundamentals</option>
+                    <option>UI/UX Design</option>
+                    <option>Digital Marketing</option>
+                    <option>Internship Program</option>
+                    <option>Workshop</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Preferred Mode</label>
+                <select name="mode">
+                    <option>Online</option>
+                    <option>Offline</option>
+                    <option>Hybrid</option>
+                </select>
+            </div>
+
+            <!-- Payment Details Section -->
+            <div class="payment-info">
+                <h4 style="color: var(--primary-gold); margin-bottom: 0.5rem;">💰 Payment Information</h4>
+                <p><strong>UPI ID:</strong> <span class="upi-id">7659827159@axl</span>(Google Pay / PhonePe / Paytm)</p>
+                <p><strong>UPI Link:</strong> <a href="upi://pay?pa=7659827159@ybl&pn=Shreevedha&am=2999&cu=INR" target="_blank" style="color: var(--primary-blue);">Click here to pay via UPI</a> (opens in UPI app)</p>
+                <p><strong>Amount:</strong> ₹2,999 (Online) / ₹9,999 (Offline) / ₹7,999 (Hybrid)</p>
+                <p style="margin-top: 0.8rem;"><strong>📸 After payment, upload screenshot below:</strong></p>
+                <input type="file" name="payment_screenshot" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i data-lucide="check-circle"></i> Submit Registration
+            </button>
+        </form>
+
+        {% set messages = get_flashed_messages({ with_categories: true }) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        
+
+        <div class="note">
+            <i data-lucide="shield"></i> Your data is secure. We'll contact you within 24 hours.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    // Auto-fill course from URL parameter if present (from courses page)
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseParam = urlParams.get('course');
+    if (courseParam) {
+        const courseSelect = document.querySelector('select[name="course"]');
+        if (courseSelect) {
+            for (let i = 0; i < courseSelect.options.length; i++) {
+                if (courseSelect.options[i].text === courseParam) {
+                    courseSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

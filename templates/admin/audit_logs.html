@@ -1,0 +1,51 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Audit Logs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Audit Logs</h1>
+        <p>Track all system activities</p>
+    </div>
+    <div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_audit_logs', q=q, export='csv') }}">
+            <i data-lucide="download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Recent Activity ({{ logs|length }} entries)</div>
+        <form method="GET" action="{{ url_for('admin_audit_logs') }}" class="d-flex gap-2" style="margin-left:auto;">
+            <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Filter by user or action…">
+            <button type="submit" class="btn btn-sm btn-primary">Search</button>
+            {% if q %}<a href="{{ url_for('admin_audit_logs') }}" class="btn btn-sm btn-outline-secondary">Clear</a>{% endif %}
+        </form>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>User</th><th>Action</th><th>IP Address</th><th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not logs %}
+                <tr><td colspan="5"><div class="empty-state"><i data-lucide="scroll-text"></i><p>No activity logged yet.</p></div></td></tr>
+                {% endif %}
+                {% for log in logs %}
+                <tr>
+                    <td>#{{ log.id }}</td>
+                    <td>{{ log.user }}</td>
+                    <td><span class="badge badge-info">{{ log.action }}</span></td>
+                    <td><code>{{ log.ip_address or '-' }}</code></td>
+                    <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M') if log.timestamp else '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

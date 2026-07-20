@@ -1,0 +1,205 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Live Track Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Live Track Management</h1>
+    <p>Add or remove live track events and updates</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Post New Event</div>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_livetrack') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Event Title *</label>
+                <input type="text" name="title" required placeholder="e.g., AI Workshop at College">
+            </div>
+            <div class="form-group">
+                <label>Event Date *</label>
+                <input type="date" name="event_date" required>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Update Type</label>
+                <select name="update_type">
+                    <option value="workshop">Workshop</option>
+                    <option value="hackathon">Hackathon</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="placement">Placement Drive</option>
+                    <option value="event">Event</option>
+                    <option value="announcement">Announcement</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Upload Image *</label>
+                <input type="file" name="image" accept="image/*" required>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Redirect/Payment Link URL (Optional)</label>
+                <input type="text" name="link_url" placeholder="e.g., https://... or /registration">
+            </div>
+            <div class="form-group">
+                <label>Link Button Text (Optional)</label>
+                <input type="text" name="link_text" placeholder="e.g., Pay Now / Visit / Register">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="3" placeholder="Tell us about the event..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post Event</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Live Track Events ({{ updates|length }})</div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Link / Action</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in updates %}
+                <tr>
+                    <td>
+                        {% if u.image_filename %}
+                        <img src="{{ url_for('static', filename='uploads/livetrack/' + u.image_filename) }}" alt="" style="width:60px; height:45px; object-fit:cover; border-radius:0.3rem;">
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.title }}</td>
+                    <td><span class="badge badge-muted">{{ u.update_type or u.category or 'event' }}</span></td>
+                    <td style="white-space:nowrap;">{{ u.event_date or '-' }}</td>
+                    <td style="max-width: 200px;">{{ u.description or '-' }}</td>
+                    <td>
+                        {% if u.link_url %}
+                        <span class="badge badge-info">{{ u.link_text or 'Visit' }}: {{ u.link_url }}</span>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="table-actions">
+                        <button type="button" class="btn btn-outline btn-sm edit-livetrack-btn"
+                            data-id="{{ u._id }}"
+                            data-title="{{ u.title }}"
+                            data-date="{{ u.event_date }}"
+                            data-type="{{ u.update_type or u.category or 'event' }}"
+                            data-description="{{ u.description or '' }}"
+                            data-linkurl="{{ u.link_url or '' }}"
+                            data-linktext="{{ u.link_text or '' }}"><i data-lucide="pencil"></i></button>
+                        <form method="POST" action="{{ url_for('admin_delete_livetrack', id=u._id) }}" onsubmit="return confirm('Delete this event?');" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i></button>
+                        </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7"><div class="empty-state"><i data-lucide="radio"></i><p>No events yet. Post your first event above.</p></div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editLivetrackModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeEditLivetrackModal()">&times;</button>
+        <h3>Edit Live Track Event</h3>
+        <form method="POST" id="editLivetrackForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" name="title" id="editLivetrackTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Event Date *</label>
+                    <input type="date" name="event_date" id="editLivetrackDate" required>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Update Type</label>
+                    <select name="update_type" id="editLivetrackType">
+                        <option value="workshop">Workshop</option>
+                        <option value="hackathon">Hackathon</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="placement">Placement Drive</option>
+                        <option value="event">Event</option>
+                        <option value="announcement">Announcement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Replace Image (leave empty to keep current)</label>
+                    <input type="file" name="image" accept="image/*">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Redirect/Payment Link URL (Optional)</label>
+                    <input type="text" name="link_url" id="editLivetrackLinkUrl" placeholder="e.g., https://... or /registration">
+                </div>
+                <div class="form-group">
+                    <label>Link Button Text (Optional)</label>
+                    <input type="text" name="link_text" id="editLivetrackLinkText" placeholder="e.g., Pay Now / Visit / Register">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" id="editLivetrackDescription" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Event</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    document.querySelectorAll('.edit-livetrack-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('editLivetrackForm').action = '/admin/livetrack/' + id + '/update';
+            document.getElementById('editLivetrackTitle').value = this.dataset.title;
+            document.getElementById('editLivetrackDate').value = this.dataset.date;
+            document.getElementById('editLivetrackType').value = this.dataset.type;
+            document.getElementById('editLivetrackDescription').value = this.dataset.description;
+            document.getElementById('editLivetrackLinkUrl').value = this.dataset.linkurl || '';
+            document.getElementById('editLivetrackLinkText').value = this.dataset.linktext || '';
+            document.getElementById('editLivetrackModal').classList.add('active');
+        });
+    });
+    function closeEditLivetrackModal() {
+        document.getElementById('editLivetrackModal').classList.remove('active');
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editLivetrackModal')) closeEditLivetrackModal();
+    });
+</script>
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>User Management</h1>
+        <p>Manage students, instructors, and admins</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Users ({{ users|length }})</div>
+        <div class="table-actions">
+            <a href="{{ url_for('admin_export', data_type='users') }}" class="btn btn-outline">Export CSV</a>
+            <a href="{{ url_for('admin_create_user') }}" class="btn btn-primary">+ Create User</a>
+            <form method="POST" action="{{ url_for('admin_bulk_users') }}" enctype="multipart/form-data" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="file" name="file" accept=".xlsx" required style="display:none;" id="bulkFile" onchange="this.form.submit()">
+                <button type="button" class="btn btn-success" onclick="document.getElementById('bulkFile').click()">Bulk Upload</button>
+            </form>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not users %}
+                <tr><td colspan="8"><div class="empty-state"><i data-lucide="users"></i><p>No users yet.</p></div></td></tr>
+                {% endif %}
+                {% for u in users %}
+                <tr>
+                    <td>#{{ u.id }}</td>
+                    <td>{{ u.name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.phone or '-' }}</td>
+                    <td><span class="badge badge-{% if u.role == 'super_admin' %}danger{% elseif u.role == 'admin' or u.role == 'instructor' %}info{% else %}muted{% endif %}">{{ u.role|title }}</span></td>
+                    <td><span class="badge badge-{% if u.status == 'active' %}success{% elseif u.status == 'suspended' %}danger{% else %}warning{% endif %}">{{ u.status|title }}</span></td>
+                    <td>{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '-' }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openEditUser('{{ u.id }}', '{{ u.name }}', '{{ u.email }}', '{{ u.phone or '' }}', '{{ u.role }}', '{{ u.status }}')">Edit</button>
+                            <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}" onsubmit="return confirm('Delete this user?');" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeEditUser()">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Edit User</h3>
+        <form method="POST" id="editUserForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group"><label>Name</label><input type="text" name="name" id="uName" required></div>
+                <div class="form-group"><label>Email</label><input type="email" name="email" id="uEmail" required></div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label>Phone</label><input type="text" name="phone" id="uPhone"></div>
+                <div class="form-group"><label>Role</label>
+                    <select name="role" id="uRole">
+                        <option value="student">Student</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Status</label>
+                <select name="status" id="uStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update User</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditUser(id, name, email, phone, role, status) {
+    document.getElementById('editUserForm').action = '/admin/users/' + id + '/update';
+    document.getElementById('uName').value = name;
+    document.getElementById('uEmail').value = email;
+    document.getElementById('uPhone').value = phone;
+    document.getElementById('uRole').value = role;
+    document.getElementById('uStatus').value = status;
+    document.getElementById('editUserModal').classList.add('active');
+}
+function closeEditUser() { document.getElementById('editUserModal').classList.remove('active'); }
+window.addEventListener('click', (e) => { if (e.target === document.getElementById('editUserModal')) closeEditUser(); });
+</script>
+{% endblock %}

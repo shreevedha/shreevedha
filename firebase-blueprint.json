@@ -1,0 +1,169 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account in the LMS",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID" },
+        "name": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "password_hash": { "type": "string", "description": "Password or hashed password" },
+        "role": { "type": "string", "enum": ["student", "instructor", "admin"] },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "points": { "type": "number", "description": "Reward points earned" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "Educational course offered by the platform",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Course identifier" },
+        "category": { "type": "string", "description": "Subject category" },
+        "name": { "type": "string", "description": "Course name" },
+        "title": { "type": "string", "description": "Display title" },
+        "description": { "type": "string", "description": "Detailed description" },
+        "duration": { "type": "string", "description": "Course duration" },
+        "mode": { "type": "string", "description": "Online/Offline modes" },
+        "price_online": { "type": "string" },
+        "price_offline": { "type": "string" },
+        "price_hybrid": { "type": "string" },
+        "syllabus": { "type": "array" },
+        "tools": { "type": "array" },
+        "projects": { "type": "array" },
+        "image": { "type": "string" },
+        "thumbnail": { "type": "string" }
+      },
+      "required": ["id", "title"]
+    },
+    "Enrollment": {
+      "title": "Enrollment",
+      "description": "A student enrollment record in a course",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "user_id": { "type": "number" },
+        "course_id": { "type": "string" },
+        "progress": { "type": "number" },
+        "status": { "type": "string" },
+        "enrolled_at": { "type": "string", "format": "date-time" },
+        "course": { "type": "object" }
+      },
+      "required": ["id", "user_id", "course_id"]
+    },
+    "Gallery": {
+      "title": "Gallery",
+      "description": "Event or workshop showcase photo",
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "github_link": { "type": "string" },
+        "image_filename": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["_id", "title"]
+    },
+    "Livetrack": {
+      "title": "Livetrack",
+      "description": "An active event, update, or live tracking announcement",
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "event_date": { "type": "string" },
+        "update_type": { "type": "string" },
+        "image_filename": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["_id", "title"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "A student project showcased on the platform",
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "github_link": { "type": "string" },
+        "image_filename": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["_id", "title"]
+    },
+    "Registration": {
+      "title": "Registration",
+      "description": "LMS Course Enrollment / Workshop registration submission",
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "course": { "type": "string" },
+        "mode": { "type": "string" },
+        "domain": { "type": "string" },
+        "qualification": { "type": "string" },
+        "message": { "type": "string" },
+        "registered_at": { "type": "string" }
+      },
+      "required": ["_id", "name", "email", "phone"]
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Contact form submission received from public users",
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "submitted_at": { "type": "string" }
+      },
+      "required": ["_id", "name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "LMS user profiles"
+    },
+    "/courses/{courseId}": {
+      "schema": "Course",
+      "description": "Offered educational courses"
+    },
+    "/enrollments/{enrollmentId}": {
+      "schema": "Enrollment",
+      "description": "Course enrollment states"
+    },
+    "/gallery/{galleryId}": {
+      "schema": "Gallery",
+      "description": "LMS public event gallery entries"
+    },
+    "/livetrack/{livetrackId}": {
+      "schema": "Livetrack",
+      "description": "LMS live events and news track entries"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Student showcased projects"
+    },
+    "/registrations/{registrationId}": {
+      "schema": "Registration",
+      "description": "Public seminar and workshop registrations"
+    },
+    "/contacts/{contactId}": {
+      "schema": "Contact",
+      "description": "Contact inquiries"
+    }
+  }
+}

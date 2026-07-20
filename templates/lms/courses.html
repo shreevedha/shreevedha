@@ -1,0 +1,93 @@
+{% extends "lms/base.html" %}
+
+{% block title %}My Courses{% endblock %}
+{% block page_title %}My Courses{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Enrolled Courses -->
+    <div class="col-12">
+        <h5 class="fw-bold mb-3" style="color: var(--primary-blue);">Enrolled Courses</h5>
+        {% if enrollments %}
+        <div class="row g-3">
+            {% for e in enrollments %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if e.course.thumbnail %}
+                    <img src="{{ url_for('static', filename=e.course.thumbnail) }}" class="card-img-top" style="height: 160px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 160px;">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="fw-bold">{{ e.course.title }}</h6>
+                        <p class="text-muted small">{{  (e.course.description or '').slice(0, 80)  }}{% if e.course.description|length > 80 %}...{% endif %}</p>
+                        <div class="progress mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: {{ e.progress }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ e.progress }}% complete</small>
+                            <a href="{{ url_for('lms_course_detail', course_id=e.course_id) }}" class="btn btn-sm btn-primary-custom">Continue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-book fs-1 d-block mb-2"></i>
+            You are not enrolled in any courses yet.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Available Courses -->
+    <div class="col-12 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Available Courses</h5>
+            <form method="GET" action="{{ url_for('lms_courses') }}" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control form-control-sm" placeholder="Search courses..." value="{{ request.args.get('search', '') }}" style="max-width: 200px;">
+                <button type="submit" class="btn btn-sm btn-primary-custom"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+        {% set ns = namespace(shown=0) %}
+        <div class="row g-3">
+            {% for c in available_courses %}
+            {% if c.id not in enrolled_course_ids %}
+            {% set ns.shown = ns.shown + 1 %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if c.thumbnail %}
+                    <img src="{{ url_for('static', filename=c.thumbnail) }}" class="card-img-top" style="height: 160px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 160px;">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="fw-bold">{{ c.title }}</h6>
+                        <p class="text-muted small">{{  (c.description or '').slice(0, 80)  }}{% if c.description|length > 80 %}...{% endif %}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-secondary">{{ c.duration or 'Self-paced' }}</span>
+                            <form method="POST" action="{{ url_for('lms_enroll', course_id=c.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-success">Enroll Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% if ns.shown == 0 %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-search fs-1 d-block mb-2"></i>
+            No courses available right now.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

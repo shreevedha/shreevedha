@@ -1,0 +1,212 @@
+{% extends "lms/base.html" %}
+
+{% block title %}{{ course.title }}{% endblock %}
+{% block page_title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            {% if course.thumbnail %}
+            <img src="{{ url_for('static', filename=course.thumbnail) }}" class="card-img-top" style="height: 250px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h4 class="fw-bold" style="color: var(--primary-blue);">{{ course.title }}</h4>
+                <p class="text-muted">{{ course.description }}</p>
+                <div class="d-flex gap-3 mb-3">
+                    <span class="badge bg-primary">{{ course.duration or 'Self-paced' }}</span>
+                    <span class="badge bg-{{ 'success' if enrollment.status == 'completed' else 'info' }}">{{ enrollment.status|title }}</span>
+                    {% if avg_rating > 0 %}
+                    <span class="badge bg-warning text-dark">★ {{ "%.1f"|format(avg_rating) }}</span>
+                    {% endif %}
+                </div>
+                <div class="progress mb-2" style="height: 10px;">
+                    <div class="progress-bar bg-warning" style="width: {{ enrollment.progress }}%"></div>
+                </div>
+                <p class="text-muted">{{ enrollment.progress }}% Complete</p>
+                <a href="{{ url_for('lms_course_syllabus', course_id=course.id) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-file-earmark-pdf"></i> View Syllabus (PDF)
+                </a>
+            </div>
+        </div>
+
+        <!-- Course Content -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Course Content</h5>
+            </div>
+            <div class="card-body">
+                {% if content %}
+                <div class="accordion" id="courseContent">
+                    {% for module in content %}
+                    <div class="accordion-item border-0 mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ loop.index }}">
+                                {% if module_progress.get(loop.index0) %}
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                {% else %}
+                                <i class="bi bi-circle me-2 text-muted"></i>
+                                {% endif %}
+                                {{ module.title }}
+                            </button>
+                        </h2>
+                        <div id="module{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#courseContent">
+                            <div class="accordion-body">
+                                <p>{{ module.description or 'No description available.' }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if module.type == 'video' %}
+                                        <span class="badge bg-danger"><i class="bi bi-camera-video"></i> Video</span>
+                                        {% elif module.type == 'pdf' %}
+                                        <span class="badge bg-danger"><i class="bi bi-file-pdf"></i> PDF</span>
+                                        {% elif module.type == 'ppt' %}
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-file-ppt"></i> PPT</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ module.type|title }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if not module_progress.get(loop.index0) %}
+                                    <form method="POST" action="{{ url_for('lms_complete_module', course_id=course.id, module_index=loop.index0) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-success">Mark Complete</button>
+                                    </form>
+                                    {% endif %}
+                                    {% if module.file_path %}
+                                    <a href="{{ url_for('lms_download_module_file', course_id=course.id, module_index=loop.index0) }}" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="bi bi-download"></i> Download {{ module.file_type|upper }}
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">No content available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quizzes -->
+        {% if quizzes %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Quizzes</h5>
+            </div>
+            <div class="card-body">
+                {% for q in quizzes %}
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <h6 class="mb-0">{{ q.title }}</h6>
+                        <small class="text-muted">{{ q.questions|length }} questions | {{ q.max_marks }} marks</small>
+                    </div>
+                    {% if q.id in quiz_attempts %}
+                    <a href="{{ url_for('lms_quiz_review', quiz_id=q.id) }}" class="btn btn-sm btn-outline-primary">Review Quiz</a>
+                    {% else %}
+                    <a href="{{ url_for('lms_take_quiz', quiz_id=q.id) }}" class="btn btn-sm btn-primary-custom">Take Quiz</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Reviews -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Reviews & Ratings</h5>
+            </div>
+            <div class="card-body">
+                {% if reviews %}
+                {% for r in reviews %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ r.student.name }}</strong>
+                        <span class="text-warning">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</span>
+                    </div>
+                    <p class="text-muted mb-0">{{ r.review }}</p>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted small mb-3">No reviews yet. Be the first to share your experience!</p>
+                {% endif %}
+                <form method="POST" action="{{ url_for('lms_submit_review', course_id=course.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label>Your Rating</label>
+                        <select name="rating" class="form-select">
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Review</label>
+                        <textarea name="review" rows="2" class="form-control" placeholder="Share your experience..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom">Submit Review</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Q&A -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Q&A Discussion</h5>
+            </div>
+            <div class="card-body">
+                {% for q in questions %}
+                <div class="mb-3 p-3 bg-light rounded">
+                    <p class="fw-semibold mb-1">Q: {{ q.question }}</p>
+                    <small class="text-muted">by {{ q.student.name }} | {{ q.created_at.strftime('%b %d') }}</small>
+                    {% if q.is_answered %}
+                    <div class="mt-2 p-2 bg-white rounded border-start border-success border-3">
+                        <p class="text-success mb-0"><strong>A:</strong> {{ q.answer }}</p>
+                    </div>
+                    {% else %}
+                    <p class="text-muted small mt-1">Awaiting answer...</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <form method="POST" action="{{ url_for('lms_ask_question', course_id=course.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <textarea name="question" rows="2" class="form-control" placeholder="Ask a question..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom">Ask Question</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Assignments -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Assignments</h5>
+            </div>
+            <div class="card-body">
+                {% if assignments %}
+                {% for a in assignments %}
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                    <div>
+                        <h6 class="fw-semibold mb-1">{{ a.title }}</h6>
+                        <small class="text-muted">Due: {{ a.due_date.strftime('%b %d, %Y') if a.due_date else 'No due date' }}</small>
+                    </div>
+                    <span class="badge bg-primary">{{ a.max_marks }} marks</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-journal-check fs-1 d-block mb-2"></i>
+                    No assignments yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

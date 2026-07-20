@@ -1,0 +1,39 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Instructor Dashboard{% endblock %}
+{% block page_title %}Instructor Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    {% for item in courses %}
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold" style="color: var(--primary-blue);">{{ item.course.title }}</h5>
+                <div class="row text-center mt-3">
+                    <div class="col-4">
+                        <h4 class="fw-bold text-primary">{{ item.students }}</h4>
+                        <small class="text-muted">Students</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-success">{{ item.avg_progress }}%</h4>
+                        <small class="text-muted">Avg Progress</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-warning">{{ item.course.enrollments|selectattr('status','equalto','completed')|list|length }}</h4>
+                        <small class="text-muted">Completed</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-easel fs-1 d-block mb-2"></i>
+            No courses assigned yet.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

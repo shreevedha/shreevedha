@@ -1,0 +1,164 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Hero Slides{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Hero Slides</h1>
+    <p>Manage homepage carousel slides. Upload images, set titles, and control display order.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Add New Slide</div>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_slide') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Slide Title *</label>
+                <input type="text" name="title" required placeholder="e.g., New AI Course Launch">
+            </div>
+            <div class="form-group">
+                <label>Order</label>
+                <input type="number" name="order" value="0" min="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Subtitle / Description</label>
+            <textarea name="subtitle" rows="2" placeholder="Short description shown on the slide..."></textarea>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Button Link (optional)</label>
+                <input type="text" name="cta_link" placeholder="https://... or /courses">
+            </div>
+            <div class="form-group">
+                <label>Button Text</label>
+                <input type="text" name="cta_text" value="Learn More" placeholder="Learn More">
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Upload Slide Image *</label>
+                <input type="file" name="image" accept="image/*" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Slide</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Existing Slides ({{ slides|length }})</div>
+    </div>
+    {% if slides %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Subtitle</th>
+                    <th>Order</th>
+                    <th>Link</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in slides %}
+                <tr>
+                    <td>
+                        <img src="{{ url_for('static', filename='uploads/slides/' + s.image_filename) }}" alt="" style="width:80px; height:50px; object-fit:cover; border-radius:0.3rem;">
+                    </td>
+                    <td>{{ s.title }}</td>
+                    <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.subtitle or '-' }}</td>
+                    <td>{{ s.order or 0 }}</td>
+                    <td>{% if s.cta_link %}<a href="{{ s.cta_link }}" target="_blank" style="color:var(--primary-blue);">Open</a>{% else %}-{% endif %}</td>
+                    <td>
+                        <div class="table-actions">
+                        <button type="button" class="btn btn-outline btn-sm edit-slide-btn"
+                            data-id="{{ s._id }}"
+                            data-title="{{ s.title }}"
+                            data-subtitle="{{ s.subtitle or '' }}"
+                            data-link="{{ s.cta_link or '' }}"
+                            data-linktext="{{ s.cta_text or 'Learn More' }}"
+                            data-order="{{ s.order or 0 }}"><i data-lucide="pencil"></i></button>
+                        <form method="POST" action="{{ url_for('admin_delete_slide', id=s._id) }}" onsubmit="return confirm('Delete this slide?');" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i></button>
+                        </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No slides yet. Add your first hero slide above.</div>
+    {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+        <h3>Edit Slide</h3>
+        <form method="POST" id="editForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Slide Title *</label>
+                    <input type="text" name="title" id="editTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Order</label>
+                    <input type="number" name="order" id="editOrder" value="0" min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Subtitle / Description</label>
+                <textarea name="subtitle" id="editSubtitle" rows="2"></textarea>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Button Link</label>
+                    <input type="text" name="cta_link" id="editLink" placeholder="https://... or /courses">
+                </div>
+                <div class="form-group">
+                    <label>Button Text</label>
+                    <input type="text" name="cta_text" id="editLinkText" value="Learn More">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Replace Image (leave empty to keep current)</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Update Slide</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+    document.querySelectorAll('.edit-slide-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('editForm').action = '/admin/slides/' + id + '/update';
+            document.getElementById('editTitle').value = this.dataset.title;
+            document.getElementById('editSubtitle').value = this.dataset.subtitle;
+            document.getElementById('editLink').value = this.dataset.link;
+            document.getElementById('editLinkText').value = this.dataset.linktext;
+            document.getElementById('editOrder').value = this.dataset.order;
+            document.getElementById('editModal').classList.add('active');
+        });
+    });
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editModal')) closeEditModal();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+    }
+    .about-hero h1 {
+        font-size: 2.5rem;
+        color: var(--primary-gold, #f5a623);
+    }
+    .split-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        margin: 3rem 0;
+    }
+    .split-text h2 {
+        font-size: 2rem;
+        color: var(--primary-blue, #1a3a6b);
+        margin-bottom: 1rem;
+    }
+    .split-text p {
+        color: var(--text-light, #666);
+        line-height: 1.6;
+    }
+    .split-image img {
+        width: 100%;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .mission-vision {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    .mission-card, .vision-card {
+        background: var(--card-bg, white);
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 1px solid var(--border, #e0e0e0);
+    }
+    .mission-card h3, .vision-card h3 {
+        color: var(--primary-gold, #f5a623);
+        margin-bottom: 1rem;
+    }
+    .trainers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    .trainer-card {
+        background: var(--card-bg, white);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+        text-align: center;
+        border: 1px solid var(--border, #e0e0e0);
+    }
+    .trainer-card:hover {
+        transform: translateY(-5px);
+    }
+    .trainer-image {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+        object-position: center 20%;
+    }
+    .trainer-info {
+        padding: 1.5rem;
+    }
+    .trainer-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--primary-blue, #1a3a6b);
+        margin-bottom: 0.3rem;
+    }
+    .trainer-role {
+        color: var(--primary-gold, #f5a623);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .trainer-bio {
+        color: var(--text-light, #666);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    .approach-section {
+        background: var(--bg-secondary, #f5f7fa);
+        padding: 3rem;
+        border-radius: 1rem;
+        margin: 3rem 0;
+        text-align: center;
+    }
+    .certification-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+    .cert-card {
+        background: var(--card-bg, white);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 1px solid var(--border, #e0e0e0);
+        transition: transform 0.3s;
+    }
+    .cert-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-gold, #f5a623);
+    }
+    .cert-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .cert-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary-blue, #1a3a6b);
+        margin-bottom: 0.5rem;
+    }
+    .cert-desc {
+        font-size: 0.9rem;
+        color: var(--text-light, #666);
+    }
+    .collab-section {
+        background: linear-gradient(135deg, #0A2647 0%, #1a3a6b 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: 1rem;
+        margin: 3rem 0;
+        text-align: center;
+    }
+    .collab-logos {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    .collab-logos img {
+        height: 60px;
+        background: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        object-fit: contain;
+    }
+    .collab-logos span {
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: bold;
+    }
+    @media (max-width: 768px) {
+        .split-section {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        .trainer-image { height: 280px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="about-hero">
+    <div class="container">
+        <h1>About Shreevedha Solutions</h1>
+        <p>Empowering the next generation of tech professionals with industry‑ready skills</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Split Section: Who We Are -->
+    <div class="split-section">
+        <div class="split-text">
+            <h2>Who We Are</h2>
+            <p>Shreevedha Solutions India Pvt Ltd is a premier IT training institute dedicated to bridging the skill gap between academia and industry. Since our inception, we have trained thousands of students and professionals in cutting‑edge technologies like AI, Full Stack, Data Science, Cloud Computing, and Cybersecurity.</p>
+            <p>Our mission is to make quality tech education accessible and affordable, with a strong focus on practical, project‑based learning. We don't just teach – we transform careers.</p>
+        </div>
+        <div class="split-image">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=450&fit=crop" alt="Shreevedha Team">
+        </div>
+    </div>
+
+    <!-- Collaborations & Accreditations (NEW) -->
+    <div class="collab-section">
+        <h3 style="margin-bottom: 1rem;">🤝 Our Collaborations & Accreditations</h3>
+        <p>We are proud to be associated with leading educational bodies and industry partners</p>
+        <div class="collab-logos">
+            <img src="{{ url_for('static', filename='uploads/All_India_Council_for_Technical_Education_logo.png') }}" alt="AICTE Logo" title="AICTE Collaboration">
+            <span>📄 MOUs with 25+ Colleges</span>
+            <span>🏢 NSDC Partner</span>
+            <span>🌍 ISO 9001:2015 Certified</span>
+            <img src="{{ url_for('static', filename='uploads/MOE.png') }}" alt="Ministry of Education" title="Ministry of Education">
+        </div>
+        <p style="margin-top: 1.5rem; font-size: 0.9rem;">* Memorandum of Understanding (MOU) signed with multiple universities and engineering colleges for semester training, workshops, and faculty development programs.</p>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="mission-vision">
+        <div class="mission-card">
+            <h3>🎯 Our Mission</h3>
+            <p>To provide affordable, high‑quality, project‑based training with 100% placement support, empowering learners to achieve career excellence in the tech industry.</p>
+        </div>
+        <div class="vision-card">
+            <h3>🌟 Our Vision</h3>
+            <p>To become a global hub for technology upskilling, recognised for producing job‑ready professionals who lead innovation worldwide.</p>
+        </div>
+    </div>
+
+    <!-- Certifications -->
+    <h2 style="text-align: center; margin: 2rem 0 1rem; color: var(--primary-blue, #1a3a6b);">📜 Certifications We Provide</h2>
+    <p style="text-align: center; margin-bottom: 2rem; color: var(--text-light, #666);">Industry‑recognised certificates that boost your resume and career</p>
+    
+    <div class="certification-grid">
+        <div class="cert-card">
+            <div class="cert-icon">🏅</div>
+            <div class="cert-title">Course Completion Certificate</div>
+            <div class="cert-desc">For every course (Python, Full Stack, Data Science, AI/ML, etc.) – verified by Shreevedha</div>
+        </div>
+        <div class="cert-card">
+            <div class="cert-icon">💼</div>
+            <div class="cert-title">Internship Certificate</div>
+            <div class="cert-desc">After successful completion of 1–3 months internship with real‑time project evaluation</div>
+        </div>
+        <div class="cert-card">
+            <div class="cert-icon">⚙️</div>
+            <div class="cert-title">Workshop Participation Certificate</div>
+            <div class="cert-desc">For attending 3‑day / 5‑day / 32‑hour workshops and hackathons</div>
+        </div>
+        <div class="cert-card">
+            <div class="cert-icon">🤝</div>
+            <div class="cert-title">Industrial Training Certificate</div>
+            <div class="cert-desc">Recognised by industry partners – adds weight to your placement profile</div>
+        </div>
+        <div class="cert-card">
+            <div class="cert-icon">🌐</div>
+            <div class="cert-title">ServiceNow Specialist Certificate</div>
+            <div class="cert-desc">For completing our ServiceNow training and support program</div>
+        </div>
+        <div class="cert-card">
+            <div class="cert-icon">📊</div>
+            <div class="cert-title">Project Completion Badge</div>
+            <div class="cert-desc">For each major/minor project – includes a shareable digital badge</div>
+        </div>
+    </div>
+
+    <!-- Our Expert Trainers – Clear Face Images -->
+    <h2 style="text-align: center; margin: 2rem 0 1rem; color: var(--primary-blue, #1a3a6b);">👨‍🏫 Our Expert Trainers</h2>
+    <p style="text-align: center; margin-bottom: 2rem; color: var(--text-light, #666);">Learn from industry veterans with 10+ years of experience</p>
+    
+    <div class="trainers-grid">
+        {% for t in trainers %}
+        <div class="trainer-card">
+            <img src="{{ t.image_url }}" alt="{{ t.name }}" class="trainer-image">
+            <div class="trainer-info">
+                <div class="trainer-name">{{ t.name }}</div>
+                <div class="trainer-role">{{ t.role }}</div>
+                <div class="trainer-bio">{{ t.bio }}</div>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-light, #666);">
+            <p>No trainers listed yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Teaching Approach -->
+    <div class="approach-section">
+        <h3 style="color: var(--primary-blue, #1a3a6b); margin-bottom: 1rem;">📖 Our Teaching Approach</h3>
+        <p>We follow a <strong>project‑first, theory‑second</strong> methodology. Every concept is reinforced with real‑world projects, regular assessments, and personalised mentoring. Our curriculum is updated every 6 months to keep pace with industry trends.</p>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 2rem;">
+            <span>✅ Live Projects</span>
+            <span>✅ Industry Certification</span>
+            <span>✅ 24/7 Lab Access</span>
+            <span>✅ Placement Preparation</span>
+            <span>✅ Personalised Mentorship</span>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div style="text-align: center; margin: 3rem 0;">
+        <h2 style="color: var(--primary-blue, #1a3a6b);">Why Choose Shreevedha?</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+            <div><strong>10,000+</strong><br>Students Trained</div>
+            <div><strong>95%</strong><br>Placement Rate</div>
+            <div><strong>500+</strong><br>Live Projects</div>
+            <div><strong>200+</strong><br>Hiring Partners</div>
+            <div><strong>6+</strong><br>Certification Types</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

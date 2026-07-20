@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Python Bootcamp at Guntur College",
+    "description": "5-day intensive Python programming bootcamp covering basics to advanced topics.",
+    "event_date": "2026-05-20",
+    "update_type": "workshop",
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:58.937872",
+    "_id": 1
+  },
+  {
+    "title": "Placement Drive - TCS & Infosys",
+    "description": "Campus placement drive with TCS and Infosys. 120 students participated.",
+    "event_date": "2026-05-15",
+    "update_type": "placement",
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:58.939819",
+    "_id": 2
+  },
+  {
+    "title": "New AI/ML Course Launch",
+    "description": "Announcing our new Generative AI and Prompt Engineering course starting June 2026.",
+    "event_date": "2026-05-25",
+    "update_type": "announcement",
+    "image_filename": "20260407_005117_grp5.jpg",
+    "created_at": "2026-05-27 19:19:58.954910",
+    "_id": 3
+  }
+]

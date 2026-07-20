@@ -1,0 +1,114 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Assignments{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Assignments</h1>
+        <p>Create assignments and grade submissions</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Assignments ({{ assignments|length }})</div>
+        <button class="btn btn-primary" onclick="document.getElementById('assignModal').classList.add('active')">+ Create Assignment</button>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Title</th><th>Course</th><th>Due Date</th><th>Max Marks</th><th>Submissions</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not assignments %}
+                <tr><td colspan="7"><div class="empty-state"><i data-lucide="file-text"></i><p>No assignments yet.</p></div></td></tr>
+                {% endif %}
+                {% for a in assignments %}
+                <tr>
+                    <td>#{{ a.id }}</td>
+                    <td>{{ a.title }}</td>
+                    <td>{{ a.course.title }}</td>
+                    <td>{{ a.due_date.strftime('%Y-%m-%d') if a.due_date else '-' }}</td>
+                    <td>{{ a.max_marks }}</td>
+                    <td>{{ a.submissions|length }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <form method="POST" action="{{ url_for('admin_delete_assignment', assignment_id=a.id) }}" onsubmit="return confirm('Delete?');" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% for sub in a.submissions %}
+                <tr style="background:#f8fafc;">
+                    <td></td>
+                    <td colspan="3" class="text-muted">↳ Submitted by {{ sub.student.name }} on {{ sub.submitted_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if sub.grade is not none %}{{ sub.grade }}/{{ a.max_marks }}{% else %}<span class="badge badge-muted">Not graded</span>{% endif %}
+                    </td>
+                    <td colspan="2">
+                        <button class="btn btn-primary btn-sm" onclick="openGrade('{{ sub.id }}', '{{ sub.grade or 0 }}', '{{ sub.feedback or '' }}')">Grade</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" id="assignModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('assignModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Create Assignment</h3>
+        <form method="POST" action="{{ url_for('admin_create_assignment') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label>Title</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+            <div class="form-grid">
+                <div class="form-group"><label>Due Date</label><input type="date" name="due_date"></div>
+                <div class="form-group"><label>Max Marks</label><input type="number" name="max_marks" value="100"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+</div>
+
+<!-- Grade Modal -->
+<div class="modal-overlay" id="gradeModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('gradeModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Grade Submission</h3>
+        <form method="POST" id="gradeForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group"><label>Grade</label><input type="number" name="grade" id="gGrade" min="0" required></div>
+            <div class="form-group"><label>Feedback</label><textarea name="feedback" id="gFeedback" rows="2"></textarea></div>
+            <button type="submit" class="btn btn-primary">Save Grade</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openGrade(id, grade, feedback) {
+    document.getElementById('gradeForm').action = '/admin/lms/submissions/' + id + '/grade';
+    document.getElementById('gGrade').value = grade;
+    document.getElementById('gFeedback').value = feedback;
+    document.getElementById('gradeModal').classList.add('active');
+}
+window.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('assignModal')) document.getElementById('assignModal').classList.remove('active');
+    if (e.target === document.getElementById('gradeModal')) document.getElementById('gradeModal').classList.remove('active');
+});
+</script>
+{% endblock %}

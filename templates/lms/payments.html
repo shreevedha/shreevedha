@@ -1,0 +1,59 @@
+{% extends "lms/base.html" %}
+
+{% block title %}My Payments{% endblock %}
+{% block page_title %}Payment History{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total Paid</h6>
+                <h3 class="fw-bold text-success">₹{{ total_paid }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total Pending</h6>
+                <h3 class="fw-bold text-warning">₹{{ total_pending }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Payment Records</h5>
+    </div>
+    <div class="card-body">
+        {% if payments %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr><th>Course</th><th>Amount</th><th>Status</th><th>Method</th><th>Transaction ID</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>{{ p.course.title }}</td>
+                        <td>₹{{ p.amount }}</td>
+                        <td><span class="badge bg-{{ 'success' if p.status == 'paid' else 'warning text-dark' }}">{{ p.status|title }}</span></td>
+                        <td>{{ p.payment_method|title }}</td>
+                        <td><code class="small">{{ p.transaction_id or '-' }}</code></td>
+                        <td>{{ p.created_at.strftime('%b %d, %Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-credit-card fs-1 d-block mb-2"></i>
+            No payment records found.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

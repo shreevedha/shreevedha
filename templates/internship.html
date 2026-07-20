@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Internships | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+    }
+    .page-hero h1 {
+        font-size: 2.5rem;
+        color: var(--primary-gold);
+    }
+    .content-section {
+        padding: 3rem 0;
+    }
+    .info-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    .benefit-item {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 0.8rem;
+        text-align: center;
+        border-left: 3px solid var(--primary-gold);
+    }
+    .benefit-item i {
+        color: var(--primary-gold);
+        margin-bottom: 0.5rem;
+    }
+    .form-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        color: var(--primary-blue);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 0.7rem;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+    }
+    .btn-submit {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        cursor: pointer;
+        width: 100%;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-submit:hover {
+        background: var(--primary-gold);
+        color: black;
+    }
+    .alert {
+        margin-top: 1rem;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>Internship Programs</h1>
+        <p>Gain real‑world experience with industry‑led projects and mentorship</p>
+    </div>
+</section>
+
+<div class="container content-section">
+    <div class="info-card">
+        <h2 style="color: var(--primary-blue);">Why Intern with Shreevedha?</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item"><i data-lucide="clock"></i><h3>3‑6 Months</h3><p>Flexible duration</p></div>
+            <div class="benefit-item"><i data-lucide="users"></i><h3>Live Projects</h3><p>Work on real client tasks</p></div>
+            <div class="benefit-item"><i data-lucide="award"></i><h3>Certificate</h3><p>Industry‑recognized</p></div>
+            <div class="benefit-item"><i data-lucide="briefcase"></i><h3>Stipend</h3><p>Performance‑based</p></div>
+        </div>
+        <p>Our internships are designed for students and fresh graduates to bridge the gap between academic knowledge and corporate expectations. You'll work under expert mentors, contribute to live projects, and receive a certificate of completion. Top performers get pre‑placement offers.</p>
+    </div>
+
+    <div class="form-card">
+        <h3 style="color: var(--primary-blue);">Apply for Internship</h3>
+        <form method="POST" action="{{ url_for('registration') }}">
+            <input type="hidden" name="course" value="Internship Program">
+            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
+            <div class="form-group"><label>Internship Domain</label>
+                <select name="internship_domain">
+                    <option>Full Stack Development</option>
+                    <option>Data Science & Analytics</option>
+                    <option>AI / Machine Learning</option>
+                    <option>Cloud & DevOps</option>
+                    <option>Cyber Security</option>
+                    <option>Digital Marketing</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Additional Message (Optional)</label><textarea name="message" rows="3"></textarea></div>
+            <button type="submit" class="btn-submit">Apply Now →</button>
+        </form>
+        {% set messages = get_flashed_messages({ with_categories: true }) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

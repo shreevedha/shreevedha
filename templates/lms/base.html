@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}LMS{% endblock %} | Shreevedha Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root { --primary-blue: #0A2647; --primary-gold: #F5C518; --sidebar-w: 260px; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #f1f5f9; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            min-height: 100vh; height: 100vh; background: var(--primary-blue); color: #fff;
+            width: var(--sidebar-w); position: fixed; top: 0; left: 0; z-index: 1050;
+            display: flex; flex-direction: column; transition: transform 0.25s ease;
+        }
+        .sidebar .brand { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar .brand img { height: 38px; }
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 0.75rem 0; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+        .sidebar-scroll::-webkit-scrollbar { width: 6px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.82); padding: 0.7rem 1.5rem; display: flex; align-items: center;
+            gap: 0.75rem; transition: 0.2s; font-size: 0.92rem; border-radius: 0; text-align: left; width: 100%;
+        }
+        .sidebar .nav-link i { width: 20px; text-align: center; font-size: 1.05rem; }
+        .sidebar .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .sidebar .nav-link.active { background: var(--primary-gold); color: var(--primary-blue); font-weight: 600; }
+        .sidebar-foot { border-top: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0; flex-shrink: 0; }
+
+        /* ── Main ── */
+        .main-content { margin-left: var(--sidebar-w); padding: 1.5rem; min-height: 100vh; }
+        .topbar {
+            background: #fff; border-radius: 0.85rem; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0.5rem; z-index: 900;
+        }
+        .topbar-title { color: var(--primary-blue); font-weight: 700; margin: 0; font-size: 1.1rem; }
+        .lms-menu-toggle { display: none; background: none; border: none; color: var(--primary-blue); font-size: 1.4rem; padding: 0; }
+        .stat-card { background: #fff; border-radius: 0.85rem; padding: 1.4rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid var(--primary-gold); height: 100%; }
+        .btn-primary-custom { background: var(--primary-blue); color: #fff; border: none; }
+        .btn-primary-custom:hover { background: var(--primary-gold); color: #000; }
+        .point-pill { background: rgba(245,197,24,0.15); color: #946c00; font-weight: 600; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.8rem; white-space: nowrap; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1040; display: none; }
+        .sidebar-overlay.active { display: block; }
+
+        /* ── Dark mode ── */
+        body.dark-mode { background: #0f172a; color: #e2e8f0; }
+        body.dark-mode .sidebar { background: #020617; }
+        body.dark-mode .topbar, body.dark-mode .stat-card, body.dark-mode .card { background: #1e293b; color: #e2e8f0; }
+        body.dark-mode .topbar-title { color: #f1f5f9; }
+        body.dark-mode .form-control, body.dark-mode .form-select { background: #334155; color: #e2e8f0; border-color: #475569; }
+        body.dark-mode .table { color: #e2e8f0; }
+        body.dark-mode .text-muted { color: #94a3b8 !important; }
+        body.dark-mode .bg-light { background: #334155 !important; }
+        body.dark-mode .list-group-item { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+        .theme-toggle { cursor: pointer; background: none; border: none; color: inherit; }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 1rem; }
+            .lms-menu-toggle { display: inline-flex; align-items: center; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="lmsSidebar">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Shreevedha">
+        </div>
+        <div class="sidebar-scroll">
+            <nav class="nav flex-column">
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_dashboard' }}" href="{{ url_for('lms_dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a class="nav-link {{ 'active' if request.endpoint in ['lms_courses','lms_course_detail'] }}" href="{{ url_for('lms_courses') }}"><i class="bi bi-book"></i> Courses</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_assignments' }}" href="{{ url_for('lms_assignments') }}"><i class="bi bi-journal-check"></i> Assignments</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_gradebook' }}" href="{{ url_for('lms_gradebook') }}"><i class="bi bi-graph-up"></i> Gradebook</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_certificates' }}" href="{{ url_for('lms_certificates') }}"><i class="bi bi-award"></i> Certificates</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_payments' }}" href="{{ url_for('lms_payments') }}"><i class="bi bi-credit-card"></i> Payments</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_internships' }}" href="{{ url_for('lms_internships') }}"><i class="bi bi-briefcase"></i> Internships</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_leaderboard' }}" href="{{ url_for('lms_leaderboard') }}"><i class="bi bi-trophy"></i> Leaderboard</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_announcements' }}" href="{{ url_for('lms_announcements') }}"><i class="bi bi-megaphone"></i> Announcements</a>
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_profile' }}" href="{{ url_for('lms_profile') }}"><i class="bi bi-person"></i> Profile</a>
+                {% if current_user.role in ['instructor', 'admin', 'super_admin'] %}
+                <a class="nav-link {{ 'active' if request.endpoint == 'lms_instructor' }}" href="{{ url_for('lms_instructor') }}"><i class="bi bi-easel"></i> Instructor</a>
+                {% endif %}
+            </nav>
+        </div>
+        <div class="sidebar-foot">
+            <a class="nav-link {{ 'active' if request.endpoint == 'lms_notifications' }}" href="{{ url_for('lms_notifications') }}"><i class="bi bi-bell"></i> Notifications</a>
+            <button class="nav-link theme-toggle" onclick="toggleTheme()" id="themeToggle"><i class="bi bi-moon"></i> <span id="themeLabel">Dark Mode</span></button>
+            <a class="nav-link" href="{{ url_for('lms_logout') }}"><i class="bi bi-box-arrow-left"></i> Logout</a>
+        </div>
+    </div>
+    <div class="sidebar-overlay" id="lmsSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <div class="d-flex align-items-center gap-2">
+                <button class="lms-menu-toggle" id="lmsMenuToggle" aria-label="Menu"><i class="bi bi-list"></i></button>
+                <h5 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h5>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                {% if current_user.is_authenticated %}
+                <span class="point-pill"><i class="bi bi-star-fill"></i> {{ current_user.points or 0 }} pts</span>
+                <a href="{{ url_for('lms_notifications') }}" class="text-decoration-none text-secondary"><i class="bi bi-bell fs-5"></i></a>
+                <span class="d-none d-sm-inline text-muted">{{ current_user.name }}</span>
+                <span class="badge bg-warning text-dark">{{ current_user.role|title }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% set messages = get_flashed_messages({ with_categories: true }) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar
+        const lmsSidebar = document.getElementById('lmsSidebar');
+        const lmsOverlay = document.getElementById('lmsSidebarOverlay');
+        const lmsToggle = document.getElementById('lmsMenuToggle');
+        function closeLmsSidebar() { lmsSidebar.classList.remove('open'); lmsOverlay.classList.remove('active'); }
+        if (lmsToggle) lmsToggle.addEventListener('click', () => { lmsSidebar.classList.toggle('open'); lmsOverlay.classList.toggle('active'); });
+        lmsOverlay.addEventListener('click', closeLmsSidebar);
+        document.querySelectorAll('.sidebar .nav-link').forEach(a => a.addEventListener('click', () => { if (window.innerWidth <= 991) closeLmsSidebar(); }));
+
+        // Theme
+        function setTheme(dark) {
+            document.body.classList.toggle('dark-mode', dark);
+            const t = document.getElementById('themeToggle');
+            if (t) t.innerHTML = dark ? '<i class="bi bi-sun"></i> <span id="themeLabel">Light Mode</span>' : '<i class="bi bi-moon"></i> <span id="themeLabel">Dark Mode</span>';
+            localStorage.setItem('theme', dark ? 'dark' : 'light');
+        }
+        function toggleTheme() { setTheme(!document.body.classList.contains('dark-mode')); }
+        if (localStorage.getItem('theme') === 'dark') setTheme(true);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

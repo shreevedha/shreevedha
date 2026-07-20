@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "course_id": "full-stack-web",
+    "amount": 2999,
+    "payment_method": "UPI",
+    "status": "paid",
+    "transaction_id": "TXN9876543210",
+    "user": {
+      "name": "Jane Student"
+    },
+    "course": {
+      "title": "Full Stack Web Development"
+    },
+    "timestamp": "2026-07-10T12:21:44.682Z"
+  }
+]

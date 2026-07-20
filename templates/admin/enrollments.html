@@ -1,0 +1,141 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Enrollments{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Enrollments</h1>
+        <p>Manage student-course enrollments</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Enrollments ({{ enrollments|length }})</div>
+        <div class="table-actions">
+            <a href="{{ url_for('admin_export', data_type='enrollments') }}" class="btn btn-outline">Export CSV</a>
+            <button class="btn btn-primary" onclick="document.getElementById('enrollModal').classList.add('active')">+ Enroll Student</button>
+            <button class="btn btn-success" onclick="document.getElementById('bulkEnrollModal').classList.add('active')">Bulk Enroll</button>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Student</th><th>Course</th><th>Progress</th><th>Status</th><th>Enrolled</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not enrollments %}
+                <tr><td colspan="7"><div class="empty-state"><i data-lucide="user-check"></i><p>No enrollments yet.</p></div></td></tr>
+                {% endif %}
+                {% for e in enrollments %}
+                <tr>
+                    <td>#{{ e.id }}</td>
+                    <td>{{ e.user.name }}</td>
+                    <td>{{ e.course.title }}</td>
+                    <td>{{ e.progress }}%</td>
+                    <td><span class="badge badge-{{ 'success' if e.status == 'completed' else 'info' }}">{{ e.status|title }}</span></td>
+                    <td>{{ e.enrolled_at.strftime('%Y-%m-%d') if e.enrolled_at else '-' }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openEditEnroll('{{ e.id }}', '{{ e.progress }}', '{{ e.status }}')">Edit</button>
+                            <form method="POST" action="{{ url_for('admin_delete_enrollment', enrollment_id=e.id) }}" onsubmit="return confirm('Delete enrollment?');" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" id="enrollModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('enrollModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Enroll Student</h3>
+        <form method="POST" action="{{ url_for('admin_create_enrollment') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="user_id" required>
+                    {% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Enroll</button>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Enroll Modal -->
+<div class="modal-overlay" id="bulkEnrollModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('bulkEnrollModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Bulk Enroll Students</h3>
+        <form method="POST" action="{{ url_for('admin_bulk_enrollments') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Students (hold Ctrl/Cmd to select multiple)</label>
+                <select name="user_ids" multiple required size="6" style="min-height: 150px;">
+                    {% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course</label>
+                <select name="course_id" required>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Enroll Selected</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editEnrollModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('editEnrollModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Edit Enrollment</h3>
+        <form method="POST" id="editEnrollForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Progress (%)</label>
+                <input type="number" name="progress" id="eProgress" min="0" max="100" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" id="eStatus">
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditEnroll(id, progress, status) {
+    document.getElementById('editEnrollForm').action = '/admin/lms/enrollments/' + id + '/update';
+    document.getElementById('eProgress').value = progress;
+    document.getElementById('eStatus').value = status;
+    document.getElementById('editEnrollModal').classList.add('active');
+}
+window.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('enrollModal')) document.getElementById('enrollModal').classList.remove('active');
+    if (e.target === document.getElementById('bulkEnrollModal')) document.getElementById('bulkEnrollModal').classList.remove('active');
+    if (e.target === document.getElementById('editEnrollModal')) document.getElementById('editEnrollModal').classList.remove('active');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Shreevedha Solutions{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1979GXGY44"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1979GXGY44');
+</script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #0A2647;
+            --primary-blue-light: #1B3A5C;
+            --primary-gold: #F5C518;
+            --primary-gold-light: #FFD700;
+            --dark: #0F172A;
+            --light: #FFFFFF;
+            --white: #FFFFFF;
+            --gray: #64748B;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s ease;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: white;
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            padding: 0.75rem 0;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo img { width: 180px; height: auto; }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links > a,
+        .nav-links > .dropdown > a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .nav-links > a:hover,
+        .nav-links > a.active,
+        .nav-links > .dropdown > a:hover,
+        .nav-links > .dropdown > a.active {
+            color: var(--primary-gold);
+        }
+
+        /* ── Services Dropdown ── */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown > a { cursor: pointer; }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: var(--shadow-lg);
+            border-radius: 0.6rem;
+            z-index: 1100;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        /* Invisible bridge to prevent hover loss over the gap */
+        .dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -0.8rem;
+            left: 0;
+            width: 100%;
+            height: 0.8rem;
+            background: transparent;
+        }
+        .dropdown:hover .dropdown-content,
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 1.2rem;
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+            transition: var(--transition);
+        }
+        .dropdown-content a:last-child { border-bottom: none; }
+        .dropdown-content a:hover {
+            background: var(--primary-gold);
+            color: black;
+        }
+
+        /* ── Register Button ── */
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white !important;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: var(--primary-gold);
+            color: black !important;
+            transform: translateY(-2px);
+        }
+
+        /* ── Mobile ── */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            background: white;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transform: translateY(-120%);
+            transition: transform 0.3s;
+            z-index: 999;
+            box-shadow: var(--shadow-lg);
+            max-height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+        .mobile-menu.open { transform: translateY(0); }
+        .mobile-menu a {
+            text-decoration: none;
+            color: var(--dark);
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.4rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .mobile-menu a:hover { background: #f1f5f9; }
+        .mobile-section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.75rem 0.75rem 0.2rem;
+            margin-top: 0.25rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .mobile-menu a.indent { padding-left: 1.75rem; }
+
+        /* ── Footer ── */
+        .footer {
+            background: var(--dark);
+            color: #94A3B8;
+            padding: 3rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-col h3 { color: white; font-size: 1.1rem; margin-bottom: 1rem; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 0.5rem; }
+        .footer-col a { color: #94A3B8; text-decoration: none; }
+        .footer-col a:hover { color: var(--primary-gold); }
+        .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+        .social-links a {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition);
+        }
+        .social-links a:hover { background: var(--primary-gold); transform: translateY(-3px); }
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1.5rem;
+        }
+
+        /* ── Floating Icons ── */
+        .floating-icons {
+            position: fixed;
+            bottom: 2rem; right: 2rem;
+            display: flex; flex-direction: column; gap: 1rem;
+            z-index: 1000;
+        }
+        .floating-icon {
+            width: 56px; height: 56px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        .floating-icon:hover { transform: scale(1.1); }
+        .whatsapp-icon { background: #25D366; }
+        .chatbot-icon { background: var(--primary-gold); color: black; }
+
+        /* ── Chatbot Modal ── */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1001;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .chatbot-modal {
+            background: white; border-radius: 1rem;
+            width: 90%; max-width: 450px; max-height: 80vh;
+            overflow-y: auto; padding: 1.5rem;
+            position: relative; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-close {
+            position: absolute; top: 1rem; right: 1rem;
+            background: none; border: none; font-size: 1.5rem;
+            cursor: pointer; color: var(--gray);
+        }
+        .chat-messages {
+            max-height: 300px; overflow-y: auto;
+            margin: 1rem 0; padding: 0.5rem;
+            background: #f8fafc; border-radius: 0.5rem;
+        }
+        .message { margin-bottom: 0.8rem; padding: 0.5rem; border-radius: 0.5rem; }
+        .user-message { background: var(--primary-blue); color: white; text-align: right; }
+        .bot-message { background: #e2e8f0; color: black; }
+        .chat-input { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .chat-input input {
+            flex: 1; padding: 0.5rem;
+            border: 1px solid #ccc; border-radius: 0.5rem;
+        }
+        .chat-input button {
+            background: var(--primary-blue); color: white;
+            border: none; padding: 0.5rem 1rem;
+            border-radius: 0.5rem; cursor: pointer;
+        }
+        .quick-replies { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .quick-reply {
+            background: var(--primary-gold); color: black;
+            padding: 0.3rem 0.8rem; border-radius: 2rem;
+            font-size: 0.8rem; cursor: pointer; transition: 0.2s;
+        }
+        .quick-reply:hover { background: var(--primary-blue); color: white; }
+
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .mobile-toggle { display: block; }
+            .container { padding: 0 1.5rem; }
+            .floating-icons { bottom: 1rem; right: 1rem; }
+            .floating-icon { width: 48px; height: 48px; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="{{ url_for('home') }}" class="logo">
+                <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Shreevedha Solutions">
+            </a>
+
+            <!--
+                ✅ NAVBAR — exactly 5 links:
+                1. Home  2. About  3. Courses  4. Services ▾  5. Contact
+                + Register button (CTA, not counted as a nav link)
+            -->
+            <div class="nav-links">
+
+                <!-- 1. Home -->
+                <a href="{{ url_for('home') }}"
+                   {% if request.endpoint == 'home' %}class="active"{% endif %}>Home</a>
+
+                <!-- 2. About -->
+                <a href="{{ url_for('about') }}"
+                   {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a>
+
+                <!-- 3. Courses -->
+                <a href="{{ url_for('courses') }}"
+                   {% if request.endpoint in ['courses', 'course_detail'] %}class="active"{% endif %}>Courses</a>
+
+                <!-- 4. Services Dropdown -->
+                <div class="dropdown" id="servicesDropdown">
+                    <a href="javascript:void(0)" id="servicesDropdownBtn"
+                       {% if request.endpoint in ['internship','workshops','projects','placement','gallery','livetrack'] %}class="active"{% endif %}>
+                        Services ▾
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('internship') }}">💼 Internships</a>
+                        <a href="{{ url_for('workshops') }}">🧑‍💻 Workshops</a>
+                        <a href="{{ url_for('projects') }}">📁 Projects</a>
+                        <a href="{{ url_for('placement') }}">🎯 Placement</a>
+                        <a href="{{ url_for('gallery') }}">🖼️ Gallery</a>
+                        <a href="{{ url_for('livetrack') }}">📡 Live Track</a>
+                    </div>
+                </div>
+
+                <!-- 5. Contact -->
+                <a href="{{ url_for('contact') }}"
+                   {% if request.endpoint == 'contact' %}class="active"{% endif %}>Contact</a>
+
+                <!-- Register CTA Button -->
+                <a href="{{ url_for('registration') }}" class="btn btn-primary">Register Now</a>
+
+            </div>
+
+            <button class="mobile-toggle" id="mobileToggle">
+                <i data-lucide="menu" id="menuIcon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="{{ url_for('home') }}">🏠 Home</a>
+            <a href="{{ url_for('about') }}">ℹ️ About</a>
+            <a href="{{ url_for('courses') }}">📚 Courses</a>
+
+            <div class="mobile-section-label">Services</div>
+            <a href="{{ url_for('internship') }}" class="indent">💼 Internships</a>
+            <a href="{{ url_for('workshops') }}" class="indent">🧑‍💻 Workshops</a>
+            <a href="{{ url_for('projects') }}" class="indent">📁 Projects</a>
+            <a href="{{ url_for('placement') }}" class="indent">🎯 Placement</a>
+            <a href="{{ url_for('gallery') }}" class="indent">🖼️ Gallery</a>
+            <a href="{{ url_for('livetrack') }}" class="indent">📡 Live Track</a>
+
+            <a href="{{ url_for('contact') }}">📞 Contact</a>
+            <a href="{{ url_for('registration') }}" class="btn btn-primary"
+               style="text-align:center; margin-top:0.5rem;">Register Now</a>
+        </div>
+    </nav>
+
+    <main style="padding-top: 80px;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Logo"
+                         style="width:160px; margin-bottom:1rem;">
+                    <p>Empowering careers through quality tech education.</p>
+                    <div style="display:flex; gap:0.75rem; align-items:center; justify-content:center; margin-top:1rem; flex-wrap:wrap;">
+                        <img src="{{ url_for('static', filename='uploads/All_India_Council_for_Technical_Education_logo.png') }}" alt="AICTE" style="height:42px; background:white; padding:0.25rem 0.5rem; border-radius:0.3rem; object-fit:contain;">
+                        <img src="{{ url_for('static', filename='uploads/MOE.png') }}" alt="MOE" style="height:42px; background:white; padding:0.25rem 0.5rem; border-radius:0.3rem; object-fit:contain;">
+                    </div>
+                    <div class="social-links" style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+    <!-- LinkedIn Icon -->
+    <a href="#" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #0e76a8; border-radius: 50%; transition: all 0.3s ease; text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+            <rect x="2" y="9" width="4" height="12"></rect>
+            <circle cx="4" cy="4" r="2"></circle>
+        </svg>
+    </a>
+
+    <!-- Facebook Icon -->
+    <a href="https://www.facebook.com/share/1DERJSfKWa/?mibextid=wwXIfr" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #1877f2; border-radius: 50%; transition: all 0.3s ease; text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+    </a>
+
+    <!-- Instagram Icon -->
+    <a href="https://www.instagram.com/shreevedhasolutionspvtindialtd?igsh=MmNqdTRucTR4bHdp&utm_source=qr" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); border-radius: 50%; transition: all 0.3s ease; text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+    </a>
+</div>
+
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{{ url_for('home') }}">Home</a></li>
+                        <li><a href="{{ url_for('about') }}">About</a></li>
+                        <li><a href="{{ url_for('courses') }}">Courses</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                        <li><a href="{{ url_for('registration') }}">Register</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="{{ url_for('internship') }}">Internship</a></li>
+                        <li><a href="{{ url_for('workshops') }}">Workshops</a></li>
+                        <li><a href="{{ url_for('projects') }}">Projects</a></li>
+                        <li><a href="{{ url_for('placement') }}">Placement</a></li>
+                        <li><a href="{{ url_for('gallery') }}">Gallery</a></li>
+                        <li><a href="{{ url_for('livetrack') }}">Live Track</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li>📞 +91 73969 25602</li>
+                        <li>✉️ connect@shreevedha.co.in</li>
+                        <li>📍 Hyderabad High Tech City</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="year"></span> Shreevedha Solutions India Pvt Ltd. All rights reserved.</p>
+                <p style="margin-top:0.5rem; font-size:0.75rem; opacity:0.6;">
+                    <a href="{{ url_for('admin_login') }}" style="color:#94A3B8; text-decoration:none;">Admin Login</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Icons -->
+    <div class="floating-icons">
+        <a href="https://wa.me/917386922602?text=Hello%21%20I%27m%20interested%20in%20Shreevedha%20programs."
+           target="_blank" class="floating-icon whatsapp-icon" title="Chat on WhatsApp">
+            <i data-lucide="message-circle"></i>
+        </a>
+        <div class="floating-icon chatbot-icon" id="chatbotFab" title="Ask about Shreevedha">
+            <i data-lucide="bot"></i>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div class="modal-overlay" id="chatbotModal">
+        <div class="chatbot-modal">
+            <button class="modal-close" id="closeChatbotBtn">&times;</button>
+            <h3 style="color: var(--primary-gold);">🤖 Shreevedha Assistant</h3>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">Hello! I'm here to help. Ask me about courses, internships, placements, or anything about Shreevedha.</div>
+            </div>
+            <div class="quick-replies">
+                <span class="quick-reply" data-question="What courses do you offer?">📚 Courses</span>
+                <span class="quick-reply" data-question="Tell me about internships">💼 Internships</span>
+                <span class="quick-reply" data-question="How does placement work?">🎯 Placement</span>
+                <span class="quick-reply" data-question="What is the fee structure?">💰 Fees</span>
+                <span class="quick-reply" data-question="Contact details">📞 Contact</span>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your question...">
+                <button id="sendChatBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        lucide.createIcons();
+        lucide.createIcons();
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const mobileMenu   = document.getElementById('mobileMenu');
+        const menuIcon     = document.getElementById('menuIcon');
+        mobileToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+            menuIcon.setAttribute('data-lucide', mobileMenu.classList.contains('open') ? 'x' : 'menu');
+            lucide.createIcons();
+        });
+        document.querySelectorAll('.mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuIcon.setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            });
+        });
+
+        // Chatbot
+        const chatbotFab      = document.getElementById('chatbotFab');
+        const chatbotModal    = document.getElementById('chatbotModal');
+        const closeChatbotBtn = document.getElementById('closeChatbotBtn');
+        const chatMessages    = document.getElementById('chatMessages');
+        const chatInput       = document.getElementById('chatInput');
+        const sendChatBtn     = document.getElementById('sendChatBtn');
+
+        chatbotFab.addEventListener('click', () => chatbotModal.classList.add('active'));
+        closeChatbotBtn.addEventListener('click', () => chatbotModal.classList.remove('active'));
+        window.addEventListener('click', (e) => {
+            if (e.target === chatbotModal) chatbotModal.classList.remove('active');
+        });
+
+        function addMessage(text, isUser = false) {
+            const div = document.createElement('div');
+            div.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getBotResponse(q) {
+            q = q.toLowerCase();
+            if (q.includes('course') || q.includes('program'))
+                return "We offer Full Stack, Data Science, AI/ML, Generative AI, Cloud DevOps, Cyber Security, and more. 60 days. Online ₹2,999 | Offline ₹9,999 | Hybrid ₹7,999.";
+            if (q.includes('internship'))
+                return "Our internships are 3–6 months with live projects, mentor support, and a stipend for top performers. Apply via the Internships page!";
+            if (q.includes('placement'))
+                return "We have 150+ corporate partners and 100% placement assistance including aptitude training, mock interviews, and direct referrals.";
+            if (q.includes('fee') || q.includes('price') || q.includes('cost'))
+                return "Online ₹2,999 | Offline ₹9,999 | Hybrid ₹7,999. Scholarships available for meritorious students.";
+            if (q.includes('contact'))
+                return "📞 +91 73969 25602 | ✉️ connect@shreevedha.co.in | 📍 91Springboard, Hitech Kondapur, Hyderabad.";
+            if (q.includes('about') || q.includes('company'))
+                return "Shreevedha Solutions is an IT training and skill development company bridging the gap between academics and industry.";
+            return "Thank you for your interest! Please visit our website or call +91 73969 25602 for more details.";
+        }
+
+        function sendMessage() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+            addMessage(msg, true);
+            chatInput.value = '';
+            setTimeout(() => addMessage(getBotResponse(msg)), 300);
+        }
+
+        sendChatBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        document.querySelectorAll('.quick-reply').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const q = btn.getAttribute('data-question');
+                addMessage(q, true);
+                setTimeout(() => addMessage(getBotResponse(q)), 300);
+        });
+
+        // Services dropdown toggle lock
+        const servicesDropdown = document.getElementById('servicesDropdown');
+        const servicesDropdownBtn = document.getElementById('servicesDropdownBtn');
+        if (servicesDropdown && servicesDropdownBtn) {
+            servicesDropdownBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                servicesDropdown.classList.toggle('active');
+            });
+            window.addEventListener('click', (e) => {
+                if (!servicesDropdown.contains(e.target)) {
+                    servicesDropdown.classList.remove('active');
+                }
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Admin{% endblock %} | Shreevedha Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #0A2647;
+            --primary-blue-light: #1B3A5C;
+            --primary-gold: #F5C518;
+            --primary-gold-light: #FFD700;
+            --dark: #0F172A;
+            --light: #FFFFFF;
+            --gray: #64748B;
+            --border: #e2e8f0;
+            --bg: #f1f5f9;
+            --sidebar-w: 250px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.15);
+            --transition: all 0.2s ease;
+        }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ── Layout shell ── */
+        .admin-layout { display: flex; min-height: 100vh; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--primary-blue);
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            z-index: 1200;
+            transition: transform 0.25s ease;
+            box-shadow: var(--shadow-md);
+        }
+        .sidebar-head {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        .sidebar-head img { height: 34px; width: auto; }
+        .sidebar-head .brand { color: #fff; font-weight: 700; font-size: 1.05rem; line-height: 1.1; }
+        .sidebar-head .brand small { display: block; font-size: 0.65rem; color: var(--primary-gold); font-weight: 500; letter-spacing: 0.05em; }
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem 0.6rem 2rem;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+        .sidebar-nav::-webkit-scrollbar { width: 6px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+        .nav-group-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: #64748b;
+            font-weight: 700;
+            padding: 0.9rem 0.85rem 0.35rem;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.6rem 0.85rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .sidebar-nav a i { width: 18px; height: 18px; flex-shrink: 0; }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .sidebar-nav a.active { background: var(--primary-gold); color: #0A2647; font-weight: 600; }
+        .sidebar-foot {
+            padding: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        .sidebar-foot form { margin: 0; }
+        .logout-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .logout-btn:hover { background: #DC2626; }
+
+        /* ── Topbar ── */
+        .content-area {
+            flex: 1;
+            margin-left: var(--sidebar-w);
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .menu-toggle {
+            display: none;
+            background: none; border: none; cursor: pointer;
+            color: var(--primary-blue); padding: 0.25rem;
+        }
+        .topbar-title { font-size: 1.05rem; font-weight: 700; color: var(--primary-blue); }
+        .topbar-spacer { flex: 1; }
+        .theme-toggle {
+            cursor: pointer; background: var(--bg); border: 1px solid var(--border);
+            color: var(--gray); padding: 0.5rem; border-radius: 0.5rem;
+            display: flex; align-items: center; transition: var(--transition);
+        }
+        .theme-toggle:hover { color: var(--primary-blue); }
+        .view-site {
+            color: var(--gray); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 0.35rem;
+        }
+        .view-site:hover { color: var(--primary-blue); }
+
+        /* ── Main Content ── */
+        .admin-main {
+            padding: 1.75rem 1.5rem 3rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .page-header { margin: 0 0 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }
+        .page-header h1 { font-size: 1.6rem; color: var(--primary-blue); }
+        .page-header p { color: var(--gray); font-size: 0.92rem; }
+
+        /* ── Cards ── */
+        .card { background: #fff; border-radius: 0.85rem; box-shadow: var(--shadow-sm); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; }
+        .card-title { font-size: 1.05rem; font-weight: 700; color: var(--primary-blue); }
+
+        /* ── Stats Grid ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1.25rem; margin: 0 0 1.75rem; }
+        .stat-card {
+            background: #fff; border-radius: 0.85rem; padding: 1.4rem;
+            box-shadow: var(--shadow-sm); transition: var(--transition);
+            border: 1px solid var(--border); position: relative; overflow: hidden;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .stat-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--primary-gold); }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 0.7rem; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(10,38,71,0.08); color: var(--primary-blue);
+        }
+        .stat-icon i { width: 24px; height: 24px; }
+        .stat-body { min-width: 0; }
+        .stat-number { font-size: 1.7rem; font-weight: 800; color: var(--primary-blue); line-height: 1.1; }
+        .stat-label { font-size: 0.82rem; color: var(--gray); margin-top: 0.15rem; }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 0.55rem 1.05rem; border-radius: 0.55rem; font-weight: 600; font-size: 0.85rem;
+            transition: var(--transition); display: inline-flex; align-items: center; gap: 0.4rem;
+            text-decoration: none; border: none; cursor: pointer; font-family: inherit; line-height: 1.2;
+        }
+        .btn i { width: 16px; height: 16px; }
+        .btn-sm { padding: 0.4rem 0.7rem; font-size: 0.78rem; }
+        .btn-primary { background: var(--primary-blue); color: #fff; }
+        .btn-primary:hover { background: var(--primary-gold); color: #0A2647; }
+        .btn-gold { background: var(--primary-gold); color: #0A2647; }
+        .btn-gold:hover { background: var(--primary-blue); color: #fff; }
+        .btn-danger { background: #DC2626; color: #fff; }
+        .btn-danger:hover { background: #991B1B; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-success:hover { background: #047857; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--primary-blue); }
+        .btn-outline:hover { border-color: var(--primary-blue); background: var(--bg); }
+
+        /* ── Badges ── */
+        .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: capitalize; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-muted { background: #e2e8f0; color: #475569; }
+
+        /* ── Table ── */
+        .table-wrap { overflow-x: auto; border-radius: 0.6rem; -webkit-overflow-scrolling: touch; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 520px; }
+        .data-table th { background: var(--primary-blue); color: #fff; text-align: left; padding: 0.7rem 1rem; font-weight: 600; white-space: nowrap; }
+        .data-table th:first-child { border-top-left-radius: 0.6rem; }
+        .data-table th:last-child { border-top-right-radius: 0.6rem; }
+        .data-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tbody tr:hover td { background: #f8fafc; }
+        .table-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray); }
+        .empty-state i { width: 42px; height: 42px; color: #cbd5e1; margin-bottom: 0.5rem; }
+
+        /* ── Form ── */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.85rem; color: var(--primary-blue); }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 0.6rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;
+            font-family: inherit; font-size: 0.9rem; background: #fff; color: var(--dark); transition: var(--transition);
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: var(--primary-gold); box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.15);
+        }
+
+        /* ── Gallery Grid (admin) ── */
+        .admin-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+        .admin-gallery-card { background: #fff; border-radius: 0.75rem; overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); }
+        .admin-gallery-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .admin-gallery-card img { width: 100%; height: 160px; object-fit: cover; }
+        .admin-gallery-card .info { padding: 1rem; }
+        .admin-gallery-card .info h4 { font-size: 0.95rem; color: var(--primary-blue); margin-bottom: 0.25rem; }
+        .admin-gallery-card .info p { font-size: 0.8rem; color: var(--gray); margin-bottom: 0.75rem; }
+        .admin-gallery-card .actions { display: flex; gap: 0.5rem; padding: 0 1rem 1rem; }
+        .admin-gallery-card .actions .btn { flex: 1; justify-content: center; font-size: 0.75rem; padding: 0.4rem; }
+
+        /* ── Alerts ── */
+        .alert { padding: 0.8rem 1rem; border-radius: 0.6rem; margin-bottom: 1rem; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+        .alert i { width: 18px; height: 18px; flex-shrink: 0; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+
+        /* ── Modal ── */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #fff; border-radius: 1rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 1.75rem; position: relative; animation: slideUp 0.25s ease; }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-box h3 { color: var(--primary-blue); margin-bottom: 1.1rem; padding-right: 2rem; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray); line-height: 1; }
+
+        .text-muted { color: var(--gray); }
+
+        /* ── Sidebar overlay (mobile) ── */
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1150; display: none; }
+        .sidebar-overlay.active { display: block; }
+
+        /* ── Dark mode ── */
+        body.dark-mode { --bg: #0f172a; --border: #334155; background: var(--bg); color: #e2e8f0; }
+        body.dark-mode .topbar { background: #1e293b; border-color: #334155; }
+        body.dark-mode .topbar-title { color: #f1f5f9; }
+        body.dark-mode .card, body.dark-mode .stat-card, body.dark-mode .admin-gallery-card { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+        body.dark-mode .card-title, body.dark-mode .page-header h1, body.dark-mode .stat-number, body.dark-mode .form-group label { color: #f8fafc; }
+        body.dark-mode .stat-icon { background: rgba(245,197,24,0.12); color: var(--primary-gold); }
+        body.dark-mode .data-table tbody tr:hover td { background: #334155; }
+        body.dark-mode .data-table td { border-color: #334155; }
+        body.dark-mode .form-group input, body.dark-mode .form-group select, body.dark-mode .form-group textarea { background: #334155; color: #e2e8f0; border-color: #475569; }
+        body.dark-mode .theme-toggle { background: #334155; border-color: #475569; color: #cbd5e1; }
+        body.dark-mode .btn-outline { color: #cbd5e1; }
+        body.dark-mode .text-muted, body.dark-mode .page-header p, body.dark-mode .stat-label { color: #94a3b8; }
+        body.dark-mode .modal-box { background: #1e293b; color: #e2e8f0; }
+        body.dark-mode .modal-box h3 { color: #f8fafc; }
+
+        /* ── Responsive ── */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .content-area { margin-left: 0; }
+            .menu-toggle { display: inline-flex; }
+        }
+        @media (max-width: 640px) {
+            .admin-main { padding: 1.25rem 1rem 2.5rem; }
+            .topbar { padding: 0.75rem 1rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+            .stat-card { padding: 1rem; gap: 0.75rem; }
+            .stat-icon { width: 40px; height: 40px; }
+            .stat-number { font-size: 1.4rem; }
+            .page-header h1 { font-size: 1.3rem; }
+            .card { padding: 1.1rem; }
+            .view-site span { display: none; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="admin-layout">
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-head">
+            <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Logo">
+            <span class="brand">Shreevedha<small>ADMIN PANEL</small></span>
+        </div>
+        <nav class="sidebar-nav">
+            {% set ep = request.endpoint %}
+            <div class="nav-group-label">Overview</div>
+            <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if ep == 'admin_dashboard' }}"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+            <a href="{{ url_for('admin_reports') }}" class="{{ 'active' if ep == 'admin_reports' }}"><i data-lucide="bar-chart-3"></i> Reports</a>
+
+            <div class="nav-group-label">Learning</div>
+            <a href="{{ url_for('admin_courses') }}" class="{{ 'active' if ep in ['admin_courses','admin_create_course','admin_edit_course'] }}"><i data-lucide="book-open"></i> Courses</a>
+            <a href="{{ url_for('admin_enrollments') }}" class="{{ 'active' if ep == 'admin_enrollments' }}"><i data-lucide="user-check"></i> Enrollments</a>
+            <a href="{{ url_for('admin_assignments') }}" class="{{ 'active' if ep == 'admin_assignments' }}"><i data-lucide="file-text"></i> Assignments</a>
+            <a href="{{ url_for('admin_quizzes') }}" class="{{ 'active' if ep in ['admin_quizzes','admin_edit_quiz'] }}"><i data-lucide="help-circle"></i> Quizzes</a>
+            <a href="{{ url_for('admin_certificates') }}" class="{{ 'active' if ep == 'admin_certificates' }}"><i data-lucide="award"></i> Certificates</a>
+            <a href="{{ url_for('admin_questions') }}" class="{{ 'active' if ep == 'admin_questions' }}"><i data-lucide="messages-square"></i> Q&amp;A</a>
+
+            <div class="nav-group-label">People &amp; Money</div>
+            <a href="{{ url_for('admin_users') }}" class="{{ 'active' if ep in ['admin_users','admin_create_user'] }}"><i data-lucide="users"></i> Users</a>
+            <a href="{{ url_for('admin_payments') }}" class="{{ 'active' if ep == 'admin_payments' }}"><i data-lucide="credit-card"></i> Payments</a>
+            <a href="{{ url_for('admin_announcements') }}" class="{{ 'active' if ep in ['admin_announcements','admin_create_announcement'] }}"><i data-lucide="megaphone"></i> Announcements</a>
+
+            <div class="nav-group-label">Website Content</div>
+            <a href="{{ url_for('admin_slides') }}" class="{{ 'active' if ep in ['admin_slides','admin_add_slide','admin_update_slide'] }}"><i data-lucide="images"></i> Hero Slides</a>
+            <a href="{{ url_for('admin_gallery') }}" class="{{ 'active' if ep in ['admin_gallery','admin_add_gallery'] }}"><i data-lucide="image"></i> Gallery</a>
+            <a href="{{ url_for('admin_trainers') }}" class="{{ 'active' if ep in ['admin_trainers','admin_add_trainer'] }}"><i data-lucide="users"></i> Trainers</a>
+            <a href="{{ url_for('admin_projects') }}" class="{{ 'active' if ep in ['admin_projects','admin_add_project'] }}"><i data-lucide="folder-git-2"></i> Projects</a>
+            <a href="{{ url_for('admin_livetrack') }}" class="{{ 'active' if ep in ['admin_livetrack','admin_add_livetrack'] }}"><i data-lucide="radio"></i> Live Track</a>
+
+            <div class="nav-group-label">Enquiries</div>
+            <a href="{{ url_for('admin_contacts') }}" class="{{ 'active' if ep == 'admin_contacts' }}"><i data-lucide="mail"></i> Contacts</a>
+            <a href="{{ url_for('admin_registrations') }}" class="{{ 'active' if ep == 'admin_registrations' }}"><i data-lucide="clipboard-list"></i> Registrations</a>
+            <a href="{{ url_for('admin_audit_logs') }}" class="{{ 'active' if ep == 'admin_audit_logs' }}"><i data-lucide="scroll-text"></i> Audit Logs</a>
+        </nav>
+        <div class="sidebar-foot">
+            <form method="POST" action="{{ url_for('admin_logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+            </form>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ── Content ── -->
+    <div class="content-area">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
+            <span class="topbar-title">{% block topbar_title %}Admin Panel{% endblock %}</span>
+            <span class="topbar-spacer"></span>
+            <a href="{{ url_for('home') }}" target="_blank" class="view-site"><i data-lucide="external-link"></i> <span>View Site</span></a>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i data-lucide="moon" id="themeIcon"></i></button>
+            <button class="theme-toggle" onclick="openModal('changePasswordModal')" title="Change Password"><i data-lucide="key-round"></i></button>
+        </header>
+
+        <main class="admin-main">
+            {% set messages = get_flashed_messages({ with_categories: true }) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            <i data-lucide="{{ 'check-circle' if category == 'success' else 'alert-circle' }}"></i>{{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const menuToggle = document.getElementById('menuToggle');
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        });
+        overlay.addEventListener('click', closeSidebar);
+        document.querySelectorAll('.sidebar-nav a').forEach(a => a.addEventListener('click', () => { if (window.innerWidth <= 992) closeSidebar(); }));
+
+        // Save and restore sidebar scroll position across page reloads
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        if (sidebarNav) {
+            const savedScroll = sessionStorage.getItem('sidebarScroll');
+            if (savedScroll) {
+                sidebarNav.scrollTop = parseInt(savedScroll, 10);
+            }
+            sidebarNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sessionStorage.setItem('sidebarScroll', sidebarNav.scrollTop);
+                });
+            });
+        }
+
+        function applyTheme(theme) {
+            const dark = theme === 'dark';
+            document.body.classList.toggle('dark-mode', dark);
+            const icon = document.getElementById('themeIcon');
+            if (icon) { icon.setAttribute('data-lucide', dark ? 'sun' : 'moon'); lucide.createIcons(); }
+        }
+        function toggleTheme() {
+            const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+            localStorage.setItem('adminTheme', next);
+            applyTheme(next);
+        }
+        applyTheme(localStorage.getItem('adminTheme') || 'light');
+
+        // Generic modal helpers (used by child pages)
+        function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('active'); }
+        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(o => {
+            o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active')); });
+    </script>
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="changePasswordModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal('changePasswordModal')">&times;</button>
+            <h3>Change Admin Password</h3>
+            <form method="POST" action="/admin/change-password">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label>Current Password *</label>
+                    <input type="password" name="current_password" required placeholder="Enter current admin password">
+                </div>
+                <div class="form-group">
+                    <label>New Password *</label>
+                    <input type="password" name="new_password" required placeholder="Enter new password (min. 6 characters)">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password *</label>
+                    <input type="password" name="confirm_password" required placeholder="Confirm new password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Update Password</button>
+            </form>
+        </div>
+    </div>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,145 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .chart-card canvas { max-height: 240px; }
+    .dash-bottom { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    .quick-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .login-list { list-style: none; }
+    .login-list li { padding: 0.65rem 0; border-bottom: 1px solid var(--border); }
+    .login-list li:last-child { border-bottom: none; }
+    @media (max-width: 860px) { .dash-bottom { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Overview of your LMS &amp; website performance</p>
+    </div>
+    <div class="quick-actions">
+        <a href="{{ url_for('admin_create_course') }}" class="btn btn-gold"><i data-lucide="plus"></i> New Course</a>
+        <a href="{{ url_for('admin_create_user') }}" class="btn btn-outline"><i data-lucide="user-plus"></i> Add User</a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="users"></i></div>
+        <div class="stat-body"><div class="stat-number">{{ stats.users }}</div><div class="stat-label">Total Users</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="user-check"></i></div>
+        <div class="stat-body"><div class="stat-number">{{ stats.active_users }}</div><div class="stat-label">Active Users</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="book-open"></i></div>
+        <div class="stat-body"><div class="stat-number">{{ stats.courses }}</div><div class="stat-label">Total Courses</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+        <div class="stat-body"><div class="stat-number">{{ stats.published_courses }}</div><div class="stat-label">Published</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="user-plus"></i></div>
+        <div class="stat-body"><div class="stat-number">{{ stats.enrollments }}</div><div class="stat-label">Enrollments</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="award"></i></div>
+        <div class="stat-body"><div class="stat-number">{{ stats.certificates }}</div><div class="stat-label">Certificates</div></div>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div class="card chart-card">
+        <div class="card-header"><div class="card-title">Enrollments Over Time</div></div>
+        <canvas id="enrollmentChart" height="200"></canvas>
+    </div>
+    <div class="card chart-card">
+        <div class="card-header"><div class="card-title">Course Completion Rates</div></div>
+        <canvas id="completionChart" height="200"></canvas>
+    </div>
+    <div class="card chart-card">
+        <div class="card-header"><div class="card-title">Revenue by Course</div></div>
+        <canvas id="revenueChart" height="200"></canvas>
+    </div>
+    <div class="card chart-card">
+        <div class="card-header"><div class="card-title">Users by Role</div></div>
+        <canvas id="roleChart" height="200"></canvas>
+    </div>
+</div>
+
+<div class="dash-bottom">
+    <div class="card">
+        <div class="card-header"><div class="card-title">Quick Actions</div></div>
+        <div class="quick-actions">
+            <a href="{{ url_for('admin_users') }}" class="btn btn-primary"><i data-lucide="users"></i> Users</a>
+            <a href="{{ url_for('admin_courses') }}" class="btn btn-primary"><i data-lucide="book-open"></i> Courses</a>
+            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-primary"><i data-lucide="user-check"></i> Enrollments</a>
+            <a href="{{ url_for('admin_assignments') }}" class="btn btn-primary"><i data-lucide="file-text"></i> Assignments</a>
+            <a href="{{ url_for('admin_quizzes') }}" class="btn btn-primary"><i data-lucide="help-circle"></i> Quizzes</a>
+            <a href="{{ url_for('admin_certificates') }}" class="btn btn-primary"><i data-lucide="award"></i> Certificates</a>
+            <a href="{{ url_for('admin_announcements') }}" class="btn btn-primary"><i data-lucide="megaphone"></i> Announcements</a>
+            <a href="{{ url_for('admin_reports') }}" class="btn btn-primary"><i data-lucide="bar-chart-3"></i> Reports</a>
+            <a href="{{ url_for('home') }}" target="_blank" class="btn btn-success"><i data-lucide="external-link"></i> Visit Website</a>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><div class="card-title">Recent Logins</div></div>
+        {% if stats.recent_logins %}
+        <ul class="login-list">
+            {% for log in stats.recent_logins %}
+            <li>
+                <strong>{{ log.user }}</strong><br>
+                <small class="text-muted">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') if log.timestamp else '-' }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state"><i data-lucide="user-x"></i><p>No recent logins.</p></div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+lucide.createIcons();
+const chartColors = { primary: '#F5C518', secondary: '#0A2647', success: '#22c55e', danger: '#ef4444', info: '#3b82f6' };
+const noData = (id, msg) => { const c = document.getElementById(id); if (c) { const ctx = c.getContext('2d'); ctx.font = '13px Outfit, sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'center'; ctx.fillText(msg, c.width/2, 60); } };
+
+const enrollLabels = {{ chart_data.months|tojson }};
+new Chart(document.getElementById('enrollmentChart'), {
+    type: 'line',
+    data: { labels: enrollLabels, datasets: [{ label: 'Enrollments', data: {{ chart_data.enroll_counts|tojson }}, borderColor: chartColors.primary, backgroundColor: chartColors.primary + '33', tension: 0.4, fill: true }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+
+const compLabels = {{ chart_data.course_names|tojson }};
+if (compLabels.length) {
+    new Chart(document.getElementById('completionChart'), {
+        type: 'bar',
+        data: { labels: compLabels, datasets: [{ label: 'Completion %', data: {{ chart_data.completion_rates|tojson }}, backgroundColor: chartColors.success + 'cc', borderRadius: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+} else { noData('completionChart', 'No courses yet'); }
+
+const revLabels = {{ chart_data.revenue_labels|tojson }};
+if (revLabels.length) {
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: { labels: revLabels, datasets: [{ label: 'Revenue (₹)', data: {{ chart_data.revenue_data|tojson }}, backgroundColor: chartColors.info + 'cc', borderRadius: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+} else { noData('revenueChart', 'No paid revenue yet'); }
+
+new Chart(document.getElementById('roleChart'), {
+    type: 'doughnut',
+    data: { labels: {{ chart_data.roles|tojson }}, datasets: [{ data: {{ chart_data.role_counts|tojson }}, backgroundColor: [chartColors.secondary, chartColors.primary, chartColors.danger] }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+</script>
+{% endblock %}

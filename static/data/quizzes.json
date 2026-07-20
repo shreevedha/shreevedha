@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "title": "Full Stack Basics Quiz",
+    "course_id": "full-stack-web",
+    "max_marks": 100,
+    "course": { "title": "Full Stack Web Development" },
+    "description": "Test your knowledge on HTML, CSS, JavaScript, and NodeJS basic concepts.",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "What does HTML stand for?",
+        "option_a": "Hyper Text Markup Language",
+        "option_b": "High Tech Modern Language",
+        "option_c": "Hyperlink Transfer Markup Language",
+        "option_d": "Home Tool Markup Language",
+        "correct_option": "A",
+        "marks": 50,
+        "explanation": "HTML stands for Hyper Text Markup Language."
+      },
+      {
+        "id": "q2",
+        "question": "Which of the following is NOT a JavaScript framework/library?",
+        "option_a": "React",
+        "option_b": "Django",
+        "option_c": "Vue",
+        "option_d": "Angular",
+        "correct_option": "B",
+        "marks": 50,
+        "explanation": "Django is a Python framework, not a JavaScript framework/library."
+      }
+    ]
+  }
+]

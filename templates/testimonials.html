@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Testimonials | Shreevedha Solutions{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">What Our Students Say</h1>
+        <div class="grid-2">
+            {% for t in testimonials %}
+            <div class="card">
+                <i data-lucide="quote" style="color: var(--primary-gold);"></i>
+                <p>"{{ t.content }}"</p>
+                <div><strong>{{ t.name }}</strong> ({{ t.role }})</div>
+                <div>⭐ {{ t.rating }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

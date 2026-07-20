@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Workshops | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+    }
+    .page-hero h1 { font-size: 2.5rem; color: var(--primary-gold); }
+    .content-section { padding: 3rem 0; }
+    .info-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    .workshop-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    .workshop-card {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 0.8rem;
+        border-left: 4px solid var(--primary-gold);
+    }
+    .workshop-card h3 { color: var(--primary-blue); margin-bottom: 0.5rem; }
+    .workshop-card .date { color: var(--primary-gold); font-weight: 600; margin-bottom: 0.5rem; }
+    .form-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; color: var(--primary-blue); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 0.5rem; }
+    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 0.8rem; border-radius: 2rem; cursor: pointer; width: 100%; font-weight: 600; transition: 0.3s; }
+    .btn-submit:hover { background: var(--primary-gold); color: black; }
+    .alert { margin-top: 1rem; padding: 0.8rem; border-radius: 0.5rem; text-align: center; }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>Hands‑on Workshops</h1>
+        <p>Short‑term intensive programs to master cutting‑edge technologies</p>
+    </div>
+</section>
+
+<div class="container content-section">
+    <div class="info-card">
+        <h2 style="color: var(--primary-blue);">Upcoming Workshops</h2>
+        <div class="workshop-list">
+            <div class="workshop-card"><div class="date">📅 Apr 20‑22, 2026</div><h3>Generative AI & Prompt Engineering</h3><p>Learn LLMs, LangChain, and build AI apps.</p></div>
+            <div class="workshop-card"><div class="date">📅 May 5‑7, 2026</div><h3>Full Stack Bootcamp</h3><p>Build a complete MERN project in 3 days.</p></div>
+            <div class="workshop-card"><div class="date">📅 May 15‑17, 2026</div><h3>Data Science with Python</h3><p>Hands‑on analysis, visualization, and ML.</p></div>
+        </div>
+        <p>Workshops are available online, offline, or hybrid. Each includes live coding, assignments, and a participation certificate. Ideal for students and working professionals looking to upskill quickly.</p>
+    </div>
+
+    <div class="form-card">
+        <h3 style="color: var(--primary-blue);">Register for a Workshop</h3>
+        <form method="POST" action="{{ url_for('registration') }}">
+            <input type="hidden" name="course" value="Workshop">
+            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
+            <div class="form-group"><label>Select Workshop</label>
+                <select name="workshop_name">
+                    <option>Generative AI & Prompt Engineering</option>
+                    <option>Full Stack Bootcamp</option>
+                    <option>Data Science with Python</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Mode</label>
+                <select name="mode">
+                    <option>Online</option><option>Offline</option><option>Hybrid</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Register →</button>
+        </form>
+        {% set messages = get_flashed_messages({ with_categories: true }) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

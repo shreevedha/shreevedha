@@ -1,0 +1,78 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Quiz Review{% endblock %}
+{% block page_title %}{{ quiz.title }} - Review{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold" style="color: var(--primary-blue);">{{ quiz.title }}</h4>
+                <p class="text-muted mb-0">Review your answers and learn from mistakes</p>
+            </div>
+            <div class="text-end">
+                <h2 class="fw-bold" style="color: var(--primary-gold);">{{ attempt.score }}/{{ attempt.total_marks }}</h2>
+                <span class="badge bg-primary">{{ (attempt.score / attempt.total_marks * 100)|round(1) }}%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for q in quiz.questions %}
+{% set student_ans = answers.get(q.id|string, '') %}
+{% set is_correct = student_ans.upper() == q.correct_option.upper() %}
+<div class="card border-0 shadow-sm mb-3 {% if is_correct %}border-start border-success border-4{% else %}border-start border-danger border-4{% endif %}">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h6 class="fw-bold">{{ loop.index }}. {{ q.question }} ({{ q.marks }} marks)</h6>
+            {% if is_correct %}
+            <span class="badge bg-success">Correct</span>
+            {% else %}
+            <span class="badge bg-danger">Incorrect</span>
+            {% endif %}
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-6">
+                <div class="p-2 rounded {% if student_ans.upper() == 'A' %}{% if q.correct_option.upper() == 'A' %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}{% elif q.correct_option.upper() == 'A' %}bg-success bg-opacity-10{% else %}bg-light{% endif %}">
+                    <strong>A.</strong> {{ q.option_a }}
+                    {% if student_ans.upper() == 'A' %} <i class="bi bi-person-fill"></i>{% endif %}
+                    {% if q.correct_option.upper() == 'A' %} <i class="bi bi-check-circle-fill text-success"></i>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-2 rounded {% if student_ans.upper() == 'B' %}{% if q.correct_option.upper() == 'B' %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}{% elif q.correct_option.upper() == 'B' %}bg-success bg-opacity-10{% else %}bg-light{% endif %}">
+                    <strong>B.</strong> {{ q.option_b }}
+                    {% if student_ans.upper() == 'B' %} <i class="bi bi-person-fill"></i>{% endif %}
+                    {% if q.correct_option.upper() == 'B' %} <i class="bi bi-check-circle-fill text-success"></i>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-2 rounded {% if student_ans.upper() == 'C' %}{% if q.correct_option.upper() == 'C' %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}{% elif q.correct_option.upper() == 'C' %}bg-success bg-opacity-10{% else %}bg-light{% endif %}">
+                    <strong>C.</strong> {{ q.option_c }}
+                    {% if student_ans.upper() == 'C' %} <i class="bi bi-person-fill"></i>{% endif %}
+                    {% if q.correct_option.upper() == 'C' %} <i class="bi bi-check-circle-fill text-success"></i>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-2 rounded {% if student_ans.upper() == 'D' %}{% if q.correct_option.upper() == 'D' %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}{% elif q.correct_option.upper() == 'D' %}bg-success bg-opacity-10{% else %}bg-light{% endif %}">
+                    <strong>D.</strong> {{ q.option_d }}
+                    {% if student_ans.upper() == 'D' %} <i class="bi bi-person-fill"></i>{% endif %}
+                    {% if q.correct_option.upper() == 'D' %} <i class="bi bi-check-circle-fill text-success"></i>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% if q.explanation %}
+        <div class="mt-3 p-3 bg-info bg-opacity-10 rounded">
+            <strong><i class="bi bi-lightbulb text-warning"></i> Explanation:</strong>
+            <p class="mb-0">{{ q.explanation }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<a href="{{ url_for('lms_course_detail', course_id=quiz.course_id) }}" class="btn btn-primary-custom">
+    <i class="bi bi-arrow-left"></i> Back to Course
+</a>
+{% endblock %}

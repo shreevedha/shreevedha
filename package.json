@@ -1,0 +1,40 @@
+{
+  "name": "shreevedha-solutions",
+  "version": "1.0.0",
+  "description": "Shreevedha Solutions Platform migrated from Python to Node.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
+    "start": "node dist/server.js",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "firebase": "^12.15.0",
+    "firebase-admin": "^14.1.0",
+    "googleapis": "^173.0.0",
+    "multer": "^2.2.0",
+    "nunjucks": "^3.2.4",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@types/connect-flash": "^0.0.40",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.1.0",
+    "@types/nunjucks": "^3.2.6",
+    "@types/uuid": "^10.0.0",
+    "esbuild": "^0.28.1",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,34 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+
+{% block content %}
+{% if announcements %}
+<div class="row g-4">
+    {% for ann in announcements %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm border-start border-4 {% if ann.audience == 'all' %}border-primary{% elif ann.audience == 'students' %}border-success{% else %}border-info{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="fw-bold mb-1" style="color: var(--primary-blue);">{{ ann.title }}</h5>
+                        <span class="badge bg-{% if ann.audience == 'all' %}primary{% elseif ann.audience == 'students' %}success{% else %}info{% endif %} mb-2">{{ ann.audience|title }}</span>
+                        {% if ann.course %}<span class="badge bg-secondary">{{ ann.course.title }}</span>{% endif %}
+                    </div>
+                    <small class="text-muted">{{ ann.created_at.strftime('%b %d, %Y') }}</small>
+                </div>
+                <p class="text-muted mb-0">{{ ann.message }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-light text-center py-5">
+    <i class="bi bi-megaphone fs-1 text-muted mb-3 d-block"></i>
+    <h5>No announcements</h5>
+    <p class="text-muted">Check back later for updates from your instructors.</p>
+</div>
+{% endif %}
+{% endblock %}

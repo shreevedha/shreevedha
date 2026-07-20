@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block title %}Shreevedha Solutions | Industry-Ready Tech Training{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section - Black gradient, no blue */
+    .hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #1A1A2E 100%);
+        color: white;
+        padding: 5rem 0;
+    }
+    .hero .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+    }
+    .hero h1 {
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    .hero h1 span {
+        color: var(--primary-gold);
+    }
+    .tagline {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--primary-gold);
+        margin: 1rem 0 1.5rem 0;
+        letter-spacing: 1px;
+    }
+    .hero p {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+    .hero-image img {
+        width: 100%;
+        border-radius: 1rem;
+        box-shadow: 0 20px 30px rgba(0,0,0,0.3);
+    }
+    .btn-gold {
+        background: var(--primary-gold);
+        color: #000;
+        padding: 0.8rem 2rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: 0.3s;
+    }
+    .btn-gold:hover {
+        background: var(--primary-gold-light);
+        transform: translateY(-3px);
+    }
+
+    /* Stats Section - Labels now visible */
+    .stats {
+        background: var(--primary-blue);
+        padding: 3rem 0;
+    }
+    .stats-grid {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 2rem;
+        text-align: center;
+    }
+    .stat-item {
+        flex: 1;
+        min-width: 150px;
+        color: white;  /* ensures all text inside is white */
+    }
+    .stat-number {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: var(--primary-gold);
+        margin-bottom: 0.5rem;
+    }
+    .stat-item div:last-child {
+        font-size: 1rem;
+        font-weight: 500;
+        color: white;  /* explicitly white */
+    }
+
+    /* Section Titles */
+    .section-title {
+        text-align: center;
+        font-size: 2.2rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: var(--primary-gold);
+        border-radius: 2px;
+    }
+
+    /* Course Cards */
+    .course-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    .course-card {
+        background: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: 0.3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    .course-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+    .course-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .course-card .content {
+        padding: 1.5rem;
+    }
+    .course-card h3 {
+        font-size: 1.3rem;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    .course-card p {
+        color: #64748b;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+    .course-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+    .badge {
+        background: #e2e8f0;
+        padding: 0.2rem 0.8rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .btn-outline {
+        border: 2px solid var(--primary-gold);
+        background: transparent;
+        padding: 0.3rem 1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        transition: 0.3s;
+        color: var(--primary-blue);
+    }
+    .btn-outline:hover {
+        background: var(--primary-gold);
+        color: #000;
+    }
+
+    /* Benefits Grid */
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    .benefit-card {
+        background: white;
+        padding: 1.8rem;
+        border-radius: 1rem;
+        text-align: center;
+        transition: 0.3s;
+        border-bottom: 3px solid var(--primary-gold);
+        box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+    }
+    .benefit-card i {
+        color: var(--primary-gold);
+        margin-bottom: 1rem;
+    }
+    .benefit-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Testimonials */
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    .testimonial-card {
+        background: white;
+        padding: 1.8rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-gold);
+    }
+    .rating {
+        color: var(--primary-gold);
+        margin-top: 0.8rem;
+    }
+
+    /* CTA */
+    .cta {
+        background: #0A0A0A;
+        color: white;
+        text-align: center;
+        padding: 4rem 0;
+    }
+    .cta h2 {
+        color: var(--primary-gold);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    .cta p {
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    /* Hero Carousel */
+    .hero-carousel {
+        position: relative;
+        width: 100%;
+        height: 520px;
+        overflow: hidden;
+        background: var(--dark);
+    }
+    .hero-carousel .slide {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+        z-index: 1;
+    }
+    .hero-carousel .slide.active {
+        opacity: 1;
+        z-index: 2;
+    }
+    .hero-carousel .slide-bg {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+    .hero-carousel .slide-overlay {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, rgba(10,38,71,0.92) 0%, rgba(10,38,71,0.6) 60%, rgba(10,38,71,0.3) 100%);
+    }
+    .hero-carousel .slide-content {
+        position: relative;
+        z-index: 3;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        color: white;
+    }
+    .hero-carousel .slide-text {
+        max-width: 600px;
+    }
+    .hero-carousel .slide-text h2 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+    }
+    .hero-carousel .slide-text h2 span {
+        color: var(--primary-gold);
+    }
+    .hero-carousel .slide-text p {
+        font-size: 1.15rem;
+        opacity: 0.9;
+        margin-bottom: 1.75rem;
+        line-height: 1.6;
+    }
+    .hero-carousel .carousel-btn {
+        background: var(--primary-gold);
+        color: #000;
+        padding: 0.8rem 2rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: 0.3s;
+    }
+    .hero-carousel .carousel-btn:hover {
+        background: var(--primary-gold-light);
+        transform: translateY(-3px);
+    }
+    .hero-carousel .carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 48px; height: 48px;
+        background: rgba(255,255,255,0.15);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+        backdrop-filter: blur(4px);
+    }
+    .hero-carousel .carousel-arrow:hover {
+        background: var(--primary-gold);
+        color: black;
+    }
+    .hero-carousel .arrow-prev { left: 1.5rem; }
+    .hero-carousel .arrow-next { right: 1.5rem; }
+    .hero-carousel .carousel-dots {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        display: flex;
+        gap: 0.6rem;
+    }
+    .hero-carousel .carousel-dot {
+        width: 12px; height: 12px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.4);
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .hero-carousel .carousel-dot.active {
+        background: var(--primary-gold);
+        width: 32px;
+        border-radius: 6px;
+    }
+
+    @media (max-width: 768px) {
+        .hero .container {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        .hero h1 { font-size: 2.2rem; }
+        .stats-grid { flex-direction: column; align-items: center; }
+        .stat-item { width: 100%; }
+        .section-title { font-size: 1.8rem; }
+        .hero-carousel { height: 420px; }
+        .hero-carousel .slide-text h2 { font-size: 1.8rem; }
+        .hero-carousel .slide-text p { font-size: 1rem; }
+        .hero-carousel .carousel-arrow { width: 38px; height: 38px; }
+        .hero-carousel .arrow-prev { left: 0.75rem; }
+        .hero-carousel .arrow-next { right: 0.75rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Carousel / Slider -->
+{% if slides %}
+<section class="hero-carousel" id="heroCarousel">
+    {% for slide in slides %}
+    <div class="slide {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
+        <div class="slide-bg" style="background-image: url('{{ url_for('static', filename='uploads/slides/' + slide.image_filename) }}');"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+            <div class="slide-text">
+                <h2>{{ slide.title }}</h2>
+                {% if slide.subtitle %}<p>{{ slide.subtitle }}</p>{% endif %}
+                {% if slide.link %}
+                <a href="{{ slide.link }}" class="carousel-btn">{{ slide.link_text or 'Learn More' }} →</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <button class="carousel-arrow arrow-prev" onclick="prevSlide()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="carousel-arrow arrow-next" onclick="nextSlide()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+    <div class="carousel-dots">
+        {% for slide in slides %}
+        <button class="carousel-dot {% if loop.first %}active{% endif %}" onclick="goToSlide({{ loop.index0 }})"></button>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div>
+            <h1>Transforming <span>Talent</span> into <span>Industry-Ready Professionals</span></h1>
+            <div class="tagline">“Learn Today. Build Tomorrow. Lead the Future.”</div>
+            <p>Empower your career with industry-aligned courses, real-time projects, and guaranteed placement support. Join 8000+ successful students.</p>
+            <a href="{{ url_for('registration') }}" class="btn-gold"><i data-lucide="rocket"></i> Register Now</a>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2074&auto=format&fit=crop" alt="Students learning tech">
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-number" data-target="8000+">0</div><div>Students Trained</div></div>
+            <div class="stat-item"><div class="stat-number" data-target="250+">0</div><div>Corporate Partners</div></div>
+            <div class="stat-item"><div class="stat-number" data-target="50+">0</div><div>Expert Trainers</div></div>
+            <div class="stat-item"><div class="stat-number" data-target="100+">0</div><div>Placement Rate %</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Courses -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Popular Courses</h2>
+        <div class="course-grid">
+            <!-- Python Course -->
+            <div class="course-card">
+                <img src="https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Python Programming">
+                <div class="content">
+                    <h3>Python Programming</h3>
+                    <p>Master Python from basics to advanced concepts including OOP, file handling, and modules.</p>
+                    <div class="course-meta">
+                        <span class="badge">60 Days</span>
+                        <a href="{{ url_for('course_detail', course_id='python-programming') }}" class="btn-outline">View →</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Full Stack Course -->
+            <div class="course-card">
+                <img src="https://images.pexels.com/photos/11035539/pexels-photo-11035539.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Full Stack Development">
+                <div class="content">
+                    <h3>Full Stack Development</h3>
+                    <p>Become a complete web developer with MERN stack, responsive design, and deployment.</p>
+                    <div class="course-meta">
+                        <span class="badge">60 Days</span>
+                        <a href="{{ url_for('course_detail', course_id='full-stack-web') }}" class="btn-outline">View →</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Data Science Course -->
+            <div class="course-card">
+                <img src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Data Science">
+                <div class="content">
+                    <h3>Data Science & Analytics</h3>
+                    <p>Learn data analysis, visualization, statistics, and machine learning fundamentals.</p>
+                    <div class="course-meta">
+                        <span class="badge">60 Days</span>
+                        <a href="{{ url_for('course_detail', course_id='data-science') }}" class="btn-outline">View →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <a href="{{ url_for('courses') }}" class="btn-gold" style="background: var(--primary-blue); color: white;">Explore All Courses →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Upcoming & Current Programs / Events -->
+{% if livetrackEvents and livetrackEvents|length > 0 %}
+<section class="section" style="background: #F8FAFC;">
+    <div class="container">
+        <h2 class="section-title">Upcoming & Current Programs</h2>
+        <p style="text-align: center; margin-top: -1.5rem; margin-bottom: 2.5rem; color: #64748b;">Join our latest workshops, hackathons, events, and placement drives</p>
+        <div class="course-grid">
+            {% for evt in livetrackEvents %}
+            <div class="course-card" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 1rem; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <div>
+                    <div style="position: relative;">
+                        {% if evt.image_filename %}
+                        <img src="{{ url_for('static', filename='uploads/livetrack/' + evt.image_filename) }}" alt="{{ evt.title }}" style="height: 190px; width: 100%; object-fit: cover;">
+                        {% elseif evt.image_url %}
+                        <img src="{{ evt.image_url }}" alt="{{ evt.title }}" style="height: 190px; width: 100%; object-fit: cover;">
+                        {% else %}
+                        <div style="height: 190px; background: var(--primary-blue); display: flex; align-items: center; justify-content: center; color: var(--primary-gold); font-size: 2rem;"><i data-lucide="calendar"></i></div>
+                        {% endif %}
+                        <span style="position: absolute; top: 12px; right: 12px; background: var(--primary-blue); color: var(--primary-gold); padding: 0.25rem 0.85rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                            {{ evt.update_type or evt.category or 'Program' }}
+                        </span>
+                    </div>
+                    <div class="content" style="padding: 1.3rem;">
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">
+                            📅 <span>{{ evt.event_date or 'Upcoming' }}</span>
+                        </div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--primary-blue); font-weight: 700;">{{ evt.title }}</h3>
+                        <p style="font-size: 0.9rem; color: #475569; line-height: 1.5; margin-bottom: 1rem;">{{ evt.description }}</p>
+                    </div>
+                </div>
+                <div style="padding: 0 1.3rem 1.3rem 1.3rem;">
+                    {% if evt.link_url %}
+                    <a href="{{ evt.link_url }}" class="btn-gold" style="display: block; text-align: center; font-size: 0.95rem; padding: 0.65rem 1rem; text-decoration: none; border-radius: 2rem; font-weight: 700; width: 100%;">
+                        {{ evt.link_text or 'Pay / Visit' }} →
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('registration') }}" class="btn-gold" style="display: block; text-align: center; font-size: 0.95rem; padding: 0.65rem 1rem; text-decoration: none; border-radius: 2rem; font-weight: 700; width: 100%;">
+                        Register Now →
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="text-align: center; margin-top: 2.5rem;">
+            <a href="{{ url_for('livetrack') }}" class="btn-outline" style="padding: 0.7rem 1.8rem; font-size: 1rem;">View All Live Updates & Events →</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Why Shreevedha -->
+<section class="section" style="background: #F8FAFC;">
+    <div class="container">
+        <h2 class="section-title">Why Shreevedha?</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card"><i data-lucide="users"></i><h3>Industry Trainers</h3><p>4+ years corporate experience</p></div>
+            <div class="benefit-card"><i data-lucide="eye"></i><h3>Live Monitoring</h3><p>Daily progress tracking</p></div>
+            <div class="benefit-card"><i data-lucide="file-text"></i><h3>Daily Assignments</h3><p>Topic‑wise practice</p></div>
+            <div class="benefit-card"><i data-lucide="calendar"></i><h3>Weekly Exams</h3><p>Regular assessments</p></div>
+            <div class="benefit-card"><i data-lucide="briefcase"></i><h3>Industrial Projects</h3><p>SIH & SDG collaborations</p></div>
+            <div class="benefit-card"><i data-lucide="award"></i><h3>Certifications</h3><p>Internship + Merit + College</p></div>
+            <div class="benefit-card"><i data-lucide="linkedin"></i><h3>Personal Branding</h3><p>LinkedIn, GitHub, Portfolio</p></div>
+            <div class="benefit-card"><i data-lucide="briefcase"></i><h3>100% Job Assistance</h3><p>Placement support</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">What Our Students Say</h2>
+        <div class="testimonial-grid">
+            {% for t in testimonials %}
+            <div class="testimonial-card">
+                <i data-lucide="quote" style="color: var(--primary-gold);"></i>
+                <p>"{{ t.content }}"</p>
+                <div><strong>{{ t.name }}</strong> ({{ t.role }})</div>
+                <div class="rating">★ {{ t.rating }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="text-align: center;">
+            <a href="{{ url_for('testimonials') }}" class="btn-outline">Read More →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta">
+    <div class="container">
+        <h2>Ready to Upskill?</h2>
+        <p>Join the next batch and transform your career with hands-on training.</p>
+        <a href="{{ url_for('registration') }}" class="btn-gold" style="background: var(--primary-gold); color: #000;">Register Now →</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate stats
+    function animateStats() {
+        document.querySelectorAll('.stat-number').forEach(stat => {
+            const target = parseInt(stat.dataset.target);
+            if (target && !stat.hasAttribute('animated')) {
+                let current = 0;
+                const increment = target / 60;
+                const update = () => {
+                    current += increment;
+                    if (current < target) {
+                        stat.textContent = Math.ceil(current);
+                        requestAnimationFrame(update);
+                    } else {
+                        stat.textContent = target;
+                        stat.setAttribute('animated', 'true');
+                    }
+                };
+                update();
+            }
+        });
+    }
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) { animateStats(); observer.unobserve(entry.target); } });
+    }, { threshold: 0.5 });
+    const statsContainer = document.querySelector('.stats');
+    if (statsContainer) observer.observe(statsContainer);
+
+    // Hero Carousel
+    (function() {
+        const carousel = document.getElementById('heroCarousel');
+        if (!carousel) return;
+        const slides = carousel.querySelectorAll('.slide');
+        const dots = carousel.querySelectorAll('.carousel-dot');
+        let current = 0;
+        let interval;
+
+        function showSlide(index) {
+            slides.forEach((s, i) => s.classList.toggle('active', i === index));
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            current = index;
+        }
+
+        window.nextSlide = function() {
+            showSlide((current + 1) % slides.length);
+        };
+        window.prevSlide = function() {
+            showSlide((current - 1 + slides.length) % slides.length);
+        };
+        window.goToSlide = function(index) {
+            showSlide(index);
+            resetTimer();
+        };
+
+        function resetTimer() {
+            clearInterval(interval);
+            interval = setInterval(window.nextSlide, 5000);
+        }
+
+        // Touch / swipe support
+        let startX = 0;
+        carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+        carousel.addEventListener('touchend', e => {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? window.nextSlide() : window.prevSlide();
+                resetTimer();
+            }
+        });
+
+        resetTimer();
+    })();
+</script>
+{% endblock %}

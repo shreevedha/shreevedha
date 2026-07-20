@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "course_id": "full-stack-web",
+    "user_id": 1,
+    "question": "How do I deploy a NodeJS backend on Render?",
+    "answer": "",
+    "is_answered": false,
+    "created_at": "2026-07-18T10:00:00.000Z"
+  }
+]

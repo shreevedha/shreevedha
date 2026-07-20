@@ -1,0 +1,143 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Projects Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Projects Management</h1>
+    <p>Add or remove student projects</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Add New Project</div>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_project') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Project Title *</label>
+                <input type="text" name="title" required placeholder="e.g., E-commerce Website">
+            </div>
+            <div class="form-group">
+                <label>Tech Stack (optional)</label>
+                <input type="text" name="tech_stack" placeholder="e.g., React, Node.js, MongoDB">
+            </div>
+            <div class="form-group">
+                <label>GitHub Link (optional)</label>
+                <input type="url" name="github_link" placeholder="https://github.com/...">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" rows="3" required placeholder="Describe the project..."></textarea>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Upload Image (optional)</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i> Add Project</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Projects ({{ projects|length }})</div>
+    </div>
+    {% if projects %}
+    <div class="admin-gallery-grid">
+        {% for p in projects %}
+        <div class="admin-gallery-card">
+            {% if p.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/projects/' + p.image_filename) }}" alt="{{ p.title }}">
+            {% else %}
+            <div style="height:160px; display:flex; align-items:center; justify-content:center; background:#e2e8f0; color:#94a3b8;"><i data-lucide="folder-git-2"></i></div>
+            {% endif %}
+            <div class="info">
+                <h4>{{ p.title }}</h4>
+                <p>{{  (p.description or '').slice(0, 60)  }}{% if p.description|length > 60 %}...{% endif %}</p>
+            </div>
+            <div class="actions">
+                {% if p.github_link %}
+                <a href="{{ p.github_link }}" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.75rem;"><i data-lucide="github"></i> Code</a>
+                {% endif %}
+                <button type="button" class="btn btn-primary btn-sm edit-project-btn" style="font-size:0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;"
+                    data-id="{{ p._id }}"
+                    data-title="{{ p.title }}"
+                    data-tech="{{ p.tech_stack or '' }}"
+                    data-github="{{ p.github_link or '' }}"
+                    data-description="{{ p.description }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                <form method="POST" action="{{ url_for('admin_delete_project', id=p._id) }}" onsubmit="return confirm('Delete this project?');" style="display:inline; flex:1;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" style="width:100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><i data-lucide="folder-git-2"></i><p>No projects yet. Add your first project above.</p></div>
+    {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editProjectModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeEditProjectModal()">&times;</button>
+        <h3>Edit Project</h3>
+        <form method="POST" id="editProjectForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Project Title *</label>
+                    <input type="text" name="title" id="editProjectTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Tech Stack</label>
+                    <input type="text" name="tech_stack" id="editProjectTech" placeholder="e.g., React, Node.js">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>GitHub Link (optional)</label>
+                    <input type="url" name="github_link" id="editProjectGithub">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description *</label>
+                <textarea name="description" id="editProjectDescription" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Replace Image (leave empty to keep current)</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Update Project</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    document.querySelectorAll('.edit-project-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('editProjectForm').action = '/admin_update_project/' + id;
+            document.getElementById('editProjectTitle').value = this.dataset.title;
+            document.getElementById('editProjectTech').value = this.dataset.tech;
+            document.getElementById('editProjectGithub').value = this.dataset.github;
+            document.getElementById('editProjectDescription').value = this.dataset.description;
+            document.getElementById('editProjectModal').classList.add('active');
+        });
+    });
+    function closeEditProjectModal() {
+        document.getElementById('editProjectModal').classList.remove('active');
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editProjectModal')) closeEditProjectModal();
+    });
+</script>
+{% endblock %}

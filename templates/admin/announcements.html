@@ -1,0 +1,75 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Announcements{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Announcements</h1>
+        <p>Broadcast messages to students and instructors</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><div class="card-title">Post New Announcement</div></div>
+    <form method="POST" action="{{ url_for('admin_create_announcement') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label>Title</label><input type="text" name="title" required placeholder="e.g., New Course Launch"></div>
+        <div class="form-group"><label>Message</label><textarea name="message" rows="3" required placeholder="Announcement details..."></textarea></div>
+        <div class="form-grid">
+            <div class="form-group"><label>Audience</label>
+                <select name="audience">
+                    <option value="all">All Users</option>
+                    <option value="students">Students Only</option>
+                    <option value="instructors">Instructors Only</option>
+                    <option value="course">Specific Course</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Course (if specific)</label>
+                <select name="course_id">
+                    <option value="">-- All Courses --</option>
+                    {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label><input type="checkbox" name="is_active" checked style="width:auto;"> Active</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Post Announcement</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header"><div class="card-title">All Announcements ({{ announcements|length }})</div></div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Title</th><th>Audience</th><th>Status</th><th>Posted</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% if not announcements %}
+                <tr><td colspan="5"><div class="empty-state"><i data-lucide="megaphone"></i><p>No announcements yet.</p></div></td></tr>
+                {% endif %}
+                {% for ann in announcements %}
+                <tr>
+                    <td><strong>{{ ann.title }}</strong><br><small class="text-muted">{{  (ann.message or '').slice(0, 60)  }}{% if ann.message|length > 60 %}...{% endif %}</small></td>
+                    <td><span class="badge badge-muted">{{ ann.audience|title }}</span></td>
+                    <td><span class="badge badge-{{ 'success' if ann.is_active else 'muted' }}">{{ 'Active' if ann.is_active else 'Inactive' }}</span></td>
+                    <td>{{ ann.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <form method="POST" action="{{ url_for('admin_toggle_announcement', ann_id=ann.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-primary btn-sm">{{ 'Deactivate' if ann.is_active else 'Activate' }}</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin_delete_announcement', ann_id=ann.id) }}" onsubmit="return confirm('Delete?');" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

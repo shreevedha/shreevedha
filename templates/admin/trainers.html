@@ -1,0 +1,155 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Trainers Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Trainers Management</h1>
+    <p>Manage the trainers team on the About Us page</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Add New Trainer</div>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_trainer') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Trainer Name *</label>
+                <input type="text" name="name" required placeholder="e.g., Dr. Priya Mehta">
+            </div>
+            <div class="form-group">
+                <label>Role / Designation *</label>
+                <input type="text" name="role" required placeholder="e.g., AI & ML Lead Trainer">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Biography / Credentials *</label>
+            <textarea name="bio" rows="3" required placeholder="Describe their education, experience, and background..."></textarea>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Upload Profile Picture (Image File)</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Or Profile Picture URL (External Link)</label>
+                <input type="url" name="external_image_url" placeholder="https://images.pexels.com/...">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i> Add Trainer</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Trainers ({{ trainers|length }})</div>
+    </div>
+    {% if trainers %}
+    <div class="admin-gallery-grid">
+        {% for t in trainers %}
+        <div class="admin-gallery-card">
+            {% if t.image_url %}
+            <img src="{{ t.image_url }}" alt="{{ t.name }}">
+            {% else %}
+            <div style="height:160px; display:flex; align-items:center; justify-content:center; background:#e2e8f0; color:#94a3b8;"><i data-lucide="user"></i></div>
+            {% endif %}
+            <div class="info">
+                <h4>{{ t.name }}</h4>
+                <div style="color: var(--primary-gold); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">{{ t.role }}</div>
+                <p>{{ (t.bio or '').slice(0, 80) }}{% if t.bio|length > 80 %}...{% endif %}</p>
+            </div>
+            <div class="actions">
+                <button type="button" class="btn btn-primary btn-sm edit-trainer-btn" style="flex:1; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"
+                    data-id="{{ t._id }}"
+                    data-name="{{ t.name }}"
+                    data-role="{{ t.role }}"
+                    data-bio="{{ t.bio }}"
+                    data-image="{{ t.image_url or '' }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                <form method="POST" action="{{ url_for('admin_delete_trainer', id=t._id) }}" onsubmit="return confirm('Delete this trainer?');" style="display:inline; flex:1;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" style="width:100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i data-lucide="users"></i>
+        <p>No trainers listed yet. Add your first trainer using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editTrainerModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeEditTrainerModal()">&times;</button>
+        <h3>Edit Trainer</h3>
+        <form method="POST" id="editTrainerForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Trainer Name *</label>
+                    <input type="text" name="name" id="editTrainerName" required>
+                </div>
+                <div class="form-group">
+                    <label>Role / Designation *</label>
+                    <input type="text" name="role" id="editTrainerRole" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Biography / Credentials *</label>
+                <textarea name="bio" id="editTrainerBio" rows="3" required></textarea>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Replace Profile Picture (File)</label>
+                    <input type="file" name="image" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Or Profile Picture URL (External)</label>
+                    <input type="url" name="external_image_url" id="editTrainerImageExternal">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Trainer</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    document.querySelectorAll('.edit-trainer-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('editTrainerForm').action = '/admin/trainers/' + id + '/update';
+            document.getElementById('editTrainerName').value = this.dataset.name;
+            document.getElementById('editTrainerRole').value = this.dataset.role;
+            document.getElementById('editTrainerBio').value = this.dataset.bio;
+            
+            const imgVal = this.dataset.image;
+            if (imgVal && imgVal.startsWith('http')) {
+                document.getElementById('editTrainerImageExternal').value = imgVal;
+            } else {
+                document.getElementById('editTrainerImageExternal').value = '';
+            }
+            
+            document.getElementById('editTrainerModal').classList.add('active');
+        });
+    });
+    function closeEditTrainerModal() {
+        document.getElementById('editTrainerModal').classList.remove('active');
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editTrainerModal')) closeEditTrainerModal();
+    });
+</script>
+{% endblock %}

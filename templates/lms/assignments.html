@@ -1,0 +1,74 @@
+{% extends "lms/base.html" %}
+
+{% block title %}Assignments{% endblock %}
+{% block page_title %}My Assignments{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="fw-bold m-0" style="color: var(--primary-blue);">Assignments</h5>
+    </div>
+    <div class="card-body">
+        {% if assignments %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Assignment</th>
+                        <th>Course</th>
+                        <th>Due Date</th>
+                        <th>Max Marks</th>
+                        <th>Status</th>
+                        <th>Grade</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in assignments %}
+                    {% set sub = submissions.get(a.id) %}
+                    <tr>
+                        <td>{{ a.title }}</td>
+                        <td>{{ a.course.title }}</td>
+                        <td>{{ a.due_date.strftime('%b %d, %Y') if a.due_date else '-' }}</td>
+                        <td>{{ a.max_marks }}</td>
+                        <td>
+                            {% if sub %}
+                            <span class="badge bg-success">Submitted</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if sub and sub.grade is not none %}
+                            <span class="badge bg-primary">{{ sub.grade }}/{{ a.max_marks }}</span>
+                            {% elif sub %}
+                            <span class="badge bg-secondary">Grading</span>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not sub %}
+                            <form method="POST" action="{{ url_for('lms_submit_assignment', assignment_id=a.id) }}" enctype="multipart/form-data" class="d-flex gap-2">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="file" name="file" class="form-control form-control-sm" required style="max-width: 180px;">
+                                <button type="submit" class="btn btn-sm btn-primary-custom">Submit</button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted small">Submitted on {{ sub.submitted_at.strftime('%b %d') }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-journal-check fs-1 d-block mb-2"></i>
+            No assignments available.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

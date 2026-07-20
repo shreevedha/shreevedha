@@ -1,0 +1,30 @@
+[
+  {
+    "_id": "1",
+    "name": "Dr. Priya Mehta",
+    "role": "AI & ML Lead Trainer",
+    "bio": "Ph.D. in Machine Learning, 12+ years experience. Previously at Google Research. Expert in Deep Learning, Computer Vision, and NLP.",
+    "image_url": "/static/uploads/trainers/7d46332d-4ee9-4da6-b9e2-25a295afb2df_logo.png"
+  },
+  {
+    "_id": "2",
+    "name": "Rajesh Kumar",
+    "role": "Full Stack Development",
+    "bio": "Former Senior Engineer at Amazon. 10+ years in MERN, Java, Cloud. Mentored 2000+ students into top product companies.",
+    "image_url": "https://images.pexels.com/photos/2380794/pexels-photo-2380794.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+  },
+  {
+    "_id": "3",
+    "name": "Dr. Anjali Nair",
+    "role": "Data Science & Analytics",
+    "bio": "Ex-Chief Data Scientist at Fractal Analytics. Specialises in Big Data, Predictive Modelling, and Business Intelligence.",
+    "image_url": "https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+  },
+  {
+    "_id": "4",
+    "name": "Vikram Singh",
+    "role": "Cloud & DevOps Architect",
+    "bio": "AWS Certified Solutions Architect, 14+ years. Led cloud transformations for Fortune 500 companies.",
+    "image_url": "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+  }
+]

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Assistance | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+    }
+    .page-hero h1 { font-size: 2.5rem; color: var(--primary-gold); }
+    .content-section { padding: 3rem 0; }
+    .info-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    .stats-row {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    .stat-box {
+        background: var(--primary-blue);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        text-align: center;
+        flex: 1;
+        min-width: 150px;
+    }
+    .stat-number { font-size: 2rem; font-weight: 800; color: var(--primary-gold); }
+    .process-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    .step { text-align: center; }
+    .step-number { background: var(--primary-gold); color: black; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 0.5rem; }
+    .form-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; color: var(--primary-blue); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 0.5rem; }
+    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 0.8rem; border-radius: 2rem; cursor: pointer; width: 100%; font-weight: 600; transition: 0.3s; }
+    .btn-submit:hover { background: var(--primary-gold); color: black; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>Placement Assistance</h1>
+        <p>Your career partner – 100% job support until you get hired</p>
+    </div>
+</section>
+
+<div class="container content-section">
+    <div class="info-card">
+        <h2 style="color: var(--primary-blue);">Our Placement Record</h2>
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-number">150+</div><div>Corporate Partners</div></div>
+            <div class="stat-box"><div class="stat-number">8000+</div><div>Students Placed</div></div>
+            <div class="stat-box"><div class="stat-number">100%</div><div>Assistance Guarantee</div></div>
+        </div>
+        <p>We have a dedicated placement cell that works with 150+ companies including Amazon, Infosys, TCS, Wipro, Deloitte, and many startups. Our students receive personalized training, mock interviews, resume workshops, and direct referrals.</p>
+        <div class="process-steps">
+            <div class="step"><div class="step-number">1</div><h4>Aptitude & Coding</h4><p>Intensive preparation</p></div>
+            <div class="step"><div class="step-number">2</div><h4>Soft Skills</h4><p>Communication & HR rounds</p></div>
+            <div class="step"><div class="step-number">3</div><h4>Mock Interviews</h4><p>With industry experts</p></div>
+            <div class="step"><div class="step-number">4</div><h4>Referrals</h4><p>Direct to hiring partners</p></div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <h3 style="color: var(--primary-blue);">Register for Placement Support</h3>
+        <form method="POST" action="{{ url_for('registration') }}">
+            <input type="hidden" name="course" value="Placement Assistance">
+            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
+            <div class="form-group"><label>Qualification</label><input type="text" name="qualification" placeholder="B.Tech / MCA / etc."></div>
+            <div class="form-group"><label>Preferred Domain</label>
+                <select name="domain">
+                    <option>Full Stack Development</option><option>Data Science</option><option>AI/ML</option>
+                    <option>Cloud & DevOps</option><option>Cyber Security</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Get Placement Ready →</button>
+        </form>
+        {% set messages = get_flashed_messages({ with_categories: true }) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

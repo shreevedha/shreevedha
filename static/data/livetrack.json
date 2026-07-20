@@ -4,9 +4,10 @@
     "description": "5-day intensive Python programming bootcamp covering basics to advanced topics.",
     "event_date": "2026-05-20",
     "update_type": "workshop",
-    "image_filename": "20260407_005117_grp5.jpg",
+    "image_filename": "e2a9a783-76e1-448a-aca9-4d26cbafd9e3_logo.png",
     "created_at": "2026-05-27 19:19:58.937872",
-    "_id": 1
+    "_id": 1,
+    "image_url": "/static/uploads/livetrack/e2a9a783-76e1-448a-aca9-4d26cbafd9e3_logo.png"
   },
   {
     "title": "Placement Drive - TCS & Infosys",

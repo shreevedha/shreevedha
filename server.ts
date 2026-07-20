@@ -17,6 +17,10 @@ import { verifyAdminPasswordSync, hashAdminPasswordSync } from './src/utils/bcry
 import { listPrivateFolderFiles } from './googleDriveService.js';
 
 import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 declare global {
   interface String {

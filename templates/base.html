@@ -320,7 +320,7 @@
     <nav class="navbar">
         <div class="container nav-container">
             <a href="{{ url_for('home') }}" class="logo">
-                <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Shreevedha Solutions">
+                <img src="{{ url_for('static', filename='uploads/Shree.png') }}" onerror="this.onerror=null; this.src='/static/logo.png';" alt="Shreevedha Solutions">
             </a>
 
             <!--
@@ -400,7 +400,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-col">
-                    <img src="{{ url_for('static', filename='uploads/Shree.png') }}" alt="Logo"
+                    <img src="{{ url_for('static', filename='uploads/Shree.png') }}" onerror="this.onerror=null; this.src='/static/logo.png';" alt="Logo"
                          style="width:160px; margin-bottom:1rem;">
                     <p>Empowering careers through quality tech education.</p>
                     <div style="display:flex; gap:0.75rem; align-items:center; justify-content:center; margin-top:1rem; flex-wrap:wrap;">

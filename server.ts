@@ -1095,6 +1095,23 @@ app.get('/livetrack', (req, res) => {
   res.render('livetrack.html', { updates });
 });
 
+app.get('/livetrack/:id', (req, res) => {
+  res.redirect(`/event/${req.params.id}`);
+});
+
+app.get('/event/:id', (req, res) => {
+  const updates = loadJson('livetrack.json');
+  const events = loadJson('events.json');
+  const allEvents = [...updates, ...events];
+  const id = req.params.id;
+  const event = allEvents.find(e => String(e._id) === String(id) || String(e.id) === String(id));
+  if (!event) {
+    req.flash('error', 'Event details not found.');
+    return res.redirect('/livetrack');
+  }
+  res.render('event_detail.html', { event });
+});
+
 app.get('/projects', (req, res) => {
   const projects = loadJson('projects.json');
   res.render('projects.html', { projects });

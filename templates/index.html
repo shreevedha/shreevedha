@@ -511,15 +511,20 @@
                     </div>
                 </div>
                 <div style="padding: 0 1.3rem 1.3rem 1.3rem;">
-                    {% if evt.link_url %}
-                    <a href="{{ evt.link_url }}" class="btn-gold" style="display: block; text-align: center; font-size: 0.95rem; padding: 0.65rem 1rem; text-decoration: none; border-radius: 2rem; font-weight: 700; width: 100%;">
-                        {{ evt.link_text or 'Pay / Visit' }} →
-                    </a>
-                    {% else %}
-                    <a href="{{ url_for('registration') }}" class="btn-gold" style="display: block; text-align: center; font-size: 0.95rem; padding: 0.65rem 1rem; text-decoration: none; border-radius: 2rem; font-weight: 700; width: 100%;">
-                        Register Now →
-                    </a>
-                    {% endif %}
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <a href="/event/{{ evt._id or evt.id }}" class="btn-gold" style="flex: 1; text-align: center; font-size: 0.9rem; padding: 0.65rem 0.8rem; text-decoration: none; border-radius: 2rem; font-weight: 700;">
+                            Know More →
+                        </a>
+                        {% if evt.link_url %}
+                        <a href="{{ evt.link_url }}" class="btn-outline" style="flex: 1; text-align: center; font-size: 0.9rem; padding: 0.65rem 0.8rem; text-decoration: none; border-radius: 2rem; font-weight: 700;">
+                            {{ evt.link_text or 'Pay / Visit' }}
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('registration') }}" class="btn-outline" style="flex: 1; text-align: center; font-size: 0.9rem; padding: 0.65rem 0.8rem; text-decoration: none; border-radius: 2rem; font-weight: 700;">
+                            Register
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}

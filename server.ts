@@ -106,8 +106,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 const PORT = parseInt(process.env.PORT || '3005', 10);
 
 // ── Static Files ──────────────────────────────────────────────
-app.use('/static', express.static('static'));
-app.use(express.static('static')); // Safe double-mounting
+app.use('/static', express.static(path.join(process.cwd(), 'static')));
+app.use(express.static(path.join(process.cwd(), 'static'))); // Safe double-mounting
 
 // Body Parsers & Cookie/Session
 app.use(express.json());
@@ -1109,7 +1109,8 @@ app.get('/event/:id', (req, res) => {
     req.flash('error', 'Event details not found.');
     return res.redirect('/livetrack');
   }
-  res.render('event_detail.html', { event });
+  const otherEvents = allEvents.filter(e => String(e._id) !== String(id) && String(e.id) !== String(id));
+  res.render('event_detail.html', { event, otherEvents, allEvents });
 });
 
 app.get('/projects', (req, res) => {

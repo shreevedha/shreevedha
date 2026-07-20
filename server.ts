@@ -921,7 +921,7 @@ app.get('/', (req, res) => {
   const livetrack = loadJson('livetrack.json');
   res.render('index.html', {
     courses: COURSES_DATA.slice(0, 3),
-    testimonials: TESTIMONIALS_DATA.slice(0, 2),
+    testimonials: TESTIMONIALS_DATA,
     benefits: benefits,
     events: events,
     livetrackEvents: livetrack,
@@ -1072,7 +1072,7 @@ app.get('/placement', (req, res) => {
 });
 
 app.get('/testimonials', (req, res) => {
-  res.render('testimonials.html', { testimonials: TESTIMONIALS_DATA });
+  res.redirect('/#testimonials');
 });
 
 app.get('/blog', (req, res) => {

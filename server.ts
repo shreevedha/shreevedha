@@ -138,7 +138,13 @@ app.use((req, res, next) => {
 });
 
 // ── Nunjucks Template Engine Setup ─────────────────────────────
-const env = nunjucks.configure('templates', {
+const templatesDirs = [
+  path.join(process.cwd(), 'templates'),
+  path.join(__dirname, 'templates'),
+  path.join(__dirname, '..', 'templates'),
+  'templates'
+];
+const env = nunjucks.configure(templatesDirs, {
   autoescape: true,
   express: app,
   watch: false
@@ -550,6 +556,14 @@ const TESTIMONIALS_DATA = [
 const DATA_DIR = path.join(process.cwd(), 'static', 'data');
 
 function loadJson(filename: string): any[] {
+  // Check /tmp first for recent runtime writes on serverless
+  try {
+    const tmpPath = path.join('/tmp', 'data', filename);
+    if (fs.existsSync(tmpPath)) {
+      return JSON.parse(fs.readFileSync(tmpPath, 'utf-8'));
+    }
+  } catch (e) {}
+
   const filePath = path.join(DATA_DIR, filename);
   if (fs.existsSync(filePath)) {
     try {
@@ -595,9 +609,17 @@ async function syncToFirestore(filename: string, data: any[]): Promise<void> {
 
 function saveJson(filename: string, data: any[]): void {
   try {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    const filePath = path.join(DATA_DIR, filename);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      const filePath = path.join(DATA_DIR, filename);
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (fsErr) {
+      try {
+        const tmpDir = path.join('/tmp', 'data');
+        fs.mkdirSync(tmpDir, { recursive: true });
+        fs.writeFileSync(path.join(tmpDir, filename), JSON.stringify(data, null, 2), 'utf-8');
+      } catch (tmpErr) {}
+    }
     
     // Sync to Firestore asynchronously
     syncToFirestore(filename, data).catch(err => {

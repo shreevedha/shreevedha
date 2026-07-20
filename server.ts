@@ -892,21 +892,79 @@ function seedData() {
 }
 initDatabase();
 
+// ── Stateless Token Helpers for Serverless Multi-Container Session Persistence ──
+const SESSION_SECRET = process.env.SECRET_KEY || 'shreevedha-admin-jwt-secret-998877';
+
+function signAdminToken(username: string): string {
+  const payload = JSON.stringify({ user: username, exp: Date.now() + (7 * 24 * 60 * 60 * 1000) });
+  const hmac = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+  return Buffer.from(payload).toString('base64') + '.' + hmac;
+}
+
+function verifyAdminToken(token?: string): string | null {
+  if (!token || !token.includes('.')) return null;
+  const [b64, hmac] = token.split('.');
+  try {
+    const payloadStr = Buffer.from(b64, 'base64').toString('utf8');
+    const expectedHmac = crypto.createHmac('sha256', SESSION_SECRET).update(payloadStr).digest('hex');
+    if (hmac !== expectedHmac) return null;
+    const data = JSON.parse(payloadStr);
+    if (data.exp && Date.now() > data.exp) return null;
+    return data.user || 'admin';
+  } catch (e) {
+    return null;
+  }
+}
+
+function signUserToken(userObj: any): string {
+  const payload = JSON.stringify({ user: userObj, exp: Date.now() + (7 * 24 * 60 * 60 * 1000) });
+  const hmac = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+  return Buffer.from(payload).toString('base64') + '.' + hmac;
+}
+
+function verifyUserToken(token?: string): any | null {
+  if (!token || !token.includes('.')) return null;
+  const [b64, hmac] = token.split('.');
+  try {
+    const payloadStr = Buffer.from(b64, 'base64').toString('utf8');
+    const expectedHmac = crypto.createHmac('sha256', SESSION_SECRET).update(payloadStr).digest('hex');
+    if (hmac !== expectedHmac) return null;
+    const data = JSON.parse(payloadStr);
+    if (data.exp && Date.now() > data.exp) return null;
+    return data.user || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // ── Middlewares ────────────────────────────────────────────────
 function requireLogin(req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (!(req.session as any)?.user) {
-    req.flash('error', 'Please log in to access the LMS.');
-    return res.redirect('/lms/login');
+  if ((req.session as any)?.user) {
+    return next();
   }
-  next();
+  const token = req.cookies?.shree_user_token;
+  const userObj = verifyUserToken(token);
+  if (userObj) {
+    (req.session as any).user = userObj;
+    return next();
+  }
+  req.flash('error', 'Please log in to access the LMS.');
+  return res.redirect('/lms/login');
 }
 
 function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (!(req.session as any)?.admin_logged_in) {
-    req.flash('error', 'Session expired or invalid. Please log in again to access the Admin Panel.');
-    return res.redirect('/admin/login?expired=1');
+  if ((req.session as any)?.admin_logged_in) {
+    return next();
   }
-  next();
+  const token = req.cookies?.shree_admin_token;
+  const verifiedUser = verifyAdminToken(token);
+  if (verifiedUser) {
+    (req.session as any).admin_logged_in = true;
+    (req.session as any).admin_user = verifiedUser;
+    return next();
+  }
+  req.flash('error', 'Session expired or invalid. Please log in again to access the Admin Panel.');
+  return res.redirect('/admin/login?expired=1');
 }
 
 // ── PUBLIC WEBSITE ROUTES ──────────────────────────────────────
@@ -1207,7 +1265,7 @@ app.post('/lms/login', (req, res) => {
       req.flash('error', 'Your account is not active. Please contact admin.');
       return req.session.save(() => res.redirect('/lms/login'));
     }
-    (req.session as any).user = {
+    const userObj = {
       is_authenticated: true,
       id: user.id,
       name: user.name,
@@ -1215,6 +1273,13 @@ app.post('/lms/login', (req, res) => {
       role: user.role,
       points: user.points || 0
     };
+    (req.session as any).user = userObj;
+    const token = signUserToken(userObj);
+    res.cookie('shree_user_token', token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      path: '/'
+    });
     req.flash('success', `Welcome back, ${user.name}!`);
     req.session.save((err) => {
       if (err) console.error('LMS Session save error:', err);
@@ -1717,6 +1782,12 @@ app.post('/admin/login', (req, res) => {
   if (username === adminUser && isValid) {
     (req.session as any).admin_logged_in = true;
     (req.session as any).admin_user = username;
+    const token = signAdminToken(username);
+    res.cookie('shree_admin_token', token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      path: '/'
+    });
     req.flash('success', 'Welcome back, Admin!');
     req.session.save((err) => {
       if (err) console.error('Session save error:', err);
@@ -1733,6 +1804,7 @@ app.post('/admin/login', (req, res) => {
 app.all('/admin/logout', (req, res) => {
   (req.session as any).admin_logged_in = false;
   (req.session as any).admin_user = null;
+  res.clearCookie('shree_admin_token', { path: '/' });
   req.flash('success', 'You have been logged out.');
   res.redirect('/admin/login');
 });

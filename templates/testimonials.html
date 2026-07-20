@@ -1,18 +1,56 @@
 {% extends "base.html" %}
+
 {% block title %}Testimonials | Shreevedha Solutions{% endblock %}
+
 {% block content %}
-<section class="section">
+<!-- Testimonials Hero Section -->
+<section style="background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%); color: white; padding: 4rem 1.5rem; text-align: center;">
     <div class="container">
-        <h1 class="section-title">What Our Students Say</h1>
-        <div class="grid-2">
+        <h1 style="font-size: 2.8rem; font-weight: 800; color: var(--primary-gold, #f5a623); margin-bottom: 0.8rem;">What Our Students Say</h1>
+        <p style="font-size: 1.15rem; color: #94A3B8; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+            Real feedback and success stories from students, working professionals, and educators trained by Shreevedha.
+        </p>
+    </div>
+</section>
+
+<!-- Testimonials Grid Section -->
+<section class="section" style="background: #F8FAFC; padding: 4rem 1rem;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
             {% for t in testimonials %}
-            <div class="card">
-                <i data-lucide="quote" style="color: var(--primary-gold);"></i>
-                <p>"{{ t.content }}"</p>
-                <div><strong>{{ t.name }}</strong> ({{ t.role }})</div>
-                <div>⭐ {{ t.rating }}</div>
+            <div style="background: white; border-radius: 1.25rem; padding: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-left: 5px solid var(--primary-gold, #f5a623); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s;" onmouseenter="this.style.transform='translateY(-5px)'" onmouseleave="this.style.transform='translateY(0)'">
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold, #f5a623)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 4-2 6-4 6"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 4-2 6-4 6"/></svg>
+                        <div style="color: var(--primary-gold, #f5a623); font-size: 1.1rem; font-weight: 700;">
+                            {% if t.rating %}
+                                {% for i in range(t.rating|int) %}⭐{% endfor %} {{ t.rating }}
+                            {% else %}
+                                ⭐ 5.0
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p style="font-size: 1.05rem; color: #334155; line-height: 1.7; font-style: italic; margin-bottom: 1.5rem;">
+                        "{{ t.content }}"
+                    </p>
+                </div>
+                <div style="border-top: 1px solid #E2E8F0; padding-top: 1rem; display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 46px; height: 46px; border-radius: 50%; background: var(--primary-blue, #0A2647); color: var(--primary-gold, #f5a623); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
+                        {{ t.name[0] }}
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: var(--primary-blue, #0A2647); font-size: 1.1rem;">{{ t.name }}</div>
+                        <div style="font-size: 0.85rem; color: #64748B; font-weight: 500;">{{ t.role }}</div>
+                    </div>
+                </div>
             </div>
             {% endfor %}
+        </div>
+
+        <div style="text-align: center; margin-top: 3.5rem;">
+            <a href="{{ url_for('registration') }}" class="btn-gold" style="padding: 0.8rem 2.2rem; font-size: 1.05rem; font-weight: 700; border-radius: 2rem; text-decoration: none; display: inline-block;">
+                Join Shreevedha Today →
+            </a>
         </div>
     </div>
 </section>

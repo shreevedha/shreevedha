@@ -40,8 +40,8 @@
                     <td>{{ u.name }}</td>
                     <td>{{ u.email }}</td>
                     <td>{{ u.phone or '-' }}</td>
-                    <td><span class="badge badge-{% if u.role == 'super_admin' %}danger{% elseif u.role == 'admin' or u.role == 'instructor' %}info{% else %}muted{% endif %}">{{ u.role|title }}</span></td>
-                    <td><span class="badge badge-{% if u.status == 'active' %}success{% elseif u.status == 'suspended' %}danger{% else %}warning{% endif %}">{{ u.status|title }}</span></td>
+                    <td><span class="badge badge-{% if u.role == 'super_admin' %}danger{% elif u.role == 'admin' or u.role == 'instructor' %}info{% else %}muted{% endif %}">{{ u.role|title }}</span></td>
+                    <td><span class="badge badge-{% if u.status == 'active' %}success{% elif u.status == 'suspended' %}danger{% else %}warning{% endif %}">{{ u.status|title }}</span></td>
                     <td>{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '-' }}</td>
                     <td>
                         <div class="table-actions">

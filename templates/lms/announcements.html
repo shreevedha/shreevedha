@@ -13,7 +13,7 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <h5 class="fw-bold mb-1" style="color: var(--primary-blue);">{{ ann.title }}</h5>
-                        <span class="badge bg-{% if ann.audience == 'all' %}primary{% elseif ann.audience == 'students' %}success{% else %}info{% endif %} mb-2">{{ ann.audience|title }}</span>
+                        <span class="badge bg-{% if ann.audience == 'all' %}primary{% elif ann.audience == 'students' %}success{% else %}info{% endif %} mb-2">{{ ann.audience|title }}</span>
                         {% if ann.course %}<span class="badge bg-secondary">{{ ann.course.title }}</span>{% endif %}
                     </div>
                     <small class="text-muted">{{ ann.created_at.strftime('%b %d, %Y') }}</small>

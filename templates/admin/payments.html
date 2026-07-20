@@ -34,7 +34,7 @@
                     <td>{{ p.course.title }}</td>
                     <td>₹{{ p.amount }}</td>
                     <td>{{ p.payment_method or '-' }}</td>
-                    <td><span class="badge badge-{% if p.status == 'paid' %}success{% elseif p.status == 'pending' %}warning{% else %}danger{% endif %}">{{ p.status|title }}</span></td>
+                    <td><span class="badge badge-{% if p.status == 'paid' %}success{% elif p.status == 'pending' %}warning{% else %}danger{% endif %}">{{ p.status|title }}</span></td>
                     <td><code>{{ p.transaction_id or '-' }}</code></td>
                     <td>
                         <div class="table-actions">

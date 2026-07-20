@@ -481,7 +481,7 @@
 </section>
 
 <!-- Upcoming & Current Programs / Events -->
-{% if livetrackEvents and livetrackEvents|length > 0 %}
+{% if livetrackEvents and livetrackEvents.length > 0 %}
 <section class="section" style="background: #F8FAFC;">
     <div class="container">
         <h2 class="section-title">Upcoming & Current Programs</h2>
@@ -493,7 +493,7 @@
                     <div style="position: relative;">
                         {% if evt.image_filename %}
                         <img src="{{ url_for('static', filename='uploads/livetrack/' + evt.image_filename) }}" alt="{{ evt.title }}" style="height: 190px; width: 100%; object-fit: cover;">
-                        {% elseif evt.image_url %}
+                        {% elif evt.image_url %}
                         <img src="{{ evt.image_url }}" alt="{{ evt.title }}" style="height: 190px; width: 100%; object-fit: cover;">
                         {% else %}
                         <div style="height: 190px; background: var(--primary-blue); display: flex; align-items: center; justify-content: center; color: var(--primary-gold); font-size: 2rem;"><i data-lucide="calendar"></i></div>

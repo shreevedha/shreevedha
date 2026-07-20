@@ -1,11 +1,6 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "templates/**,static/**"
-    }
-  },
   "builds": [
     {
       "src": "api/index.js",

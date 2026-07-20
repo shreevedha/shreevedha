@@ -355,7 +355,7 @@
             <a href="{{ url_for('admin_audit_logs') }}" class="{{ 'active' if ep == 'admin_audit_logs' }}"><i data-lucide="scroll-text"></i> Audit Logs</a>
         </nav>
         <div class="sidebar-foot">
-            <form method="POST" action="{{ url_for('admin_logout') }}">
+            <form method="POST" action="{{ url_for('admin_logout') }}" onsubmit="localStorage.removeItem('admin_logged_in'); localStorage.removeItem('admin_user');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="logout-btn"><i data-lucide="log-out"></i> Logout</button>
             </form>
@@ -429,6 +429,7 @@
             applyTheme(next);
         }
         applyTheme(localStorage.getItem('adminTheme') || 'light');
+        localStorage.setItem('admin_logged_in', 'true');
 
         // Generic modal helpers (used by child pages)
         function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('active'); }

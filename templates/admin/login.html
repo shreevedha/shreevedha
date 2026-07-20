@@ -156,7 +156,7 @@
                 {% endfor %}
             {% endif %}
         
-        <form method="POST" action="{{ url_for('admin_login') }}">
+        <form method="POST" action="{{ url_for('admin_login') }}" onsubmit="localStorage.setItem('admin_logged_in', 'true');">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="username">Username</label>

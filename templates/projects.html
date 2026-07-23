@@ -178,7 +178,7 @@
                 <img src="{{ url_for('static', filename='uploads/projects/' + project.image_filename) }}" alt="{{ project.title }}">
                 <div class="project-info">
                     <h3>{{ project.title }}</h3>
-                    <p>{{ project.description }}</p>
+                    <p>{{ project.description | truncateWords(25) }}</p>
                     {% if project.github_link %}
                     <a href="{{ project.github_link }}" target="_blank" class="github-link">🔗 GitHub</a>
                     {% else %}

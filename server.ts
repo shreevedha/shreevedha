@@ -153,6 +153,14 @@ const env = nunjucks.configure(templatesDirs, {
   watch: false
 });
 
+env.addFilter('truncateWords', (str: any, count: number) => {
+  const cleanStr = String(str || '').trim();
+  if (!cleanStr) return '';
+  const words = cleanStr.split(/\s+/);
+  if (words.length <= count) return cleanStr;
+  return words.slice(0, count).join(' ') + '...';
+});
+
 // Dynamic global helpers for Flask/Jinja template compatibility
 env.addGlobal('increment', (obj: any, key: string) => {
   obj[key] = (obj[key] || 0) + 1;

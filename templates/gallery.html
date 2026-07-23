@@ -230,7 +230,7 @@
                     <div class="flip-card-back">
                         <div>
                             <div class="back-title">{{ project.title }}</div>
-                            <div class="back-description">{{ project.description }}</div>
+                            <div class="back-description">{{ project.description | truncateWords(25) }}</div>
                         </div>
                         <div>
                             {% if project.github_link %}

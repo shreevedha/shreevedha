@@ -269,7 +269,7 @@
             <div class="trainer-info">
                 <div class="trainer-name">{{ t.name }}</div>
                 <div class="trainer-role">{{ t.role }}</div>
-                <div class="trainer-bio">{{ t.bio }}</div>
+                <div class="trainer-bio">{{ t.bio | truncateWords(20) }}</div>
             </div>
         </div>
         {% else %}

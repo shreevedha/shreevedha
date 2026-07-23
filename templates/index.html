@@ -507,7 +507,7 @@
                             📅 <span>{{ evt.event_date or 'Upcoming' }}</span>
                         </div>
                         <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--primary-blue); font-weight: 700;">{{ evt.title }}</h3>
-                        <p style="font-size: 0.9rem; color: #475569; line-height: 1.5; margin-bottom: 1rem;">{{ evt.description }}</p>
+                        <p style="font-size: 0.9rem; color: #475569; line-height: 1.5; margin-bottom: 1rem;">{{ evt.description | truncateWords(20) }}</p>
                     </div>
                 </div>
                 <div style="padding: 0 1.3rem 1.3rem 1.3rem;">

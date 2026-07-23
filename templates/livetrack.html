@@ -154,7 +154,7 @@
                                 📅 <span>{{ update.event_date or 'Upcoming' }}</span>
                             </div>
                             <h3 class="update-title">{{ update.title }}</h3>
-                            <p class="update-description">{{ update.description }}</p>
+                            <p class="update-description">{{ update.description | truncateWords(25) }}</p>
                         </div>
                     </div>
                 </div>

@@ -721,26 +721,28 @@ async function initDatabase() {
         'trainers.json',
         'why_shreevedha.json'
       ];
-      for (const file of files) {
-        const restored = await restoreFromFirestore(file);
-        if (restored.length > 0) {
-          // Save locally
-          try {
-            fs.mkdirSync(DATA_DIR, { recursive: true });
-            const filePath = path.join(DATA_DIR, file);
+      
+      await Promise.all(files.map(async (file) => {
+        try {
+          const restored = await restoreFromFirestore(file);
+          if (restored.length > 0) {
+            // Save to /tmp/data on Vercel (writable), otherwise to standard local workspace
+            const targetDir = process.env.VERCEL === '1' ? path.join('/tmp', 'data') : DATA_DIR;
+            fs.mkdirSync(targetDir, { recursive: true });
+            const filePath = path.join(targetDir, file);
             fs.writeFileSync(filePath, JSON.stringify(restored, null, 2), 'utf-8');
-          } catch (err) {
-            console.error(`Failed to write restored data to ${file}:`, err);
+          } else {
+            // If not found in Firestore, see if we have local data to upload
+            const localData = loadJson(file);
+            if (localData.length > 0) {
+              console.log(`Local data found for ${file}, syncing to Firestore as backup...`);
+              await syncToFirestore(file, localData);
+            }
           }
-        } else {
-          // If not found in Firestore, see if we have local data to upload
-          const localData = loadJson(file);
-          if (localData.length > 0) {
-            console.log(`Local data found for ${file}, syncing to Firestore as backup...`);
-            await syncToFirestore(file, localData);
-          }
+        } catch (fileErr) {
+          console.error(`Failed to restore/sync file ${file}:`, fileErr);
         }
-      }
+      }));
     }
     seedData();
   } catch (globalErr) {

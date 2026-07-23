@@ -108,6 +108,10 @@
                 <label>Biography / Credentials *</label>
                 <textarea name="bio" id="editTrainerBio" rows="3" required></textarea>
             </div>
+            <div class="form-group" id="editTrainerImagePreviewGroup" style="margin-bottom:1rem; display:none; text-align:center;">
+                <label>Current Profile Picture</label>
+                <img id="editTrainerImagePreview" src="" alt="Preview" style="max-width:120px; max-height:120px; border-radius:0.5rem; object-fit:cover; margin-top:0.5rem; border: 1px solid #ccc; display:inline-block;">
+            </div>
             <div class="form-grid">
                 <div class="form-group">
                     <label>Replace Profile Picture (File)</label>
@@ -136,9 +140,20 @@
             document.getElementById('editTrainerBio').value = this.dataset.bio;
             
             const imgVal = this.dataset.image;
-            if (imgVal && imgVal.startsWith('http')) {
-                document.getElementById('editTrainerImageExternal').value = imgVal;
+            const previewImg = document.getElementById('editTrainerImagePreview');
+            const previewGroup = document.getElementById('editTrainerImagePreviewGroup');
+            
+            if (imgVal) {
+                previewImg.src = imgVal;
+                previewGroup.style.display = 'block';
+                if (imgVal.startsWith('http') && !imgVal.includes('firebasestorage')) {
+                    document.getElementById('editTrainerImageExternal').value = imgVal;
+                } else {
+                    document.getElementById('editTrainerImageExternal').value = '';
+                }
             } else {
+                previewImg.src = '';
+                previewGroup.style.display = 'none';
                 document.getElementById('editTrainerImageExternal').value = '';
             }
             

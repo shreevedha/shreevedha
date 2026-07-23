@@ -106,7 +106,8 @@
                             data-type="{{ u.update_type or u.category or 'event' }}"
                             data-description="{{ u.description or '' }}"
                             data-linkurl="{{ u.link_url or '' }}"
-                            data-linktext="{{ u.link_text or '' }}"><i data-lucide="pencil"></i></button>
+                            data-linktext="{{ u.link_text or '' }}"
+                            data-image="{% if u.image_filename %}{{ url_for('static', filename='uploads/livetrack/' + u.image_filename) }}{% elif u.image_url %}{{ u.image_url }}{% endif %}"><i data-lucide="pencil"></i></button>
                         <form method="POST" action="{{ url_for('admin_delete_livetrack', id=u._id) }}" onsubmit="return confirm('Delete this event?');" style="display:inline;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i></button>
@@ -168,6 +169,10 @@
                     <input type="text" name="link_text" id="editLivetrackLinkText" placeholder="e.g., Pay Now / Visit / Register">
                 </div>
             </div>
+            <div class="form-group" id="editLivetrackImagePreviewGroup" style="margin-bottom:1rem; display:none; text-align:center;">
+                <label>Current Image</label>
+                <img id="editLivetrackImagePreview" src="" alt="Preview" style="max-width:120px; max-height:120px; border-radius:0.5rem; object-fit:cover; margin-top:0.5rem; border: 1px solid #ccc; display:inline-block;">
+            </div>
             <div class="form-group">
                 <label>Description</label>
                 <textarea name="description" id="editLivetrackDescription" rows="3"></textarea>
@@ -191,6 +196,18 @@
             document.getElementById('editLivetrackDescription').value = this.dataset.description;
             document.getElementById('editLivetrackLinkUrl').value = this.dataset.linkurl || '';
             document.getElementById('editLivetrackLinkText').value = this.dataset.linktext || '';
+            
+            const imgVal = this.dataset.image;
+            const previewImg = document.getElementById('editLivetrackImagePreview');
+            const previewGroup = document.getElementById('editLivetrackImagePreviewGroup');
+            if (imgVal) {
+                previewImg.src = imgVal;
+                previewGroup.style.display = 'block';
+            } else {
+                previewImg.src = '';
+                previewGroup.style.display = 'none';
+            }
+            
             document.getElementById('editLivetrackModal').classList.add('active');
         });
     });

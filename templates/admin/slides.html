@@ -83,7 +83,8 @@
                             data-subtitle="{{ s.subtitle or '' }}"
                             data-link="{{ s.cta_link or '' }}"
                             data-linktext="{{ s.cta_text or 'Learn More' }}"
-                            data-order="{{ s.order or 0 }}"><i data-lucide="pencil"></i></button>
+                            data-order="{{ s.order or 0 }}"
+                            data-image="{{ url_for('static', filename='uploads/slides/' + s.image_filename) }}"><i data-lucide="pencil"></i></button>
                         <form method="POST" action="{{ url_for('admin_delete_slide', id=s._id) }}" onsubmit="return confirm('Delete this slide?');" style="display:inline;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i></button>
@@ -131,6 +132,10 @@
                     <input type="text" name="cta_text" id="editLinkText" value="Learn More">
                 </div>
             </div>
+            <div class="form-group" id="editSlideImagePreviewGroup" style="margin-bottom:1rem; display:none; text-align:center;">
+                <label>Current Image</label>
+                <img id="editSlideImagePreview" src="" alt="Preview" style="max-width:120px; max-height:120px; border-radius:0.5rem; object-fit:cover; margin-top:0.5rem; border: 1px solid #ccc; display:inline-block;">
+            </div>
             <div class="form-group">
                 <label>Replace Image (leave empty to keep current)</label>
                 <input type="file" name="image" accept="image/*">
@@ -151,6 +156,18 @@
             document.getElementById('editLink').value = this.dataset.link;
             document.getElementById('editLinkText').value = this.dataset.linktext;
             document.getElementById('editOrder').value = this.dataset.order;
+            
+            const imgVal = this.dataset.image;
+            const previewImg = document.getElementById('editSlideImagePreview');
+            const previewGroup = document.getElementById('editSlideImagePreviewGroup');
+            if (imgVal) {
+                previewImg.src = imgVal;
+                previewGroup.style.display = 'block';
+            } else {
+                previewImg.src = '';
+                previewGroup.style.display = 'none';
+            }
+            
             document.getElementById('editModal').classList.add('active');
         });
     });

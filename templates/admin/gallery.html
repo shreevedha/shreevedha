@@ -59,7 +59,8 @@
                     data-id="{{ p._id }}"
                     data-title="{{ p.title }}"
                     data-github="{{ p.github_link or '' }}"
-                    data-description="{{ p.description }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                    data-description="{{ p.description }}"
+                    data-image="{{ url_for('static', filename='uploads/gallery/' + p.image_filename) }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
                 <form method="POST" action="{{ url_for('admin_delete_gallery', id=p._id) }}" onsubmit="return confirm('Delete this item?');" style="display:inline; flex:1;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger" style="width:100%; font-size:0.75rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>
@@ -94,6 +95,10 @@
                 <label>Description *</label>
                 <textarea name="description" id="editGalleryDescription" rows="3" required></textarea>
             </div>
+            <div class="form-group" id="editGalleryImagePreviewGroup" style="margin-bottom:1rem; display:none; text-align:center;">
+                <label>Current Image</label>
+                <img id="editGalleryImagePreview" src="" alt="Preview" style="max-width:120px; max-height:120px; border-radius:0.5rem; object-fit:cover; margin-top:0.5rem; border: 1px solid #ccc; display:inline-block;">
+            </div>
             <div class="form-group">
                 <label>Replace Image (leave empty to keep current)</label>
                 <input type="file" name="image" accept="image/*">
@@ -114,6 +119,18 @@
             document.getElementById('editGalleryTitle').value = this.dataset.title;
             document.getElementById('editGalleryGithub').value = this.dataset.github;
             document.getElementById('editGalleryDescription').value = this.dataset.description;
+            
+            const imgVal = this.dataset.image;
+            const previewImg = document.getElementById('editGalleryImagePreview');
+            const previewGroup = document.getElementById('editGalleryImagePreviewGroup');
+            if (imgVal) {
+                previewImg.src = imgVal;
+                previewGroup.style.display = 'block';
+            } else {
+                previewImg.src = '';
+                previewGroup.style.display = 'none';
+            }
+            
             document.getElementById('editGalleryModal').classList.add('active');
         });
     });

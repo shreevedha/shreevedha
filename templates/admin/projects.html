@@ -68,7 +68,8 @@
                     data-title="{{ p.title }}"
                     data-tech="{{ p.tech_stack or '' }}"
                     data-github="{{ p.github_link or '' }}"
-                    data-description="{{ p.description }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                    data-description="{{ p.description }}"
+                    data-image="{% if p.image_filename %}{{ url_for('static', filename='uploads/projects/' + p.image_filename) }}{% endif %}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
                 <form method="POST" action="{{ url_for('admin_delete_project', id=p._id) }}" onsubmit="return confirm('Delete this project?');" style="display:inline; flex:1;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger btn-sm" style="width:100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>
@@ -109,6 +110,10 @@
                 <label>Description *</label>
                 <textarea name="description" id="editProjectDescription" rows="3" required></textarea>
             </div>
+            <div class="form-group" id="editProjectImagePreviewGroup" style="margin-bottom:1rem; display:none; text-align:center;">
+                <label>Current Image</label>
+                <img id="editProjectImagePreview" src="" alt="Preview" style="max-width:120px; max-height:120px; border-radius:0.5rem; object-fit:cover; margin-top:0.5rem; border: 1px solid #ccc; display:inline-block;">
+            </div>
             <div class="form-group">
                 <label>Replace Image (leave empty to keep current)</label>
                 <input type="file" name="image" accept="image/*">
@@ -130,6 +135,18 @@
             document.getElementById('editProjectTech').value = this.dataset.tech;
             document.getElementById('editProjectGithub').value = this.dataset.github;
             document.getElementById('editProjectDescription').value = this.dataset.description;
+            
+            const imgVal = this.dataset.image;
+            const previewImg = document.getElementById('editProjectImagePreview');
+            const previewGroup = document.getElementById('editProjectImagePreviewGroup');
+            if (imgVal) {
+                previewImg.src = imgVal;
+                previewGroup.style.display = 'block';
+            } else {
+                previewImg.src = '';
+                previewGroup.style.display = 'none';
+            }
+            
             document.getElementById('editProjectModal').classList.add('active');
         });
     });

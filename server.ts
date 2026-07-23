@@ -1740,6 +1740,14 @@ app.get('/lms/internships', requireLogin, (req, res) => {
 });
 
 // ── ADMIN PANEL ROUTES ──────────────────────────────────────────
+function getAdminCredsPath(): string {
+  const tmpPath = path.join('/tmp', 'data', 'admin_creds.json');
+  if (fs.existsSync(tmpPath)) {
+    return tmpPath;
+  }
+  return path.join(process.cwd(), 'static', 'data', 'admin_creds.json');
+}
+
 app.get('/admin/login', (req, res) => {
   if ((req.session as any)?.admin_logged_in) {
     return res.redirect('/admin/dashboard');
@@ -1756,7 +1764,7 @@ app.post('/admin/login', (req, res) => {
   
   let adminPassHash = process.env.ADMIN_PASSWORD_HASH;
   try {
-    const credsPath = path.join(process.cwd(), 'static', 'data', 'admin_creds.json');
+    const credsPath = getAdminCredsPath();
     if (fs.existsSync(credsPath)) {
       const data = JSON.parse(fs.readFileSync(credsPath, 'utf8'));
       if (data.passwordHash) {
@@ -1830,7 +1838,7 @@ app.post('/admin/change-password', requireAdmin, async (req, res) => {
     const adminPassHash = process.env.ADMIN_PASSWORD_HASH;
 
     let activeHash = '';
-    const credsPath = path.join(process.cwd(), 'static', 'data', 'admin_creds.json');
+    const credsPath = getAdminCredsPath();
     if (fs.existsSync(credsPath)) {
       const data = JSON.parse(fs.readFileSync(credsPath, 'utf8'));
       activeHash = data.passwordHash;
@@ -1860,11 +1868,33 @@ app.post('/admin/change-password', requireAdmin, async (req, res) => {
     }
 
     const newHash = hashAdminPasswordSync(new_password);
-    const credsDir = path.dirname(credsPath);
-    if (!fs.existsSync(credsDir)) {
-      fs.mkdirSync(credsDir, { recursive: true });
+    let writeSuccess = false;
+    if (process.env.VERCEL !== '1') {
+      try {
+        const destPath = path.join(process.cwd(), 'static', 'data', 'admin_creds.json');
+        const credsDir = path.dirname(destPath);
+        if (!fs.existsSync(credsDir)) {
+          fs.mkdirSync(credsDir, { recursive: true });
+        }
+        fs.writeFileSync(destPath, JSON.stringify({ passwordHash: newHash }, null, 2), 'utf8');
+        writeSuccess = true;
+      } catch (e) {
+        console.error('Failed to write credentials to workspace:', e);
+      }
     }
-    fs.writeFileSync(credsPath, JSON.stringify({ passwordHash: newHash }, null, 2), 'utf8');
+
+    if (!writeSuccess) {
+      try {
+        const tmpCredsPath = path.join('/tmp', 'data', 'admin_creds.json');
+        const tmpCredsDir = path.dirname(tmpCredsPath);
+        if (!fs.existsSync(tmpCredsDir)) {
+          fs.mkdirSync(tmpCredsDir, { recursive: true });
+        }
+        fs.writeFileSync(tmpCredsPath, JSON.stringify({ passwordHash: newHash }, null, 2), 'utf8');
+      } catch (tmpErr) {
+        console.error('Failed to write credentials to /tmp:', tmpErr);
+      }
+    }
 
     logActivity('admin', 'Admin password changed successfully');
     req.flash('success', 'Admin password updated successfully!');
@@ -1951,17 +1981,9 @@ app.post('/admin/gallery/add', requireAdmin, upload.single('image'), async (req,
 
   try {
     let imageFilename = '';
+    let uploadSuccess = false;
 
-    // 1. Local Fallback Backup
-    const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'gallery');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    const localFilename = `${uuidv4()}_${req.file.originalname}`;
-    fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
-    imageFilename = localFilename;
-
-    // 2. Primary Firebase Storage Upload (If Admin SDK is active)
+    // 1. Primary Firebase Storage Upload (If Admin SDK is active)
     if (db) {
       try {
         const bucket = getStorage().bucket();
@@ -1976,9 +1998,25 @@ app.post('/admin/gallery/add', requireAdmin, upload.single('image'), async (req,
 
         // Use the public Firebase Storage download URL
         imageFilename = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+        uploadSuccess = true;
         console.log('Successfully uploaded image to Firebase Storage:', imageFilename);
       } catch (storageErr) {
-        console.error('Firebase Storage upload failed, falling back to local file copy:', storageErr);
+        console.error('Firebase Storage upload failed:', storageErr);
+      }
+    }
+
+    // 2. Local Fallback Backup (Only if Firebase upload didn't succeed and process is not on Vercel)
+    if (!uploadSuccess && process.env.VERCEL !== '1') {
+      try {
+        const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'gallery');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const localFilename = `${uuidv4()}_${req.file.originalname}`;
+        fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+        imageFilename = localFilename;
+      } catch (localWriteErr) {
+        console.error('Local fallback write failed:', localWriteErr);
       }
     }
 
@@ -2072,11 +2110,7 @@ app.post('/admin/gallery/:id/update', requireAdmin, upload.single('image'), asyn
     projects[idx].github_link = (github_link || '').trim();
 
     if (req.file) {
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'gallery');
-      const filename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
-      projects[idx].image_filename = filename;
-
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -2084,7 +2118,22 @@ app.post('/admin/gallery/:id/update', requireAdmin, upload.single('image'), asyn
           const fileRef = bucket.file(uniqueFilename);
           await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
           projects[idx].image_filename = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
-        } catch (storageErr) {}
+          uploadSuccess = true;
+        } catch (storageErr) {
+          console.error('Firebase Storage update failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'gallery');
+          if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+          const filename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
+          projects[idx].image_filename = filename;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
+        }
       }
     }
 
@@ -2114,16 +2163,7 @@ app.post('/admin_add_project', requireAdmin, upload.single('image'), async (req,
     let imageFilename = '';
 
     if (req.file) {
-      // 1. Local Fallback Backup
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'projects');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      const localFilename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
-      imageFilename = localFilename;
-
-      // 2. Primary Firebase Storage Upload (If Admin SDK is active)
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -2137,9 +2177,24 @@ app.post('/admin_add_project', requireAdmin, upload.single('image'), async (req,
           });
 
           imageFilename = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+          uploadSuccess = true;
           console.log('Successfully uploaded project image to Firebase Storage:', imageFilename);
         } catch (storageErr) {
-          console.error('Firebase Storage project upload failed, falling back to local file copy:', storageErr);
+          console.error('Firebase Storage project upload failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'projects');
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+          const localFilename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+          imageFilename = localFilename;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
         }
       }
     }
@@ -2236,12 +2291,7 @@ app.post('/admin_update_project/:id', requireAdmin, upload.single('image'), asyn
     projects[idx].description = description.trim();
 
     if (req.file) {
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'projects');
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      const localFilename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
-      projects[idx].image_filename = localFilename;
-
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -2249,7 +2299,22 @@ app.post('/admin_update_project/:id', requireAdmin, upload.single('image'), asyn
           const fileRef = bucket.file(uniqueFilename);
           await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
           projects[idx].image_filename = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
-        } catch (storageErr) {}
+          uploadSuccess = true;
+        } catch (storageErr) {
+          console.error('Firebase Storage project update failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'projects');
+          if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+          const localFilename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+          projects[idx].image_filename = localFilename;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
+        }
       }
     }
 
@@ -2280,16 +2345,7 @@ app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req
 
     // 1. If an image file was uploaded, handle local fallback and cloud upload
     if (req.file) {
-      // Create local static folder
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'trainers');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      const localFilename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
-      imageUrl = `/static/uploads/trainers/${localFilename}`;
-
-      // Primary Firebase Storage Upload
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -2302,11 +2358,25 @@ app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req
             }
           });
 
-          // Public Firebase Storage URL
           imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+          uploadSuccess = true;
           console.log('Successfully uploaded trainer image to Firebase Storage:', imageUrl);
         } catch (storageErr) {
-          console.error('Firebase Storage upload failed, falling back to local file copy:', storageErr);
+          console.error('Firebase Storage upload failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'trainers');
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+          const localFilename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+          imageUrl = `/static/uploads/trainers/${localFilename}`;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
         }
       }
     } else if (external_image_url && external_image_url.trim() !== '') {
@@ -2357,12 +2427,7 @@ app.post('/admin/trainers/:id/update', requireAdmin, upload.single('image'), asy
     trainers[idx].bio = bio.trim();
 
     if (req.file) {
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'trainers');
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      const localFilename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
-      trainers[idx].image_url = `/static/uploads/trainers/${localFilename}`;
-
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -2370,7 +2435,22 @@ app.post('/admin/trainers/:id/update', requireAdmin, upload.single('image'), asy
           const fileRef = bucket.file(uniqueFilename);
           await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
           trainers[idx].image_url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
-        } catch (storageErr) {}
+          uploadSuccess = true;
+        } catch (storageErr) {
+          console.error('Firebase Storage trainer update failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'trainers');
+          if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+          const localFilename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+          trainers[idx].image_url = `/static/uploads/trainers/${localFilename}`;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
+        }
       }
     } else if (external_image_url && external_image_url.trim() !== '') {
       trainers[idx].image_url = external_image_url.trim();
@@ -2453,14 +2533,7 @@ app.post('/admin/events/add', requireAdmin, upload.single('image'), async (req, 
     let imageUrl = '';
 
     if (req.file) {
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'events');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      const localFilename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
-      imageUrl = `/static/uploads/events/${localFilename}`;
-
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -2474,9 +2547,24 @@ app.post('/admin/events/add', requireAdmin, upload.single('image'), async (req, 
           });
 
           imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+          uploadSuccess = true;
           console.log('Successfully uploaded event image to Firebase Storage:', imageUrl);
         } catch (storageErr) {
-          console.error('Firebase Storage upload failed, falling back to local file copy:', storageErr);
+          console.error('Firebase Storage upload failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'events');
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+          const localFilename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+          imageUrl = `/static/uploads/events/${localFilename}`;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
         }
       }
     } else if (external_image_url && external_image_url.trim() !== '') {
@@ -3183,14 +3271,9 @@ app.post('/admin/livetrack/add', requireAdmin, upload.single('image'), async (re
   }
 
   try {
-    const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'livetrack');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    const filename = `${uuidv4()}_${req.file.originalname}`;
-    fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
-
-    let imageUrl = `/static/uploads/livetrack/${filename}`;
+    let imageUrl = '';
+    let filename = '';
+    let uploadSuccess = false;
 
     if (db) {
       try {
@@ -3199,8 +3282,25 @@ app.post('/admin/livetrack/add', requireAdmin, upload.single('image'), async (re
         const fileRef = bucket.file(uniqueFilename);
         await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
         imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+        filename = uniqueFilename;
+        uploadSuccess = true;
       } catch (storageErr) {
         console.error('Firebase Storage upload failed:', storageErr);
+      }
+    }
+
+    if (!uploadSuccess && process.env.VERCEL !== '1') {
+      try {
+        const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'livetrack');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const localFilename = `${uuidv4()}_${req.file.originalname}`;
+        fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+        imageUrl = `/static/uploads/livetrack/${localFilename}`;
+        filename = localFilename;
+      } catch (localWriteErr) {
+        console.error('Local fallback write failed:', localWriteErr);
       }
     }
 
@@ -3251,13 +3351,7 @@ app.post('/admin/livetrack/:id/update', requireAdmin, upload.single('image'), as
     updates[idx].link_text = (link_text || '').trim();
 
     if (req.file) {
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'livetrack');
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      const filename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
-      updates[idx].image_filename = filename;
-      updates[idx].image_url = `/static/uploads/livetrack/${filename}`;
-
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -3265,7 +3359,24 @@ app.post('/admin/livetrack/:id/update', requireAdmin, upload.single('image'), as
           const fileRef = bucket.file(uniqueFilename);
           await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
           updates[idx].image_url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
-        } catch (storageErr) {}
+          updates[idx].image_filename = uniqueFilename;
+          uploadSuccess = true;
+        } catch (storageErr) {
+          console.error('Firebase Storage update failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'livetrack');
+          if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+          const filename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
+          updates[idx].image_filename = filename;
+          updates[idx].image_url = `/static/uploads/livetrack/${filename}`;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
+        }
       }
     }
 
@@ -3393,14 +3504,9 @@ app.post('/admin/slides/add', requireAdmin, upload.single('image'), async (req, 
     return res.redirect('/admin_slides');
   }
   try {
-    const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'slides');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    const filename = `${uuidv4()}_${req.file.originalname}`;
-    fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
-
-    let imageUrl = `/static/uploads/slides/${filename}`;
+    let imageUrl = '';
+    let filename = '';
+    let uploadSuccess = false;
 
     if (db) {
       try {
@@ -3409,8 +3515,25 @@ app.post('/admin/slides/add', requireAdmin, upload.single('image'), async (req, 
         const fileRef = bucket.file(uniqueFilename);
         await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
         imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+        filename = uniqueFilename;
+        uploadSuccess = true;
       } catch (storageErr) {
         console.error('Firebase Storage upload failed:', storageErr);
+      }
+    }
+
+    if (!uploadSuccess && process.env.VERCEL !== '1') {
+      try {
+        const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'slides');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const localFilename = `${uuidv4()}_${req.file.originalname}`;
+        fs.writeFileSync(path.join(uploadDir, localFilename), req.file.buffer);
+        imageUrl = `/static/uploads/slides/${localFilename}`;
+        filename = localFilename;
+      } catch (localWriteErr) {
+        console.error('Local fallback write failed:', localWriteErr);
       }
     }
 
@@ -3487,12 +3610,7 @@ app.post('/admin/slides/:id/update', requireAdmin, upload.single('image'), async
         }
       }
 
-      const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'slides');
-      const filename = `${uuidv4()}_${req.file.originalname}`;
-      fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
-      slides[idx].image_filename = filename;
-      slides[idx].image_url = `/static/uploads/slides/${filename}`;
-
+      let uploadSuccess = false;
       if (db) {
         try {
           const bucket = getStorage().bucket();
@@ -3500,8 +3618,22 @@ app.post('/admin/slides/:id/update', requireAdmin, upload.single('image'), async
           const fileRef = bucket.file(uniqueFilename);
           await fileRef.save(req.file.buffer, { metadata: { contentType: req.file.mimetype } });
           slides[idx].image_url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(uniqueFilename)}?alt=media`;
+          slides[idx].image_filename = uniqueFilename;
+          uploadSuccess = true;
         } catch (storageErr) {
           console.error('Firebase Storage upload failed:', storageErr);
+        }
+      }
+
+      if (!uploadSuccess && process.env.VERCEL !== '1') {
+        try {
+          const uploadDir = path.join(process.cwd(), 'static', 'uploads', 'slides');
+          const filename = `${uuidv4()}_${req.file.originalname}`;
+          fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
+          slides[idx].image_filename = filename;
+          slides[idx].image_url = `/static/uploads/slides/${filename}`;
+        } catch (localWriteErr) {
+          console.error('Local fallback write failed:', localWriteErr);
         }
       }
     }

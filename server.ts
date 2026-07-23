@@ -671,77 +671,81 @@ async function restoreFromFirestore(filename: string): Promise<any[]> {
 
 // ── Seeding Engine (runs on startup) ───────────────────────────
 async function initDatabase() {
-  if (db) {
-    // Gracefully check if credentials are available before testing Firestore
-    const hasCredentials = 
-      process.env.GOOGLE_APPLICATION_CREDENTIALS || 
-      (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) ||
-      process.env.K_SERVICE || 
-      process.env.GAE_INSTANCE ||
-      fs.existsSync(path.join(process.cwd(), 'google-credentials.json'));
+  try {
+    if (db) {
+      // Gracefully check if credentials are available before testing Firestore
+      const hasCredentials = 
+        process.env.GOOGLE_APPLICATION_CREDENTIALS || 
+        (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) ||
+        process.env.K_SERVICE || 
+        process.env.GAE_INSTANCE ||
+        fs.existsSync(path.join(process.cwd(), 'google-credentials.json'));
 
-    if (!hasCredentials) {
-      console.warn('No Google credentials found in the environment.');
-      console.warn('Continuing with resilient local file storage fallback.');
-      db = null;
+      if (!hasCredentials) {
+        console.warn('No Google credentials found in the environment.');
+        console.warn('Continuing with resilient local file storage fallback.');
+        db = null;
+      }
     }
-  }
 
-  if (db) {
-    console.log('Testing Firestore connectivity and permissions...');
-    let isReachable = false;
-    try {
-      const testPromise = db.collection('test_connection').doc('ping').get();
-      testPromise.catch(() => {}); // Prevent unhandled promise rejection crash in the background
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Connection timeout')), 3000)
-      );
-      await Promise.race([testPromise, timeoutPromise]);
-      isReachable = true;
-      console.log('Firestore is accessible. Commencing cloud synchronization.');
-    } catch (err: any) {
-      console.warn('Firestore connectivity test failed (permissions issue or timeout):', err.message || err);
-      console.warn('Continuing with resilient local file storage fallback. Sync will resume once permissions propagate.');
-      db = null; // Disable Firestore integration gracefully to prevent noisy console logs
+    if (db) {
+      console.log('Testing Firestore connectivity and permissions...');
+      let isReachable = false;
+      try {
+        const testPromise = db.collection('test_connection').doc('ping').get();
+        testPromise.catch(() => {}); // Prevent unhandled promise rejection crash in the background
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timeout')), 3000)
+        );
+        await Promise.race([testPromise, timeoutPromise]);
+        isReachable = true;
+        console.log('Firestore is accessible. Commencing cloud synchronization.');
+      } catch (err: any) {
+        console.warn('Firestore connectivity test failed (permissions issue or timeout):', err.message || err);
+        console.warn('Continuing with resilient local file storage fallback. Sync will resume once permissions propagate.');
+        db = null; // Disable Firestore integration gracefully to prevent noisy console logs
+      }
     }
-  }
 
-  if (db) {
-    console.log('Restoring all datasets from Firestore...');
-    const files = [
-      'users.json',
-      'courses.json',
-      'enrollments.json',
-      'gallery.json',
-      'livetrack.json',
-      'projects.json',
-      'registrations.json',
-      'contacts.json',
-      'trainers.json',
-      'why_shreevedha.json'
-    ];
-    for (const file of files) {
-      const restored = await restoreFromFirestore(file);
-      if (restored.length > 0) {
-        // Save locally
-        try {
-          fs.mkdirSync(DATA_DIR, { recursive: true });
-          const filePath = path.join(DATA_DIR, file);
-          fs.writeFileSync(filePath, JSON.stringify(restored, null, 2), 'utf-8');
-        } catch (err) {
-          console.error(`Failed to write restored data to ${file}:`, err);
-        }
-      } else {
-        // If not found in Firestore, see if we have local data to upload
-        const localData = loadJson(file);
-        if (localData.length > 0) {
-          console.log(`Local data found for ${file}, syncing to Firestore as backup...`);
-          await syncToFirestore(file, localData);
+    if (db) {
+      console.log('Restoring all datasets from Firestore...');
+      const files = [
+        'users.json',
+        'courses.json',
+        'enrollments.json',
+        'gallery.json',
+        'livetrack.json',
+        'projects.json',
+        'registrations.json',
+        'contacts.json',
+        'trainers.json',
+        'why_shreevedha.json'
+      ];
+      for (const file of files) {
+        const restored = await restoreFromFirestore(file);
+        if (restored.length > 0) {
+          // Save locally
+          try {
+            fs.mkdirSync(DATA_DIR, { recursive: true });
+            const filePath = path.join(DATA_DIR, file);
+            fs.writeFileSync(filePath, JSON.stringify(restored, null, 2), 'utf-8');
+          } catch (err) {
+            console.error(`Failed to write restored data to ${file}:`, err);
+          }
+        } else {
+          // If not found in Firestore, see if we have local data to upload
+          const localData = loadJson(file);
+          if (localData.length > 0) {
+            console.log(`Local data found for ${file}, syncing to Firestore as backup...`);
+            await syncToFirestore(file, localData);
+          }
         }
       }
     }
+    seedData();
+  } catch (globalErr) {
+    console.error('Database initialization encountered a fatal error, but recovered gracefully:', globalErr);
   }
-  seedData();
 }
 
 function seedData() {
@@ -890,7 +894,7 @@ function seedData() {
     console.log('Seeded why_shreevedha.json successfully.');
   }
 }
-initDatabase();
+initDatabase().catch(err => console.error('Database initialization failed:', err));
 
 // ── Stateless Token Helpers for Serverless Multi-Container Session Persistence ──
 const SESSION_SECRET = process.env.SECRET_KEY || 'shreevedha-admin-jwt-secret-998877';

@@ -160,6 +160,9 @@
             background: none;
             border: none;
             cursor: pointer;
+            color: var(--dark);
+            align-items: center;
+            justify-content: center;
         }
         .mobile-menu {
             position: fixed;
@@ -307,7 +310,7 @@
 
         @media (max-width: 900px) {
             .nav-links { display: none; }
-            .mobile-toggle { display: block; }
+            .mobile-toggle { display: flex; }
             .container { padding: 0 1.5rem; }
             .floating-icons { bottom: 1rem; right: 1rem; }
             .floating-icon { width: 48px; height: 48px; }
@@ -367,8 +370,9 @@
 
             </div>
 
-            <button class="mobile-toggle" id="mobileToggle">
-                <i data-lucide="menu" id="menuIcon"></i>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                <i data-lucide="menu" id="menuHamburgerIcon"></i>
+                <i data-lucide="x" id="menuCloseIcon" style="display: none;"></i>
             </button>
         </div>
 
@@ -527,17 +531,23 @@
         // Mobile toggle
         const mobileToggle = document.getElementById('mobileToggle');
         const mobileMenu   = document.getElementById('mobileMenu');
-        const menuIcon     = document.getElementById('menuIcon');
+        const menuHamburgerIcon = document.getElementById('menuHamburgerIcon');
+        const menuCloseIcon     = document.getElementById('menuCloseIcon');
         mobileToggle.addEventListener('click', () => {
-            mobileMenu.classList.toggle('open');
-            menuIcon.setAttribute('data-lucide', mobileMenu.classList.contains('open') ? 'x' : 'menu');
-            lucide.createIcons();
+            const isOpen = mobileMenu.classList.toggle('open');
+            if (isOpen) {
+                menuHamburgerIcon.style.display = 'none';
+                menuCloseIcon.style.display = 'inline-block';
+            } else {
+                menuHamburgerIcon.style.display = 'inline-block';
+                menuCloseIcon.style.display = 'none';
+            }
         });
         document.querySelectorAll('.mobile-menu a').forEach(link => {
             link.addEventListener('click', () => {
                 mobileMenu.classList.remove('open');
-                menuIcon.setAttribute('data-lucide', 'menu');
-                lucide.createIcons();
+                menuHamburgerIcon.style.display = 'inline-block';
+                menuCloseIcon.style.display = 'none';
             });
         });
 

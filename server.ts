@@ -2858,7 +2858,7 @@ app.post('/admin/lms/enrollments/bulk', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/lms/enrollments/delete/:enrollment_id', requireAdmin, (req, res) => {
-  const eId = parseInt(req.params.enrollment_id);
+  const eId = parseInt(String(req.params.enrollment_id));
   const enrollments = loadJson('enrollments.json');
   const idx = enrollments.findIndex(e => String(e.id) === String(eId));
   if (idx !== -1) {
@@ -2873,7 +2873,7 @@ app.post('/admin/lms/enrollments/delete/:enrollment_id', requireAdmin, (req, res
 });
 
 app.post('/admin/lms/enrollments/:enrollment_id/update', requireAdmin, (req, res) => {
-  const eId = parseInt(req.params.enrollment_id);
+  const eId = parseInt(String(req.params.enrollment_id));
   const progress = parseInt(req.body.progress || '0');
   const status = req.body.status || 'active';
   const enrollments = loadJson('enrollments.json');
@@ -2927,7 +2927,7 @@ app.post('/admin/quizzes/create', requireAdmin, (req, res) => {
 });
 
 app.get('/admin/quizzes/edit/:quiz_id', requireAdmin, (req, res) => {
-  const qId = parseInt(req.params.quiz_id);
+  const qId = parseInt(String(req.params.quiz_id));
   const quizzes = loadJson('quizzes.json');
   const quiz = quizzes.find(q => q.id === qId);
   if (!quiz) {
@@ -2938,7 +2938,7 @@ app.get('/admin/quizzes/edit/:quiz_id', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/quizzes/edit/:quiz_id', requireAdmin, (req, res) => {
-  const qId = parseInt(req.params.quiz_id);
+  const qId = parseInt(String(req.params.quiz_id));
   const quizzes = loadJson('quizzes.json');
   const idx = quizzes.findIndex(q => String(q.id) === String(qId));
   if (idx === -1) {
@@ -2977,7 +2977,7 @@ app.post('/admin/quizzes/edit/:quiz_id', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/quizzes/delete/:quiz_id', requireAdmin, (req, res) => {
-  const qId = parseInt(req.params.quiz_id);
+  const qId = parseInt(String(req.params.quiz_id));
   const quizzes = loadJson('quizzes.json');
   const idx = quizzes.findIndex(q => String(q.id) === String(qId));
   if (idx !== -1) {
@@ -3025,7 +3025,7 @@ app.get('/admin_certificates', requireAdmin, (req, res) => {
   const courses = COURSES_DATA;
   const mappedCerts = certificates.map(c => {
     const student = users.find(u => u.id === c.user_id) || { name: 'Unknown Student' };
-    const course = courses.find(cr => cr.id === c.course_id) || { title: c.course_id };
+    const course = courses.find(cr => cr.id === c.course_id) || { title: c.course_id, name: c.course_id };
     return {
       ...c,
       student,
@@ -3105,7 +3105,7 @@ app.post('/admin/lms/certificates/bulk', requireAdmin, (req, res) => {
 });
 
 app.get('/admin/lms/certificates/download/:cert_id', requireAdmin, (req, res) => {
-  const certId = parseInt(req.params.cert_id);
+  const certId = parseInt(String(req.params.cert_id));
   const certificates = loadJson('certificates.json');
   const cert = certificates.find(c => c.id === certId);
   if (!cert) {
@@ -3115,7 +3115,7 @@ app.get('/admin/lms/certificates/download/:cert_id', requireAdmin, (req, res) =>
   const users = loadJson('users.json');
   const student = users.find(u => u.id === cert.user_id) || { name: 'Unknown' };
   const courses = COURSES_DATA;
-  const course = courses.find(c => c.id === cert.course_id) || { title: cert.course_id };
+  const course = courses.find(c => c.id === cert.course_id) || { title: cert.course_id, name: cert.course_id };
 
   res.setHeader('Content-disposition', `attachment; filename=certificate_${cert.certificate_id}.txt`);
   res.setHeader('Content-type', 'text/plain');
@@ -3142,7 +3142,7 @@ app.get('/certificates/verify/:cert_id', (req, res) => {
   }
   const users = loadJson('users.json');
   const student = users.find(u => u.id === cert.user_id) || { name: 'Unknown Student' };
-  const course = COURSES_DATA.find(cr => cr.id === cert.course_id) || { title: cert.course_id };
+  const course = COURSES_DATA.find(cr => cr.id === cert.course_id) || { title: cert.course_id, name: cert.course_id };
   res.send(`
     <div style="font-family: sans-serif; text-align: center; margin-top: 5rem;">
       <h2 style="color: #0A2647;">Certificate Verification Success</h2>
@@ -3177,7 +3177,7 @@ app.get('/admin_questions', requireAdmin, (req, res) => {
   const questionsList = loadJson('questions.json');
   const mappedQuestions = questionsList.map(q => {
     const student = users.find(u => u.id === q.user_id) || { name: 'Unknown Student' };
-    const course = COURSES_DATA.find(c => c.id === q.course_id) || { title: q.course_id };
+    const course = COURSES_DATA.find(c => c.id === q.course_id) || { title: q.course_id, name: q.course_id };
     return {
       ...q,
       student,
@@ -3189,7 +3189,7 @@ app.get('/admin_questions', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/lms/questions/answer/:question_id', requireAdmin, (req, res) => {
-  const qId = parseInt(req.params.question_id);
+  const qId = parseInt(String(req.params.question_id));
   const { answer } = req.body;
   const questions = loadJson('questions.json');
   const idx = questions.findIndex(q => String(q.id) === String(qId));
@@ -3212,7 +3212,7 @@ app.get('/admin_payments', requireAdmin, (req, res) => {
   const courses = COURSES_DATA;
   const mappedPayments = payments.map(p => {
     const user = users.find(u => u.id === p.user_id) || { name: 'Unknown User' };
-    const course = courses.find(cr => cr.id === p.course_id) || { title: p.course_id };
+    const course = courses.find(cr => cr.id === p.course_id) || { title: p.course_id, name: p.course_id };
     return { ...p, user, course };
   });
   res.render('admin/payments.html', {
@@ -3247,7 +3247,7 @@ app.post('/admin/payments/create', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/payments/:id/update', requireAdmin, (req, res) => {
-  const payId = parseInt(req.params.id);
+  const payId = parseInt(String(req.params.id));
   const { status, transaction_id } = req.body;
   const payments = loadJson('payments.json');
   const idx = payments.findIndex(p => String(p.id) === String(payId));

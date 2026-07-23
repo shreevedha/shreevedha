@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Shreevedha Solutions Platform migrated from Python to Node.js",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "tsx server.ts",
     "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",

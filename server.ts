@@ -15,6 +15,7 @@ import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { verifyAdminPasswordSync, hashAdminPasswordSync } from './src/utils/bcrypt.js';
 import { listPrivateFolderFiles } from './googleDriveService.js';
+import { uploadToSupabase } from './supabaseService.js';
 
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
@@ -2004,8 +2005,14 @@ app.post('/admin/gallery/add', requireAdmin, upload.single('image'), async (req,
   }
 
   try {
-    const base64Data = req.file.buffer.toString('base64');
-    const imageFilename = `data:${req.file.mimetype};base64,${base64Data}`;
+    let imageFilename = '';
+    const supabaseUrl = await uploadToSupabase(req.file.buffer, 'gallery', req.file.originalname, req.file.mimetype);
+    if (supabaseUrl) {
+      imageFilename = supabaseUrl;
+    } else {
+      const base64Data = req.file.buffer.toString('base64');
+      imageFilename = `data:${req.file.mimetype};base64,${base64Data}`;
+    }
 
     const projects = loadJson('gallery.json');
     const newProject = {
@@ -2097,8 +2104,13 @@ app.post('/admin/gallery/:id/update', requireAdmin, upload.single('image'), asyn
     projects[idx].github_link = (github_link || '').trim();
 
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      projects[idx].image_filename = `data:${req.file.mimetype};base64,${base64Data}`;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'gallery', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        projects[idx].image_filename = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        projects[idx].image_filename = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
     }
 
     saveJson('gallery.json', projects);
@@ -2127,8 +2139,13 @@ app.post('/admin_add_project', requireAdmin, upload.single('image'), async (req,
     let imageFilename = '';
 
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      imageFilename = `data:${req.file.mimetype};base64,${base64Data}`;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'projects', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        imageFilename = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        imageFilename = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
     }
 
     const projects = loadJson('projects.json');
@@ -2223,8 +2240,13 @@ app.post('/admin_update_project/:id', requireAdmin, upload.single('image'), asyn
     projects[idx].description = description.trim();
 
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      projects[idx].image_filename = `data:${req.file.mimetype};base64,${base64Data}`;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'projects', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        projects[idx].image_filename = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        projects[idx].image_filename = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
     }
 
     saveJson('projects.json', projects);
@@ -2254,8 +2276,13 @@ app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req
 
     // 1. If an image file was uploaded, handle local fallback and cloud upload
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'trainers', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        imageUrl = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
     } else if (external_image_url && external_image_url.trim() !== '') {
       // Use the provided external image URL
       imageUrl = external_image_url.trim();
@@ -2304,8 +2331,13 @@ app.post('/admin/trainers/:id/update', requireAdmin, upload.single('image'), asy
     trainers[idx].bio = bio.trim();
 
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      trainers[idx].image_url = `data:${req.file.mimetype};base64,${base64Data}`;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'trainers', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        trainers[idx].image_url = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        trainers[idx].image_url = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
     } else if (external_image_url && external_image_url.trim() !== '') {
       trainers[idx].image_url = external_image_url.trim();
     }
@@ -2387,8 +2419,13 @@ app.post('/admin/events/add', requireAdmin, upload.single('image'), async (req, 
     let imageUrl = '';
 
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'events', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        imageUrl = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
     } else if (external_image_url && external_image_url.trim() !== '') {
       imageUrl = external_image_url.trim();
     } else {
@@ -3093,8 +3130,14 @@ app.post('/admin/livetrack/add', requireAdmin, upload.single('image'), async (re
   }
 
   try {
-    const base64Data = req.file.buffer.toString('base64');
-    const imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+    let imageUrl = '';
+    const supabaseUrl = await uploadToSupabase(req.file.buffer, 'livetrack', req.file.originalname, req.file.mimetype);
+    if (supabaseUrl) {
+      imageUrl = supabaseUrl;
+    } else {
+      const base64Data = req.file.buffer.toString('base64');
+      imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+    }
     const filename = imageUrl;
 
     const updates = loadJson('livetrack.json');
@@ -3144,10 +3187,16 @@ app.post('/admin/livetrack/:id/update', requireAdmin, upload.single('image'), as
     updates[idx].link_text = (link_text || '').trim();
 
     if (req.file) {
-      const base64Data = req.file.buffer.toString('base64');
-      const base64Url = `data:${req.file.mimetype};base64,${base64Data}`;
-      updates[idx].image_url = base64Url;
-      updates[idx].image_filename = base64Url;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'livetrack', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        updates[idx].image_url = supabaseUrl;
+        updates[idx].image_filename = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        const base64Url = `data:${req.file.mimetype};base64,${base64Data}`;
+        updates[idx].image_url = base64Url;
+        updates[idx].image_filename = base64Url;
+      }
     }
 
     saveJson('livetrack.json', updates);
@@ -3274,8 +3323,14 @@ app.post('/admin/slides/add', requireAdmin, upload.single('image'), async (req, 
     return res.redirect('/admin_slides');
   }
   try {
-    const base64Data = req.file.buffer.toString('base64');
-    const imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+    let imageUrl = '';
+    const supabaseUrl = await uploadToSupabase(req.file.buffer, 'slides', req.file.originalname, req.file.mimetype);
+    if (supabaseUrl) {
+      imageUrl = supabaseUrl;
+    } else {
+      const base64Data = req.file.buffer.toString('base64');
+      imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+    }
     const filename = imageUrl;
 
     const slides = loadJson('slides.json');
@@ -3350,10 +3405,16 @@ app.post('/admin/slides/:id/update', requireAdmin, upload.single('image'), async
           try { fs.unlinkSync(oldFilePath); } catch (e) {}
         }
       }
-      const base64Data = req.file.buffer.toString('base64');
-      const base64Url = `data:${req.file.mimetype};base64,${base64Data}`;
-      slides[idx].image_url = base64Url;
-      slides[idx].image_filename = base64Url;
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'slides', req.file.originalname, req.file.mimetype);
+      if (supabaseUrl) {
+        slides[idx].image_url = supabaseUrl;
+        slides[idx].image_filename = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        const base64Url = `data:${req.file.mimetype};base64,${base64Data}`;
+        slides[idx].image_url = base64Url;
+        slides[idx].image_filename = base64Url;
+      }
     }
 
     slides[idx].title = title.trim();

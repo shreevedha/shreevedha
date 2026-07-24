@@ -14,7 +14,7 @@
     <div class="card-header">
         <div class="card-title" id="formCardTitle">Add / Edit Course</div>
     </div>
-    <form method="POST" action="/admin/courses/create" enctype="multipart/form-data" id="courseForm">
+    <form method="POST" action="/admin/courses/create" enctype="multipart/form-data" id="courseForm" onsubmit="serializeSyllabus()">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-grid">
             <div class="form-group">
@@ -79,18 +79,33 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Syllabus (JSON Array or Modules text format)</label>
-            <textarea name="syllabus" id="c_syllabus" rows="4" placeholder='[{"module_title": "Module 1: Intro", "topics": ["Topic A", "Topic B"]}]'></textarea>
+        <div class="form-group" style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+            <label style="font-weight:700; color:var(--primary-blue); font-size:0.95rem; margin-bottom:0.35rem; display:block;">
+                Course Syllabus / Modules Builder
+            </label>
+            <p style="font-size:0.8rem; color:#64748b; margin-bottom:0.85rem;">Add module titles and topics easily without writing JSON code.</p>
+            
+            <div id="syllabus_builder_container" style="display:flex; flex-direction:column; gap:0.85rem;"></div>
+            
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addSyllabusModuleRow()" style="margin-top:0.75rem; display:inline-flex; align-items:center; gap:0.35rem;">
+                <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Module
+            </button>
+            <input type="hidden" name="syllabus" id="c_syllabus">
         </div>
 
         <div class="form-grid">
-            <div class="form-group">
-                <label>Cover Image URL (Optional)</label>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Cover Image URL (Optional)</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
                 <input type="text" name="image_url" id="c_image_url" placeholder="https://images.unsplash.com/...">
             </div>
-            <div class="form-group">
-                <label>Upload Cover Image File</label>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Upload Cover Image (Max 2MB)</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
                 <input type="file" name="image" accept="image/*">
             </div>
         </div>
@@ -166,6 +181,81 @@
 <script>
     lucide.createIcons();
 
+    let moduleCounter = 0;
+
+    function addSyllabusModuleRow(moduleTitle = '', topicsStr = '') {
+        moduleCounter++;
+        const container = document.getElementById('syllabus_builder_container');
+        if (!container) return;
+        const div = document.createElement('div');
+        div.className = 'syllabus-module-card';
+        div.style.cssText = 'background:#fff; border:1px solid #cbd5e1; border-radius:0.5rem; padding:0.85rem; position:relative; box-shadow:0 1px 2px rgba(0,0,0,0.05);';
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <span style="font-weight:700; font-size:0.82rem; color:var(--primary-blue);">Module #${moduleCounter}</span>
+                <button type="button" onclick="this.closest('.syllabus-module-card').remove()" class="btn btn-outline-danger btn-sm" style="padding:0.15rem 0.4rem; font-size:0.75rem;">✖ Remove Module</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <input type="text" class="form-control module-title-input" placeholder="e.g., Module 1: Python Basics & OOP" value="${moduleTitle.replace(/"/g, '&quot;')}" style="font-size:0.85rem;">
+                <textarea class="form-control module-topics-input" rows="2" placeholder="Topics covered (comma-separated, e.g., Variables, Functions, File Handling, Classes)" style="font-size:0.85rem;">${topicsStr}</textarea>
+            </div>
+        `;
+        container.appendChild(div);
+        lucide.createIcons();
+    }
+
+    function serializeSyllabus() {
+        const cards = document.querySelectorAll('.syllabus-module-card');
+        const modules = [];
+        cards.forEach((card, idx) => {
+            const title = card.querySelector('.module-title-input').value.trim();
+            const topicsRaw = card.querySelector('.module-topics-input').value.trim();
+            if (title || topicsRaw) {
+                const topicsArr = topicsRaw ? topicsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+                modules.push({
+                    module_number: idx + 1,
+                    module_title: title || `Module ${idx + 1}`,
+                    title: title || `Module ${idx + 1}`,
+                    topics: topicsArr
+                });
+            }
+        });
+        document.getElementById('c_syllabus').value = JSON.stringify(modules);
+    }
+
+    function populateSyllabusBuilder(syllabusData) {
+        const container = document.getElementById('syllabus_builder_container');
+        if (!container) return;
+        container.innerHTML = '';
+        moduleCounter = 0;
+
+        if (!syllabusData) {
+            addSyllabusModuleRow();
+            return;
+        }
+
+        let parsed = [];
+        try {
+            parsed = typeof syllabusData === 'string' ? JSON.parse(syllabusData) : syllabusData;
+        } catch(e) {
+            parsed = [];
+        }
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            parsed.forEach(mod => {
+                const title = mod.module_title || mod.title || '';
+                const topicsStr = Array.isArray(mod.topics) ? mod.topics.join(', ') : (mod.topics || '');
+                addSyllabusModuleRow(title, topicsStr);
+            });
+        } else {
+            addSyllabusModuleRow();
+        }
+    }
+
+    // Initialize with 1 empty module
+    populateSyllabusBuilder();
+
     document.querySelectorAll('.edit-course-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.getElementById('formCardTitle').innerText = 'Edit Course: ' + this.dataset.title;
@@ -182,8 +272,12 @@
             document.getElementById('c_price_hybrid_original').value = this.dataset.hybridOrig;
             document.getElementById('c_tools').value = this.dataset.tools;
             document.getElementById('c_projects').value = this.dataset.projects;
-            document.getElementById('c_syllabus').value = this.dataset.syllabus;
             document.getElementById('c_image_url').value = this.dataset.image;
+
+            const sylData = this.dataset.syllabus;
+            document.getElementById('c_syllabus').value = sylData;
+            populateSyllabusBuilder(sylData);
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
@@ -191,6 +285,7 @@
     function resetCourseForm() {
         document.getElementById('formCardTitle').innerText = 'Add / Edit Course';
         document.getElementById('courseForm').reset();
+        populateSyllabusBuilder();
     }
 </script>
 {% endblock %}

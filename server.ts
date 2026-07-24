@@ -1033,21 +1033,53 @@ app.get('/sw.js', (req, res) => {
 app.get('/', async (req, res) => {
   const benefits = loadJson('why_shreevedha.json');
   try {
-    const eventsRes = await querySupabase('SELECT * FROM events ORDER BY created_at DESC');
-    const livetrackRes = await querySupabase('SELECT * FROM livetrack ORDER BY created_at DESC');
+    const eventsRes = await querySupabase('SELECT * FROM events ORDER BY created_at DESC LIMIT 3');
+    const livetrackRes = await querySupabase('SELECT * FROM livetrack ORDER BY created_at DESC LIMIT 3');
     const slidesRes = await querySupabase('SELECT * FROM slides ORDER BY display_order ASC');
     
     const events = eventsRes.rows.map(r => ({ ...r, _id: r.id }));
     const livetrack = livetrackRes.rows.map(r => ({ ...r, _id: r.id }));
     const slides = slidesRes.rows.map(r => ({ ...r, _id: r.id }));
-    const combinedEvents = [...livetrack, ...events];
-    
+    const combinedEvents = [...events, ...livetrack];
+
+    const defaultEvents = [
+      {
+        _id: 'default-1',
+        id: 'default-1',
+        title: 'Full Stack Web Development Workshop',
+        description: 'Hands-on intensive live workshop covering React.js, Node.js, and modern full-stack web architectures.',
+        event_date: 'Upcoming',
+        update_type: 'Workshop',
+        image_url: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop'
+      },
+      {
+        _id: 'default-2',
+        id: 'default-2',
+        title: 'AI & Machine Learning Masterclass',
+        description: 'Master Python, Machine Learning models, Neural Networks, and Scikit-learn with industry experts.',
+        event_date: 'Upcoming',
+        update_type: 'Masterclass',
+        image_url: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&auto=format&fit=crop'
+      },
+      {
+        _id: 'default-3',
+        id: 'default-3',
+        title: 'Placement Drive & Resume Review',
+        description: 'Exclusive placement assistance, mock technical interviews, and resume review sessions for enrolled students.',
+        event_date: 'Upcoming',
+        update_type: 'Placement',
+        image_url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop'
+      }
+    ];
+
+    const displayEvents = combinedEvents.length > 0 ? combinedEvents.slice(0, 3) : defaultEvents;
+
     res.render('index.html', {
       courses: COURSES_DATA.slice(0, 3),
       testimonials: TESTIMONIALS_DATA,
       benefits: benefits,
       events: events,
-      livetrackEvents: combinedEvents.length > 0 ? combinedEvents : livetrack,
+      livetrackEvents: displayEvents,
       slides: slides,
       maps_api_key: process.env.GOOGLE_MAPS_API_KEY || '',
       office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
@@ -1060,11 +1092,39 @@ app.get('/', async (req, res) => {
       testimonials: TESTIMONIALS_DATA,
       benefits: benefits,
       events: [],
-      livetrackEvents: [],
+      livetrackEvents: [
+        {
+          _id: 'default-1',
+          id: 'default-1',
+          title: 'Full Stack Web Development Workshop',
+          description: 'Hands-on intensive live workshop covering React.js, Node.js, and modern full-stack web architectures.',
+          event_date: 'Upcoming',
+          update_type: 'Workshop',
+          image_url: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop'
+        },
+        {
+          _id: 'default-2',
+          id: 'default-2',
+          title: 'AI & Machine Learning Masterclass',
+          description: 'Master Python, Machine Learning models, Neural Networks, and Scikit-learn with industry experts.',
+          event_date: 'Upcoming',
+          update_type: 'Masterclass',
+          image_url: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&auto=format&fit=crop'
+        },
+        {
+          _id: 'default-3',
+          id: 'default-3',
+          title: 'Placement Drive & Resume Review',
+          description: 'Exclusive placement assistance, mock technical interviews, and resume review sessions for enrolled students.',
+          event_date: 'Upcoming',
+          update_type: 'Placement',
+          image_url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop'
+        }
+      ],
       slides: [],
       maps_api_key: '',
       office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
-      office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'
+      office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Arundalpet, Guntur 522003, Andhra Pradesh, India'
     });
   }
 });

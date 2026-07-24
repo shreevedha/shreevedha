@@ -3499,19 +3499,25 @@ app.get('/admin_slides', requireAdmin, async (req, res) => {
 });
 
 app.post('/admin/slides/add', upload.single('image'), requireAdmin, async (req, res) => {
-  const { title, subtitle, cta_link, cta_text, order } = req.body;
-  if (!title || !req.file) {
-    req.flash('error', 'Title and slide image are required.');
+  const { title, subtitle, cta_link, cta_text, order, image_url } = req.body;
+  if (!title) {
+    req.flash('error', 'Title is required.');
     return res.redirect('/admin_slides');
   }
   try {
     let imageUrl = '';
-    const supabaseUrl = await uploadToSupabase(req.file.buffer, 'slides', req.file.originalname, req.file.mimetype);
-    if (supabaseUrl) {
-      imageUrl = supabaseUrl;
+    if (req.file) {
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'slides', req.file.originalname, req.file.mimetype).catch(() => null);
+      if (supabaseUrl) {
+        imageUrl = supabaseUrl;
+      } else {
+        const base64Data = req.file.buffer.toString('base64');
+        imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      }
+    } else if (image_url && image_url.trim() !== '') {
+      imageUrl = image_url.trim();
     } else {
-      const base64Data = req.file.buffer.toString('base64');
-      imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      imageUrl = 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200&auto=format&fit=crop';
     }
 
     await querySupabase(

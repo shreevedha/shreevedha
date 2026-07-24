@@ -39,12 +39,22 @@
             </div>
         </div>
         <div class="form-grid">
-            <div class="form-group">
-                <label>Upload Slide Image *</label>
-                <input type="file" name="image" accept="image/*" required>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Upload Slide Image (Max 2MB)</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Or Slide Image URL</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
+                <input type="text" name="image_url" placeholder="https://images.unsplash.com/...">
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Add Slide</button>
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Add Slide</button>
     </form>
 </div>
 

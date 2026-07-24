@@ -29,9 +29,19 @@
             <textarea name="description" rows="3" required placeholder="Brief description of the project..."></textarea>
         </div>
         <div class="form-grid">
-            <div class="form-group">
-                <label>Upload Image *</label>
-                <input type="file" name="image" accept="image/*" required>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Upload Image File (Max 2MB)</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Or Image URL</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
+                <input type="text" name="image_url" placeholder="https://images.unsplash.com/...">
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Add to Gallery</button>
@@ -45,11 +55,12 @@
     {% if projects %}
     <div class="admin-gallery-grid">
         {% for p in projects %}
+        {% set img_src = url_for('static', filename='uploads/gallery/' + (p.image_filename or 'placeholder.jpg')) %}
         <div class="admin-gallery-card">
-            <img src="{{ url_for('static', filename='uploads/gallery/' + p.image_filename) }}" alt="{{ p.title }}">
+            <img src="{{ img_src }}" alt="{{ p.title }}" style="aspect-ratio: 16/9; object-fit: cover; width: 100%;">
             <div class="info">
                 <h4>{{ p.title }}</h4>
-                <p>{{  (p.description or '').slice(0, 60)  }}{% if p.description|length > 60 %}...{% endif %}</p>
+                <p>{{ p.description }}</p>
             </div>
             <div class="actions">
                 {% if p.github_link %}
@@ -60,7 +71,7 @@
                     data-title="{{ p.title }}"
                     data-github="{{ p.github_link or '' }}"
                     data-description="{{ p.description }}"
-                    data-image="{{ url_for('static', filename='uploads/gallery/' + p.image_filename) }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                    data-image="{{ img_src }}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
                 <form method="POST" action="{{ url_for('admin_delete_gallery', id=p._id) }}" onsubmit="return confirm('Delete this item?');" style="display:inline; flex:1;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger" style="width:100%; font-size:0.75rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>

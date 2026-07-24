@@ -340,6 +340,7 @@
             <div class="nav-group-label">People &amp; Money</div>
             <a href="{{ url_for('admin_users') }}" class="{{ 'active' if ep in ['admin_users','admin_create_user'] }}"><i data-lucide="users"></i> Users</a>
             <a href="{{ url_for('admin_payments') }}" class="{{ 'active' if ep == 'admin_payments' }}"><i data-lucide="credit-card"></i> Payments</a>
+            <a href="/admin_coupons" class="{{ 'active' if ep == 'admin_coupons' }}"><i data-lucide="ticket"></i> Coupons</a>
             <a href="{{ url_for('admin_announcements') }}" class="{{ 'active' if ep in ['admin_announcements','admin_create_announcement'] }}"><i data-lucide="megaphone"></i> Announcements</a>
 
             <div class="nav-group-label">Website Content</div>
@@ -348,6 +349,7 @@
             <a href="{{ url_for('admin_trainers') }}" class="{{ 'active' if ep in ['admin_trainers','admin_add_trainer'] }}"><i data-lucide="users"></i> Trainers</a>
             <a href="{{ url_for('admin_projects') }}" class="{{ 'active' if ep in ['admin_projects','admin_add_project'] }}"><i data-lucide="folder-git-2"></i> Projects</a>
             <a href="{{ url_for('admin_livetrack') }}" class="{{ 'active' if ep in ['admin_livetrack','admin_add_livetrack'] }}"><i data-lucide="radio"></i> Live Track</a>
+            <a href="/admin_office_photos" class="{{ 'active' if ep == 'admin_office_photos' }}"><i data-lucide="building"></i> Office Photos</a>
 
             <div class="nav-group-label">Enquiries</div>
             <a href="{{ url_for('admin_contacts') }}" class="{{ 'active' if ep == 'admin_contacts' }}"><i data-lucide="mail"></i> Contacts</a>
@@ -429,15 +431,36 @@
             applyTheme(next);
         }
         applyTheme(localStorage.getItem('adminTheme') || 'light');
-        localStorage.setItem('admin_logged_in', 'true');
+        // Global File Input Validation (2MB Limit) & Clear Helpers
+        function validateAdminFile(input) {
+            if (!input || !input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const maxBytes = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxBytes) {
+                alert(`⚠️ File Size Exceeded!\n\nThe selected file "${file.name}" is ${(file.size / (1024 * 1024)).toFixed(2)} MB.\nMaximum allowed image size is 2MB.`);
+                input.value = '';
+                const preview = input.closest('.form-group, .file-input-wrapper')?.querySelector('.img-preview');
+                if (preview) preview.style.display = 'none';
+            }
+        }
 
-        // Generic modal helpers (used by child pages)
-        function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('active'); }
-        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
-        document.querySelectorAll('.modal-overlay').forEach(o => {
-            o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+        function clearFileInput(target) {
+            const container = typeof target === 'string' ? document.getElementById(target) : target.closest('.form-group, .file-input-wrapper');
+            if (!container) return;
+            const fileInput = container.querySelector('input[type="file"]');
+            const textInput = container.querySelector('input[type="text"], input[type="url"]');
+            const preview = container.querySelector('.img-preview');
+            if (fileInput) fileInput.value = '';
+            if (textInput) textInput.value = '';
+            if (preview) { preview.src = ''; preview.style.display = 'none'; }
+        }
+
+        // Auto-attach 2MB validation to all type="file" inputs
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.type === 'file') {
+                validateAdminFile(e.target);
+            }
         });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active')); });
     </script>
 
     <!-- Change Password Modal -->

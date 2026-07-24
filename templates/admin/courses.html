@@ -1,44 +1,156 @@
 {% extends "admin/base_admin.html" %}
 
-{% block title %}Courses{% endblock %}
+{% block title %}Course Management{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Courses</h1>
-        <p>Manage courses, content, and modules</p>
+        <h1>Course Management</h1>
+        <p>Add, edit, or remove courses, syllabus, and pricing details</p>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header">
+        <div class="card-title" id="formCardTitle">Add / Edit Course</div>
+    </div>
+    <form method="POST" action="/admin/courses/create" enctype="multipart/form-data" id="courseForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Course Title *</label>
+                <input type="text" name="title" id="c_title" required placeholder="e.g. Python Programming">
+            </div>
+            <div class="form-group">
+                <label>Category *</label>
+                <input type="text" name="category" id="c_category" required placeholder="e.g. Programming, Full Stack, AI & ML">
+            </div>
+            <div class="form-group">
+                <label>Course Slug / ID (Optional)</label>
+                <input type="text" name="id" id="c_id" placeholder="e.g. python-programming">
+            </div>
+            <div class="form-group">
+                <label>Duration *</label>
+                <input type="text" name="duration" id="c_duration" required placeholder="e.g. 60 Days">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" id="c_description" rows="3" required placeholder="Detailed course description..."></textarea>
+        </div>
+
+        <h4 style="margin: 1.5rem 0 0.8rem; color: var(--primary-blue);">Pricing & Discount Configuration</h4>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Online Selling Price (₹) *</label>
+                <input type="text" name="price_online" id="c_price_online" required placeholder="₹2,999">
+            </div>
+            <div class="form-group">
+                <label>Online Marked Price (~~Original~~) *</label>
+                <input type="text" name="price_online_original" id="c_price_online_original" required placeholder="₹5,999">
+            </div>
+            <div class="form-group">
+                <label>Offline Selling Price (₹) *</label>
+                <input type="text" name="price_offline" id="c_price_offline" required placeholder="₹9,999">
+            </div>
+            <div class="form-group">
+                <label>Offline Marked Price (~~Original~~) *</label>
+                <input type="text" name="price_offline_original" id="c_price_offline_original" required placeholder="₹19,999">
+            </div>
+            <div class="form-group">
+                <label>Hybrid Selling Price (₹) *</label>
+                <input type="text" name="price_hybrid" id="c_price_hybrid" required placeholder="₹7,999">
+            </div>
+            <div class="form-group">
+                <label>Hybrid Marked Price (~~Original~~) *</label>
+                <input type="text" name="price_hybrid_original" id="c_price_hybrid_original" required placeholder="₹14,999">
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Tools & Tech Stack (comma separated)</label>
+                <input type="text" name="tools" id="c_tools" placeholder="Python 3.x, PyCharm, Jupyter, Git">
+            </div>
+            <div class="form-group">
+                <label>Sample Projects (comma separated)</label>
+                <input type="text" name="projects" id="c_projects" placeholder="Weather App, Student Portal, E-Commerce">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Syllabus (JSON Array or Modules text format)</label>
+            <textarea name="syllabus" id="c_syllabus" rows="4" placeholder='[{"module_title": "Module 1: Intro", "topics": ["Topic A", "Topic B"]}]'></textarea>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Cover Image URL (Optional)</label>
+                <input type="text" name="image_url" id="c_image_url" placeholder="https://images.unsplash.com/...">
+            </div>
+            <div class="form-group">
+                <label>Upload Cover Image File</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Save Course</button>
+        <button type="button" class="btn btn-outline" onclick="resetCourseForm()" style="margin-top: 0.5rem; margin-left:0.5rem;">Clear</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
         <div class="card-title">All Courses ({{ courses|length }})</div>
-        <a href="{{ url_for('admin_create_course') }}" class="btn btn-primary">+ Create Course</a>
     </div>
     <div class="table-wrap">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID</th><th>Title</th><th>Duration</th><th>Status</th><th>Created</th><th>Actions</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Online Price</th>
+                    <th>Offline Price</th>
+                    <th>Hybrid Price</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% if not courses %}
-                <tr><td colspan="6"><div class="empty-state"><i data-lucide="book-open"></i><p>No courses yet.</p></div></td></tr>
+                <tr><td colspan="7"><div class="empty-state"><i data-lucide="book-open"></i><p>No courses yet.</p></div></td></tr>
                 {% endif %}
                 {% for c in courses %}
                 <tr>
-                    <td>#{{ c.id }}</td>
-                    <td>{{ c.title }}</td>
-                    <td>{{ c.duration or '-' }}</td>
-                    <td><span class="badge badge-{{ 'success' if c.status == 'published' else 'muted' }}">{{ c.status|title }}</span></td>
-                    <td>{{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '-' }}</td>
+                    <td><strong>{{ c.title }}</strong><br><small style="color:var(--gray);">#{{ c.id }}</small></td>
+                    <td><span class="badge badge-info">{{ c.category or 'General' }}</span></td>
+                    <td><strong>{{ c.price_online or '₹2,999' }}</strong> <del style="color:#888; font-size:0.8rem;">{{ c.price_online_original or '' }}</del></td>
+                    <td><strong>{{ c.price_offline or '₹9,999' }}</strong> <del style="color:#888; font-size:0.8rem;">{{ c.price_offline_original or '' }}</del></td>
+                    <td><strong>{{ c.price_hybrid or '₹7,999' }}</strong> <del style="color:#888; font-size:0.8rem;">{{ c.price_hybrid_original or '' }}</del></td>
+                    <td>{{ c.duration or '60 Days' }}</td>
                     <td>
                         <div class="table-actions">
-                            <a href="{{ url_for('admin_edit_course', course_id=c.id) }}" class="btn btn-primary btn-sm">Edit</a>
-                            <form method="POST" action="{{ url_for('admin_delete_course', course_id=c.id) }}" onsubmit="return confirm('Delete this course?');" style="display:inline;">
+                            <button type="button" class="btn btn-primary btn-sm edit-course-btn"
+                                data-id="{{ c.id }}"
+                                data-title="{{ c.title }}"
+                                data-category="{{ c.category or '' }}"
+                                data-duration="{{ c.duration or '' }}"
+                                data-description="{{ c.description or '' }}"
+                                data-online="{{ c.price_online or '' }}"
+                                data-online-orig="{{ c.price_online_original or '' }}"
+                                data-offline="{{ c.price_offline or '' }}"
+                                data-offline-orig="{{ c.price_offline_original or '' }}"
+                                data-hybrid="{{ c.price_hybrid or '' }}"
+                                data-hybrid-orig="{{ c.price_hybrid_original or '' }}"
+                                data-tools="{{ c.tools if c.tools is string else (c.tools | join(', ')) }}"
+                                data-projects="{{ c.projects if c.projects is string else (c.projects | join(', ')) }}"
+                                data-syllabus='{{ c.syllabus | dump if c.syllabus is not string else c.syllabus }}'
+                                data-image="{{ c.image or '' }}"><i data-lucide="pencil" style="width:14px;"></i> Edit</button>
+                            
+                            <form method="POST" action="/admin/courses/{{ c.id }}/delete" onsubmit="return confirm('Delete this course?');" style="display:inline;">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2" style="width:14px;"></i> Delete</button>
                             </form>
                         </div>
                     </td>
@@ -48,4 +160,37 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+
+    document.querySelectorAll('.edit-course-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('formCardTitle').innerText = 'Edit Course: ' + this.dataset.title;
+            document.getElementById('c_id').value = this.dataset.id;
+            document.getElementById('c_title').value = this.dataset.title;
+            document.getElementById('c_category').value = this.dataset.category;
+            document.getElementById('c_duration').value = this.dataset.duration;
+            document.getElementById('c_description').value = this.dataset.description;
+            document.getElementById('c_price_online').value = this.dataset.online;
+            document.getElementById('c_price_online_original').value = this.dataset.onlineOrig;
+            document.getElementById('c_price_offline').value = this.dataset.offline;
+            document.getElementById('c_price_offline_original').value = this.dataset.offlineOrig;
+            document.getElementById('c_price_hybrid').value = this.dataset.hybrid;
+            document.getElementById('c_price_hybrid_original').value = this.dataset.hybridOrig;
+            document.getElementById('c_tools').value = this.dataset.tools;
+            document.getElementById('c_projects').value = this.dataset.projects;
+            document.getElementById('c_syllabus').value = this.dataset.syllabus;
+            document.getElementById('c_image_url').value = this.dataset.image;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    function resetCourseForm() {
+        document.getElementById('formCardTitle').innerText = 'Add / Edit Course';
+        document.getElementById('courseForm').reset();
+    }
+</script>
 {% endblock %}

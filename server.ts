@@ -16,6 +16,38 @@ import { getStorage } from 'firebase-admin/storage';
 import { verifyAdminPasswordSync, hashAdminPasswordSync } from './src/utils/bcrypt.js';
 import { listPrivateFolderFiles } from './googleDriveService.js';
 import { uploadToSupabase } from './supabaseService.js';
+import { queryNeon } from './dbNeon.js';
+import { querySupabase } from './dbSupabase.js';
+
+async function getNeonCourses() {
+  try {
+    const res = await queryNeon('SELECT * FROM courses');
+    return res.rows.map(r => ({ ...r, _id: r.id }));
+  } catch (err) {
+    console.error('Failed to query courses from Neon DB:', err);
+    return loadJson('courses.json');
+  }
+}
+
+async function getNeonUsers() {
+  try {
+    const res = await queryNeon('SELECT * FROM users');
+    return res.rows.map(r => ({ ...r, _id: r.id }));
+  } catch (err) {
+    console.error('Failed to query users from Neon DB:', err);
+    return loadJson('users.json');
+  }
+}
+
+async function getNeonEnrollments() {
+  try {
+    const res = await queryNeon('SELECT * FROM enrollments');
+    return res.rows.map(r => ({ ...r, _id: r.id }));
+  } catch (err) {
+    console.error('Failed to query enrollments from Neon DB:', err);
+    return loadJson('enrollments.json');
+  }
+}
 
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
@@ -160,6 +192,10 @@ env.addFilter('truncateWords', (str: any, count: number) => {
   const words = cleanStr.split(/\s+/);
   if (words.length <= count) return cleanStr;
   return words.slice(0, count).join(' ') + '...';
+});
+
+env.addFilter('slice', (str: any, start: number, end?: number) => {
+  return String(str || '').slice(start, end);
 });
 
 // Dynamic global helpers for Flask/Jinja template compatibility
@@ -653,20 +689,12 @@ function saveJson(filename: string, data: any[]): void {
 }
 
 function logActivity(user: string, action: string, ipAddress: string = '127.0.0.1') {
-  try {
-    const logs = loadJson('audit_logs.json');
-    const newLog = {
-      id: logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1,
-      user,
-      action,
-      ip_address: ipAddress,
-      timestamp: new Date().toISOString()
-    };
-    logs.unshift(newLog);
-    saveJson('audit_logs.json', logs);
-  } catch (err) {
-    console.error('Failed to write audit log:', err);
-  }
+  queryNeon(
+    `INSERT INTO audit_logs (id, user_type, action, timestamp) VALUES ($1, $2, $3, $4)`,
+    [uuidv4(), user, action, new Date().toISOString()]
+  ).catch(err => {
+    console.error('Failed to write audit log to Neon DB:', err);
+  });
 }
 
 async function restoreFromFirestore(filename: string): Promise<any[]> {
@@ -981,11 +1009,15 @@ function requireAdmin(req: express.Request, res: express.Response, next: express
   if ((req.session as any)?.admin_logged_in) {
     return next();
   }
-  const token = req.cookies?.shree_admin_token;
-  const verifiedUser = verifyAdminToken(token);
+  const rawCookie = req.headers.cookie || '';
+  const cookieMatch = rawCookie.match(/shree_admin_token=([^;]+)/);
+  const token = req.cookies?.shree_admin_token || (cookieMatch ? decodeURIComponent(cookieMatch[1]) : null) || (req.headers['x-admin-token'] as string) || (req.headers['authorization']?.replace('Bearer ', ''));
+  const verifiedUser = verifyAdminToken(token || undefined);
   if (verifiedUser) {
-    (req.session as any).admin_logged_in = true;
-    (req.session as any).admin_user = verifiedUser;
+    if (req.session) {
+      (req.session as any).admin_logged_in = true;
+      (req.session as any).admin_user = verifiedUser;
+    }
     return next();
   }
   req.flash('error', 'Session expired or invalid. Please log in again to access the Admin Panel.');
@@ -998,26 +1030,56 @@ app.get('/sw.js', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'static/sw.js'));
 });
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   const benefits = loadJson('why_shreevedha.json');
-  const events = loadJson('events.json');
-  const livetrack = loadJson('livetrack.json');
-  const combinedEvents = [...livetrack, ...events];
-  res.render('index.html', {
-    courses: COURSES_DATA.slice(0, 3),
-    testimonials: TESTIMONIALS_DATA,
-    benefits: benefits,
-    events: events,
-    livetrackEvents: combinedEvents.length > 0 ? combinedEvents : livetrack,
-    maps_api_key: process.env.GOOGLE_MAPS_API_KEY || '',
-    office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
-    office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'
-  });
+  try {
+    const eventsRes = await querySupabase('SELECT * FROM events ORDER BY created_at DESC');
+    const livetrackRes = await querySupabase('SELECT * FROM livetrack ORDER BY created_at DESC');
+    const slidesRes = await querySupabase('SELECT * FROM slides ORDER BY display_order ASC');
+    
+    const events = eventsRes.rows.map(r => ({ ...r, _id: r.id }));
+    const livetrack = livetrackRes.rows.map(r => ({ ...r, _id: r.id }));
+    const slides = slidesRes.rows.map(r => ({ ...r, _id: r.id }));
+    const combinedEvents = [...livetrack, ...events];
+    
+    res.render('index.html', {
+      courses: COURSES_DATA.slice(0, 3),
+      testimonials: TESTIMONIALS_DATA,
+      benefits: benefits,
+      events: events,
+      livetrackEvents: combinedEvents.length > 0 ? combinedEvents : livetrack,
+      slides: slides,
+      maps_api_key: process.env.GOOGLE_MAPS_API_KEY || '',
+      office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
+      office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'
+    });
+  } catch (err) {
+    console.error('Failed to load homepage data from Supabase:', err);
+    res.render('index.html', {
+      courses: COURSES_DATA.slice(0, 3),
+      testimonials: TESTIMONIALS_DATA,
+      benefits: benefits,
+      events: [],
+      livetrackEvents: [],
+      slides: [],
+      maps_api_key: '',
+      office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
+      office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'
+    });
+  }
 });
 
-app.get('/about', (req, res) => {
-  const trainers = loadJson('trainers.json');
-  res.render('about.html', { trainers });
+app.get('/about', async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM trainers ORDER BY created_at DESC');
+    const officeRes = await querySupabase('SELECT * FROM office_photos ORDER BY created_at DESC');
+    const trainers = result.rows.map(r => ({ ...r, _id: r.id }));
+    const officePhotos = officeRes.rows.map(r => r.image_url);
+    res.render('about.html', { trainers, office_photos: officePhotos });
+  } catch (err) {
+    console.error('Failed to load trainers or office photos from Supabase:', err);
+    res.render('about.html', { trainers: [], office_photos: [] });
+  }
 });
 
 app.get('/terms', (req, res) => {
@@ -1044,40 +1106,40 @@ app.get('/faq', (req, res) => {
   res.render('faq.html');
 });
 
-app.get('/courses', (req, res) => {
-  const categories: Record<string, any[]> = {};
-  for (const course of COURSES_DATA) {
-    const cat = course.category;
-    if (!categories[cat]) {
-      categories[cat] = [];
-    }
-    categories[cat].push(course);
+app.get('/courses', async (req, res) => {
+  try {
+    const courses = await getNeonCourses();
+    res.render('courses.html', { courses });
+  } catch (err) {
+    console.error('Failed to load courses from Neon DB:', err);
+    res.render('courses.html', { courses: [] });
   }
-  res.render('courses.html', { categories });
 });
 
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
   const query = (req.query.q || '').toString().trim().toLowerCase();
   const results: Array<{ title: string, description: string, url: string, type: string }> = [];
 
   if (query) {
     // 1. Search Courses
-    const courses = loadJson('courses.json');
-    for (const c of courses) {
-      if (
-        c.title.toLowerCase().includes(query) ||
-        c.description.toLowerCase().includes(query) ||
-        (c.category && c.category.toLowerCase().includes(query)) ||
-        (c.syllabus && c.syllabus.some((s: string) => s.toLowerCase().includes(query))) ||
-        (c.tools && c.tools.some((t: string) => t.toLowerCase().includes(query)))
-      ) {
-        results.push({
-          title: `Course: ${c.title}`,
-          description: c.description,
-          url: `/course/${c.id}`,
-          type: 'Course'
-        });
+    try {
+      const courses = await getNeonCourses();
+      for (const c of courses) {
+        if (
+          c.title.toLowerCase().includes(query) ||
+          c.description.toLowerCase().includes(query) ||
+          (c.category && c.category.toLowerCase().includes(query))
+        ) {
+          results.push({
+            title: `Course: ${c.title}`,
+            description: c.description,
+            url: `/course/${c.id}`,
+            type: 'Course'
+          });
+        }
       }
+    } catch (e) {
+      console.error('Error searching courses:', e);
     }
 
     // 2. Search Services & Pages
@@ -1131,12 +1193,18 @@ app.get('/search', (req, res) => {
   res.render('search_results.html', { query, results });
 });
 
-app.get('/course/:course_id', (req, res) => {
-  const course = COURSES_DATA.find(c => c.id === req.params.course_id);
-  if (!course) {
-    return res.status(404).send('Course not found');
+app.get('/course/:course_id', async (req, res) => {
+  try {
+    const courses = await getNeonCourses();
+    const course = courses.find(c => String(c.id) === String(req.params.course_id));
+    if (!course) {
+      return res.status(404).render('error.html', { error_code: 404, error_message: 'Course not found' });
+    }
+    res.render('course_detail.html', { course });
+  } catch (err) {
+    console.error('Failed to load course detail from Neon DB:', err);
+    res.status(500).send('Server Error');
   }
-  res.render('course_detail.html', { course });
 });
 
 app.get('/services', (req, res) => {
@@ -1147,8 +1215,15 @@ app.get('/internship', (req, res) => {
   res.render('internship.html');
 });
 
-app.get('/workshops', (req, res) => {
-  res.render('workshops.html');
+app.get('/workshops', async (req, res) => {
+  try {
+    const result = await querySupabase("SELECT * FROM livetrack WHERE update_type = 'workshop' ORDER BY created_at DESC");
+    const workshops = result.rows;
+    res.render('workshops.html', { workshops });
+  } catch (err) {
+    console.error('Failed loading workshops from Supabase DB:', err);
+    res.render('workshops.html', { workshops: [] });
+  }
 });
 
 app.get('/placement', (req, res) => {
@@ -1168,73 +1243,92 @@ app.get('/blog', (req, res) => {
   res.render('blog.html', { posts: blog_posts });
 });
 
-app.get('/gallery', (req, res) => {
-  const projects = loadJson('gallery.json');
-  res.render('gallery.html', { projects });
+app.get('/gallery', async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM gallery ORDER BY created_at DESC');
+    const projects = result.rows.map(r => ({ ...r, _id: r.id }));
+    res.render('gallery.html', { projects });
+  } catch (err) {
+    console.error(err);
+    res.render('gallery.html', { projects: [] });
+  }
 });
 
-app.get('/livetrack', (req, res) => {
-  const updates = loadJson('livetrack.json');
-  res.render('livetrack.html', { updates });
+app.get('/livetrack', async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM livetrack ORDER BY created_at DESC');
+    const updates = result.rows.map(r => ({ ...r, _id: r.id }));
+    res.render('livetrack.html', { updates });
+  } catch (err) {
+    console.error(err);
+    res.render('livetrack.html', { updates: [] });
+  }
 });
 
 app.get('/livetrack/:id', (req, res) => {
   res.redirect(`/event/${req.params.id}`);
 });
 
-app.get('/event/:id', (req, res) => {
-  const updates = loadJson('livetrack.json');
-  const events = loadJson('events.json');
-  const allEvents = [...updates, ...events];
-  const id = String(req.params.id);
-  const event = allEvents.find(e => {
-    const eId = String(e._id ?? e.id ?? '');
-    const titleSlug = (e.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    return eId === id || titleSlug === id.toLowerCase();
-  });
-  if (!event) {
-    req.flash('error', 'Event details not found.');
-    return res.redirect('/livetrack');
+app.get('/event/:id', async (req, res) => {
+  try {
+    const updatesRes = await querySupabase('SELECT * FROM livetrack ORDER BY created_at DESC');
+    const eventsRes = await querySupabase('SELECT * FROM events ORDER BY created_at DESC');
+    const updates = updatesRes.rows.map(r => ({ ...r, _id: r.id }));
+    const events = eventsRes.rows.map(r => ({ ...r, _id: r.id }));
+    const allEvents = [...updates, ...events];
+    const id = String(req.params.id);
+    const event = allEvents.find(e => {
+      const eId = String(e._id ?? e.id ?? '');
+      const titleSlug = (e.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      return eId === id || titleSlug === id.toLowerCase();
+    });
+    if (!event) {
+      req.flash('error', 'Event details not found.');
+      return res.redirect('/livetrack');
+    }
+    const eventId = String(event._id ?? event.id ?? '');
+    const otherEvents = allEvents.filter(e => String(e._id ?? e.id ?? '') !== eventId);
+    res.render('event_detail.html', { event, otherEvents, allEvents });
+  } catch (err) {
+    console.error(err);
+    req.flash('error', 'Database connection error.');
+    res.redirect('/livetrack');
   }
-  const eventId = String(event._id ?? event.id ?? '');
-  const otherEvents = allEvents.filter(e => String(e._id ?? e.id ?? '') !== eventId);
-  res.render('event_detail.html', { event, otherEvents, allEvents });
 });
 
-app.get('/projects', (req, res) => {
-  const projects = loadJson('projects.json');
-  res.render('projects.html', { projects });
+app.get('/projects', async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM projects ORDER BY created_at DESC');
+    const projects = result.rows.map(r => ({ ...r, _id: r.id }));
+    res.render('projects.html', { projects });
+  } catch (err) {
+    console.error(err);
+    res.render('projects.html', { projects: [] });
+  }
 });
 
 app.get('/registration', (req, res) => {
   res.render('registration.html');
 });
 
-app.post('/registration', (req, res) => {
+app.post('/registration', async (req, res) => {
   const { name, email, phone, course, mode, domain, qualification, message } = req.body;
   if (!name || !email || !phone) {
     req.flash('error', 'Name, email and phone are required.');
     return res.redirect('/registration');
   }
-
-  const registrations = loadJson('registrations.json');
-  const record = {
-    _id: uuidv4(),
-    name: name.trim(),
-    email: email.trim().toLowerCase(),
-    phone: phone.trim(),
-    course: (course || '').trim(),
-    mode: (mode || '').trim(),
-    domain: (domain || '').trim(),
-    qualification: (qualification || '').trim(),
-    message: (message || '').trim(),
-    timestamp: new Date().toISOString()
-  };
-
-  registrations.unshift(record);
-  saveJson('registrations.json', registrations);
-
-  req.flash('success', 'Registration successful! Our team will contact you soon.');
+  try {
+    const id = uuidv4();
+    await queryNeon(
+      `INSERT INTO registrations (id, name, email, phone, course, mode, domain, qualification, message, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [id, name.trim(), email.trim().toLowerCase(), phone.trim(), (course || '').trim(), (mode || '').trim(), (domain || '').trim(), (qualification || '').trim(), (message || '').trim(), new Date().toISOString()]
+    );
+    req.flash('success', 'Registration successful! Our team will contact you soon.');
+  } catch (err) {
+    console.error('Failed to save registration to Neon DB:', err);
+    req.flash('error', 'Registration failed due to a database error. Please try again.');
+  }
   res.redirect('/registration');
 });
 
@@ -1242,27 +1336,24 @@ app.get('/contact', (req, res) => {
   res.render('contact.html');
 });
 
-app.post('/contact', (req, res) => {
+app.post('/contact', async (req, res) => {
   const { name, email, phone, message } = req.body;
   if (!name || !email || !phone) {
     req.flash('error', 'Name, email and phone are required.');
     return res.redirect('/contact');
   }
-
-  const contacts = loadJson('contacts.json');
-  const record = {
-    _id: uuidv4(),
-    name: name.trim(),
-    email: email.trim().toLowerCase(),
-    phone: phone.trim(),
-    message: (message || '').trim(),
-    timestamp: new Date().toISOString()
-  };
-
-  contacts.unshift(record);
-  saveJson('contacts.json', contacts);
-
-  req.flash('success', 'Thank you! We will get back to you soon.');
+  try {
+    const id = uuidv4();
+    await queryNeon(
+      `INSERT INTO contacts (id, name, email, phone, message, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [id, name.trim(), email.trim().toLowerCase(), phone.trim(), (message || '').trim(), new Date().toISOString()]
+    );
+    req.flash('success', 'Thank you! We will get back to you soon.');
+  } catch (err) {
+    console.error('Failed to save contact message to Neon DB:', err);
+    req.flash('error', 'Message submission failed due to a database error. Please try again.');
+  }
   res.redirect('/contact');
 });
 
@@ -1463,11 +1554,12 @@ app.post('/lms/profile', requireLogin, (req, res) => {
   res.redirect('/lms/profile');
 });
 
-app.get('/lms/courses', requireLogin, (req, res) => {
+app.get('/lms/courses', requireLogin, async (req, res) => {
   const user = (req.session as any).user;
-  const enrollments = loadJson('enrollments.json').filter(e => e.user_id === user.id);
-  const enrolled_course_ids = enrollments.map(e => e.course_id);
-  const available_courses = loadJson('courses.json');
+  const allEnrollments = await getNeonEnrollments();
+  const enrollments = allEnrollments.filter(e => String(e.user_id) === String(user.id));
+  const enrolled_course_ids = enrollments.map(e => String(e.course_id));
+  const available_courses = await getNeonCourses();
 
   res.render('lms/courses.html', {
     enrollments,
@@ -1477,19 +1569,19 @@ app.get('/lms/courses', requireLogin, (req, res) => {
   });
 });
 
-app.get('/lms/course/:course_id', requireLogin, (req, res) => {
+app.get('/lms/course/:course_id', requireLogin, async (req, res) => {
   const user = (req.session as any).user;
   const courseId = req.params.course_id;
-  const enrollments = loadJson('enrollments.json');
-  const enrollment = enrollments.find(e => e.user_id === user.id && e.course_id === courseId);
+  const enrollments = await getNeonEnrollments();
+  const enrollment = enrollments.find(e => String(e.user_id) === String(user.id) && String(e.course_id) === String(courseId));
   
   if (!enrollment) {
     req.flash('error', 'You are not enrolled in this course.');
     return res.redirect('/lms/courses');
   }
 
-  const courses = loadJson('courses.json');
-  const course = courses.find(c => c.id === courseId);
+  const courses = await getNeonCourses();
+  const course = courses.find(c => String(c.id) === String(courseId));
   if (!course) {
     return res.status(404).send('Course not found');
   }
@@ -1818,7 +1910,9 @@ app.post('/admin/login', (req, res) => {
     const token = signAdminToken(username);
     res.cookie('shree_admin_token', token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
+      httpOnly: false,
+      sameSite: 'none',
+      secure: true,
       path: '/'
     });
     req.flash('success', 'Welcome back, Admin!');
@@ -1968,9 +2062,190 @@ app.get('/admin/users', requireAdmin, (req, res) => {
   res.render('admin/users.html', { users });
 });
 
-app.get('/admin/courses', requireAdmin, (req, res) => {
-  const courses = loadJson('courses.json');
-  res.render('admin/courses.html', { courses });
+// ── API COUPON ROUTE ──
+app.post('/api/apply-coupon', async (req, res) => {
+  const { code, price } = req.body;
+  if (!code) {
+    return res.status(400).json({ success: false, message: 'Please enter a coupon code.' });
+  }
+
+  try {
+    const result = await queryNeon('SELECT * FROM coupons WHERE UPPER(code) = UPPER($1) AND status = $2', [code.trim(), 'active']);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Invalid or expired coupon code.' });
+    }
+
+    const coupon = result.rows[0];
+    const numericPrice = parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0;
+    let discountAmount = 0;
+
+    if (coupon.discount_type === 'percentage') {
+      discountAmount = (numericPrice * parseFloat(coupon.discount_value)) / 100;
+    } else {
+      discountAmount = parseFloat(coupon.discount_value);
+    }
+
+    const finalPrice = Math.max(0, numericPrice - discountAmount);
+
+    return res.json({
+      success: true,
+      code: coupon.code,
+      discount_type: coupon.discount_type,
+      discount_value: coupon.discount_value,
+      discountAmount,
+      finalPrice: Math.round(finalPrice),
+      message: `Coupon '${coupon.code}' applied successfully!`
+    });
+  } catch (err: any) {
+    console.error('Error validating coupon:', err);
+    return res.status(500).json({ success: false, message: 'Error processing coupon.' });
+  }
+});
+
+// ── ADMIN COURSES & COUPONS ROUTES ──
+app.get('/admin/courses', requireAdmin, async (req, res) => {
+  try {
+    const courses = await getNeonCourses();
+    res.render('admin/courses.html', { courses });
+  } catch (err) {
+    console.error('Failed to fetch admin courses:', err);
+    res.render('admin/courses.html', { courses: [] });
+  }
+});
+
+app.post('/admin/courses/create', upload.single('image'), requireAdmin, async (req, res) => {
+  try {
+    const {
+      title, category, description, duration, mode,
+      price_online, price_online_original,
+      price_offline, price_offline_original,
+      price_hybrid, price_hybrid_original,
+      tools, projects, syllabus
+    } = req.body;
+
+    const id = (req.body.id || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')).replace(/^-+|-+$/g, '');
+
+    let imageUrl = req.body.image_url || '';
+    if (req.file) {
+      const supUrl = await uploadToSupabase(req.file.buffer, 'courses', req.file.originalname, req.file.mimetype);
+      if (supUrl) imageUrl = supUrl;
+      else imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    }
+
+    let parsedSyllabus = [];
+    try {
+      parsedSyllabus = typeof syllabus === 'string' ? JSON.parse(syllabus) : (syllabus || []);
+    } catch(e) {
+      parsedSyllabus = [{ module_title: 'Overview', topics: [syllabus] }];
+    }
+
+    const toolsArr = typeof tools === 'string' ? tools.split(',').map((s: string) => s.trim()).filter(Boolean) : (tools || []);
+    const projectsArr = typeof projects === 'string' ? projects.split(',').map((s: string) => s.trim()).filter(Boolean) : (projects || []);
+
+    await queryNeon(
+      `INSERT INTO courses (
+        id, title, category, description, duration, mode,
+        price_online, price_online_original,
+        price_offline, price_offline_original,
+        price_hybrid, price_hybrid_original,
+        image, thumbnail, tools, projects, syllabus
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+       ON CONFLICT (id) DO UPDATE SET
+         title = EXCLUDED.title,
+         category = EXCLUDED.category,
+         description = EXCLUDED.description,
+         duration = EXCLUDED.duration,
+         mode = EXCLUDED.mode,
+         price_online = EXCLUDED.price_online,
+         price_online_original = EXCLUDED.price_online_original,
+         price_offline = EXCLUDED.price_offline,
+         price_offline_original = EXCLUDED.price_offline_original,
+         price_hybrid = EXCLUDED.price_hybrid,
+         price_hybrid_original = EXCLUDED.price_hybrid_original,
+         image = EXCLUDED.image,
+         thumbnail = EXCLUDED.thumbnail,
+         tools = EXCLUDED.tools,
+         projects = EXCLUDED.projects,
+         syllabus = EXCLUDED.syllabus`,
+      [
+        id, title, category || 'Development', description || '', duration || '60 Days', mode || 'Online / Offline / Hybrid',
+        price_online || '₹2,999', price_online_original || '₹5,999',
+        price_offline || '₹9,999', price_offline_original || '₹19,999',
+        price_hybrid || '₹7,999', price_hybrid_original || '₹14,999',
+        imageUrl, imageUrl,
+        JSON.stringify(toolsArr), JSON.stringify(projectsArr), JSON.stringify(parsedSyllabus)
+      ]
+    );
+
+    logActivity('admin', `Created/Updated course ${title}`);
+    req.flash('success', `Course '${title}' saved successfully!`);
+  } catch (err: any) {
+    console.error('Failed to save course:', err);
+    req.flash('error', `Failed to save course: ${err.message}`);
+  }
+  res.redirect('/admin/courses');
+});
+
+app.post('/admin/courses/:id/delete', requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  try {
+    await queryNeon('DELETE FROM courses WHERE id = $1', [id]);
+    logActivity('admin', `Deleted course ID ${id}`);
+    req.flash('success', 'Course deleted successfully.');
+  } catch (err: any) {
+    console.error('Failed to delete course:', err);
+    req.flash('error', 'Failed to delete course.');
+  }
+  res.redirect('/admin/courses');
+});
+
+// ── ADMIN COUPONS ROUTES ──
+app.get('/admin_coupons', requireAdmin, async (req, res) => {
+  try {
+    const result = await queryNeon('SELECT * FROM coupons ORDER BY created_at DESC');
+    res.render('admin/coupons.html', { coupons: result.rows });
+  } catch (err) {
+    console.error('Failed to load coupons:', err);
+    res.render('admin/coupons.html', { coupons: [] });
+  }
+});
+
+app.post('/admin/coupons/add', requireAdmin, async (req, res) => {
+  const { code, discount_type, discount_value } = req.body;
+  if (!code || !discount_value) {
+    req.flash('error', 'Coupon code and value are required.');
+    return res.redirect('/admin_coupons');
+  }
+  try {
+    await queryNeon(
+      `INSERT INTO coupons (id, code, discount_type, discount_value, status)
+       VALUES ($1, UPPER($2), $3, $4, 'active')
+       ON CONFLICT (code) DO UPDATE SET
+         discount_type = EXCLUDED.discount_type,
+         discount_value = EXCLUDED.discount_value,
+         status = 'active'`,
+      [uuidv4(), code.trim(), discount_type || 'percentage', parseFloat(discount_value)]
+    );
+    logActivity('admin', `Created coupon code ${code}`);
+    req.flash('success', `Coupon '${code.toUpperCase()}' created successfully!`);
+  } catch (err: any) {
+    console.error('Failed to create coupon:', err);
+    req.flash('error', `Failed to create coupon: ${err.message}`);
+  }
+  res.redirect('/admin_coupons');
+});
+
+app.post('/admin/coupons/delete/:id', requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  try {
+    await queryNeon('DELETE FROM coupons WHERE id = $1', [id]);
+    logActivity('admin', `Deleted coupon ID ${id}`);
+    req.flash('success', 'Coupon deleted successfully.');
+  } catch (err: any) {
+    console.error('Failed to delete coupon:', err);
+    req.flash('error', 'Failed to delete coupon.');
+  }
+  res.redirect('/admin_coupons');
 });
 
 app.get('/admin/announcements', requireAdmin, (req, res) => {
@@ -1981,50 +2256,72 @@ app.get('/admin/assignments', requireAdmin, (req, res) => {
   res.render('admin/assignments.html', { assignments: [] });
 });
 
-app.get('/admin/registrations', requireAdmin, (req, res) => {
-  const registrations = loadJson('registrations.json');
-  res.render('admin/registrations.html', { registrations });
+app.get('/admin/registrations', requireAdmin, async (req, res) => {
+  try {
+    const result = await queryNeon('SELECT * FROM registrations ORDER BY created_at DESC');
+    const registrations = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      timestamp: r.created_at
+    }));
+    res.render('admin/registrations.html', { registrations });
+  } catch (err: any) {
+    console.error('Failed to load registrations from Neon DB:', err);
+    res.render('admin/registrations.html', { registrations: [] });
+  }
 });
 
-app.get('/admin/contacts', requireAdmin, (req, res) => {
-  const contacts = loadJson('contacts.json');
-  res.render('admin/contacts.html', { contacts });
+app.get('/admin/contacts', requireAdmin, async (req, res) => {
+  try {
+    const result = await queryNeon('SELECT * FROM contacts ORDER BY created_at DESC');
+    const contacts = result.rows.map(c => ({
+      ...c,
+      _id: c.id,
+      timestamp: c.created_at
+    }));
+    res.render('admin/contacts.html', { contacts });
+  } catch (err: any) {
+    console.error('Failed to load contacts from Neon DB:', err);
+    res.render('admin/contacts.html', { contacts: [] });
+  }
 });
 
-// ── ADMIN GALLERY ROUTES (WITH FIREBASE STORAGE INTEGRATION) ──
-app.get('/admin/gallery', requireAdmin, (req, res) => {
-  const projects = loadJson('gallery.json');
-  res.render('admin/gallery.html', { projects });
+app.get('/admin_gallery', (req, res) => res.redirect('/admin/gallery'));
+
+app.get('/admin/gallery', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM gallery ORDER BY created_at DESC');
+    const projects = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      timestamp: r.created_at
+    }));
+    res.render('admin/gallery.html', { projects });
+  } catch (err) {
+    console.error('Failed to load gallery from Supabase DB:', err);
+    res.render('admin/gallery.html', { projects: [] });
+  }
 });
 
-app.post('/admin/gallery/add', requireAdmin, upload.single('image'), async (req, res) => {
-  const { title, github_link, description } = req.body;
-  if (!title || !description || !req.file) {
-    req.flash('error', 'Title, description and image are required.');
+app.post('/admin/gallery/add', upload.single('image'), requireAdmin, async (req, res) => {
+  const { title, github_link, description, image_url } = req.body;
+  if (!title || !description || (!req.file && !image_url)) {
+    req.flash('error', 'Title, description and an image (file upload or URL) are required.');
     return res.redirect('/admin/gallery');
   }
 
   try {
-    let imageFilename = '';
-    const supabaseUrl = await uploadToSupabase(req.file.buffer, 'gallery', req.file.originalname, req.file.mimetype);
-    if (supabaseUrl) {
-      imageFilename = supabaseUrl;
-    } else {
-      const base64Data = req.file.buffer.toString('base64');
-      imageFilename = `data:${req.file.mimetype};base64,${base64Data}`;
+    let imageFilename = (image_url || '').trim();
+    if (req.file) {
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'gallery', req.file.originalname, req.file.mimetype);
+      imageFilename = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     }
 
-    const projects = loadJson('gallery.json');
-    const newProject = {
-      _id: uuidv4(),
-      title: title.trim(),
-      description: description.trim(),
-      github_link: (github_link || '').trim(),
-      image_filename: imageFilename,
-      timestamp: new Date().toISOString()
-    };
-    projects.unshift(newProject);
-    saveJson('gallery.json', projects);
+    await querySupabase(
+      `INSERT INTO gallery (id, title, description, image_filename, github_link, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [uuidv4(), title.trim(), description.trim(), imageFilename, (github_link || '').trim(), new Date().toISOString()]
+    );
 
     req.flash('success', 'Gallery project added successfully!');
   } catch (err: any) {
@@ -2037,45 +2334,7 @@ app.post('/admin/gallery/add', requireAdmin, upload.single('image'), async (req,
 app.post('/admin/gallery/delete/:id', requireAdmin, async (req, res) => {
   const id = req.params.id;
   try {
-    const projects = loadJson('gallery.json');
-    const projectIndex = projects.findIndex(p => String(p._id) === String(id));
-    if (projectIndex === -1) {
-      req.flash('error', 'Gallery item not found.');
-      return res.redirect('/admin/gallery');
-    }
-
-    const projectToDelete = projects[projectIndex];
-
-    // Cleanup local file copy if it is stored locally
-    if (projectToDelete.image_filename && !projectToDelete.image_filename.startsWith('http')) {
-      const filePath = path.join(process.cwd(), 'static', 'uploads', 'gallery', projectToDelete.image_filename);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Failed to delete local gallery image file:', err);
-        }
-      }
-    }
-
-    // Cleanup Firebase Storage file copy if stored in Cloud
-    if (projectToDelete.image_filename && projectToDelete.image_filename.includes('firebasestorage.googleapis.com') && db) {
-      try {
-        const bucket = getStorage().bucket();
-        const urlParts = projectToDelete.image_filename.split('/o/');
-        if (urlParts.length > 1) {
-          const filePathEncoded = urlParts[1].split('?')[0];
-          const filePath = decodeURIComponent(filePathEncoded);
-          await bucket.file(filePath).delete();
-          console.log('Successfully deleted file from Firebase Storage:', filePath);
-        }
-      } catch (err) {
-        console.error('Failed to delete file from Firebase Storage:', err);
-      }
-    }
-
-    projects.splice(projectIndex, 1);
-    saveJson('gallery.json', projects);
+    await querySupabase('DELETE FROM gallery WHERE id = $1', [id]);
     req.flash('success', 'Gallery item deleted successfully!');
   } catch (err: any) {
     console.error('Failed to delete gallery item:', err);
@@ -2084,7 +2343,7 @@ app.post('/admin/gallery/delete/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin/gallery');
 });
 
-app.post('/admin/gallery/:id/update', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/gallery/:id/update', upload.single('image'), requireAdmin, async (req, res) => {
   const id = req.params.id;
   const { title, github_link, description } = req.body;
   if (!title || !description) {
@@ -2092,28 +2351,19 @@ app.post('/admin/gallery/:id/update', requireAdmin, upload.single('image'), asyn
     return res.redirect('/admin/gallery');
   }
   try {
-    const projects = loadJson('gallery.json');
-    const idx = projects.findIndex(p => String(p._id) === String(id));
-    if (idx === -1) {
-      req.flash('error', 'Gallery item not found.');
-      return res.redirect('/admin/gallery');
-    }
-
-    projects[idx].title = title.trim();
-    projects[idx].description = description.trim();
-    projects[idx].github_link = (github_link || '').trim();
-
     if (req.file) {
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'gallery', req.file.originalname, req.file.mimetype);
-      if (supabaseUrl) {
-        projects[idx].image_filename = supabaseUrl;
-      } else {
-        const base64Data = req.file.buffer.toString('base64');
-        projects[idx].image_filename = `data:${req.file.mimetype};base64,${base64Data}`;
-      }
+      const imageFilename = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      await querySupabase(
+        `UPDATE gallery SET title = $1, description = $2, image_filename = $3, github_link = $4 WHERE id = $5`,
+        [title.trim(), description.trim(), imageFilename, (github_link || '').trim(), id]
+      );
+    } else {
+      await querySupabase(
+        `UPDATE gallery SET title = $1, description = $2, github_link = $3 WHERE id = $4`,
+        [title.trim(), description.trim(), (github_link || '').trim(), id]
+      );
     }
-
-    saveJson('gallery.json', projects);
     req.flash('success', 'Gallery item updated successfully!');
   } catch (err: any) {
     console.error(err);
@@ -2123,43 +2373,41 @@ app.post('/admin/gallery/:id/update', requireAdmin, upload.single('image'), asyn
 });
 
 // ── ADMIN PROJECTS ROUTES (WITH FIREBASE STORAGE INTEGRATION) ──
-app.get('/admin_projects', requireAdmin, (req, res) => {
-  const projects = loadJson('projects.json');
-  res.render('admin/projects.html', { projects });
+app.get('/admin_projects', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM projects ORDER BY created_at DESC');
+    const projects = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      timestamp: r.created_at
+    }));
+    res.render('admin/projects.html', { projects });
+  } catch (err) {
+    console.error('Failed to load projects from Supabase DB:', err);
+    res.render('admin/projects.html', { projects: [] });
+  }
 });
 
-app.post('/admin_add_project', requireAdmin, upload.single('image'), async (req, res) => {
-  const { title, tech_stack, github_link, description } = req.body;
+app.post('/admin_add_project', upload.single('image'), requireAdmin, async (req, res) => {
+  const { title, tech_stack, github_link, description, image_url } = req.body;
   if (!title || !description) {
     req.flash('error', 'Title and description are required.');
     return res.redirect('/admin_projects');
   }
 
   try {
-    let imageFilename = '';
+    let imageFilename = (image_url || '').trim();
 
     if (req.file) {
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'projects', req.file.originalname, req.file.mimetype);
-      if (supabaseUrl) {
-        imageFilename = supabaseUrl;
-      } else {
-        const base64Data = req.file.buffer.toString('base64');
-        imageFilename = `data:${req.file.mimetype};base64,${base64Data}`;
-      }
+      imageFilename = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     }
 
-    const projects = loadJson('projects.json');
-    const newProject = {
-      _id: uuidv4(),
-      title: title.trim(),
-      tech_stack: (tech_stack || '').trim(),
-      description: description.trim(),
-      github_link: (github_link || '').trim(),
-      image_filename: imageFilename,
-      timestamp: new Date().toISOString()
-    };
-    projects.unshift(newProject);
-    saveJson('projects.json', projects);
+    await querySupabase(
+      `INSERT INTO projects (id, title, tech_stack, description, image_filename, github_link, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [uuidv4(), title.trim(), (tech_stack || '').trim(), description.trim(), imageFilename, (github_link || '').trim(), new Date().toISOString()]
+    );
 
     req.flash('success', 'Project added successfully!');
   } catch (err: any) {
@@ -2172,45 +2420,7 @@ app.post('/admin_add_project', requireAdmin, upload.single('image'), async (req,
 app.post('/admin_delete_project/:id', requireAdmin, async (req, res) => {
   const id = req.params.id;
   try {
-    const projects = loadJson('projects.json');
-    const projectIndex = projects.findIndex(p => String(p._id) === String(id));
-    if (projectIndex === -1) {
-      req.flash('error', 'Project not found.');
-      return res.redirect('/admin_projects');
-    }
-
-    const projectToDelete = projects[projectIndex];
-
-    // Cleanup local file copy
-    if (projectToDelete.image_filename && !projectToDelete.image_filename.startsWith('http')) {
-      const filePath = path.join(process.cwd(), 'static', 'uploads', 'projects', projectToDelete.image_filename);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Failed to delete local project image file:', err);
-        }
-      }
-    }
-
-    // Cleanup Firebase Storage file copy
-    if (projectToDelete.image_filename && projectToDelete.image_filename.includes('firebasestorage.googleapis.com') && db) {
-      try {
-        const bucket = getStorage().bucket();
-        const urlParts = projectToDelete.image_filename.split('/o/');
-        if (urlParts.length > 1) {
-          const filePathEncoded = urlParts[1].split('?')[0];
-          const filePath = decodeURIComponent(filePathEncoded);
-          await bucket.file(filePath).delete();
-          console.log('Successfully deleted project file from Firebase Storage:', filePath);
-        }
-      } catch (err) {
-        console.error('Failed to delete project file from Firebase Storage:', err);
-      }
-    }
-
-    projects.splice(projectIndex, 1);
-    saveJson('projects.json', projects);
+    await querySupabase('DELETE FROM projects WHERE id = $1', [id]);
     req.flash('success', 'Project deleted successfully!');
   } catch (err: any) {
     console.error('Failed to delete project:', err);
@@ -2219,7 +2429,7 @@ app.post('/admin_delete_project/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin_projects');
 });
 
-app.post('/admin_update_project/:id', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin_update_project/:id', upload.single('image'), requireAdmin, async (req, res) => {
   const id = req.params.id;
   const { title, tech_stack, github_link, description } = req.body;
   if (!title || !description) {
@@ -2227,29 +2437,19 @@ app.post('/admin_update_project/:id', requireAdmin, upload.single('image'), asyn
     return res.redirect('/admin_projects');
   }
   try {
-    const projects = loadJson('projects.json');
-    const idx = projects.findIndex(p => String(p._id) === String(id));
-    if (idx === -1) {
-      req.flash('error', 'Project not found.');
-      return res.redirect('/admin_projects');
-    }
-
-    projects[idx].title = title.trim();
-    projects[idx].tech_stack = (tech_stack || '').trim();
-    projects[idx].github_link = (github_link || '').trim();
-    projects[idx].description = description.trim();
-
     if (req.file) {
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'projects', req.file.originalname, req.file.mimetype);
-      if (supabaseUrl) {
-        projects[idx].image_filename = supabaseUrl;
-      } else {
-        const base64Data = req.file.buffer.toString('base64');
-        projects[idx].image_filename = `data:${req.file.mimetype};base64,${base64Data}`;
-      }
+      const imageFilename = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      await querySupabase(
+        `UPDATE projects SET title = $1, tech_stack = $2, github_link = $3, description = $4, image_filename = $5 WHERE id = $6`,
+        [title.trim(), (tech_stack || '').trim(), (github_link || '').trim(), description.trim(), imageFilename, id]
+      );
+    } else {
+      await querySupabase(
+        `UPDATE projects SET title = $1, tech_stack = $2, github_link = $3, description = $4 WHERE id = $5`,
+        [title.trim(), (tech_stack || '').trim(), (github_link || '').trim(), description.trim(), id]
+      );
     }
-
-    saveJson('projects.json', projects);
     req.flash('success', 'Project updated successfully!');
   } catch (err: any) {
     console.error(err);
@@ -2258,13 +2458,25 @@ app.post('/admin_update_project/:id', requireAdmin, upload.single('image'), asyn
   res.redirect('/admin_projects');
 });
 
+app.get('/admin_trainers', (req, res) => res.redirect('/admin/trainers'));
+
 // ── ADMIN TRAINERS ROUTES (WITH FIREBASE STORAGE INTEGRATION) ──
-app.get('/admin/trainers', requireAdmin, (req, res) => {
-  const trainers = loadJson('trainers.json');
-  res.render('admin/trainers.html', { trainers });
+app.get('/admin/trainers', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM trainers ORDER BY created_at DESC');
+    const trainers = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      timestamp: r.created_at
+    }));
+    res.render('admin/trainers.html', { trainers });
+  } catch (err) {
+    console.error('Failed to load trainers from Supabase DB:', err);
+    res.render('admin/trainers.html', { trainers: [] });
+  }
 });
 
-app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/trainers/add', upload.single('image'), requireAdmin, async (req, res) => {
   const { name, role, bio, external_image_url } = req.body;
   if (!name || !role || !bio) {
     req.flash('error', 'Name, role, and biography are required.');
@@ -2274,7 +2486,6 @@ app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req
   try {
     let imageUrl = '';
 
-    // 1. If an image file was uploaded, handle local fallback and cloud upload
     if (req.file) {
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'trainers', req.file.originalname, req.file.mimetype);
       if (supabaseUrl) {
@@ -2284,24 +2495,16 @@ app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req
         imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
       }
     } else if (external_image_url && external_image_url.trim() !== '') {
-      // Use the provided external image URL
       imageUrl = external_image_url.trim();
     } else {
-      // Default placeholder avatar if neither is provided
       imageUrl = 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop';
     }
 
-    const trainers = loadJson('trainers.json');
-    const newTrainer = {
-      _id: uuidv4(),
-      name: name.trim(),
-      role: role.trim(),
-      bio: bio.trim(),
-      image_url: imageUrl,
-      timestamp: new Date().toISOString()
-    };
-    trainers.unshift(newTrainer);
-    saveJson('trainers.json', trainers);
+    await querySupabase(
+      `INSERT INTO trainers (id, name, role, bio, image_url, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [uuidv4(), name.trim(), role.trim(), bio.trim(), imageUrl, new Date().toISOString()]
+    );
 
     req.flash('success', 'Trainer added successfully!');
   } catch (err: any) {
@@ -2311,7 +2514,7 @@ app.post('/admin/trainers/add', requireAdmin, upload.single('image'), async (req
   res.redirect('/admin/trainers');
 });
 
-app.post('/admin/trainers/:id/update', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/trainers/:id/update', upload.single('image'), requireAdmin, async (req, res) => {
   const id = req.params.id;
   const { name, role, bio, external_image_url } = req.body;
   if (!name || !role || !bio) {
@@ -2319,30 +2522,26 @@ app.post('/admin/trainers/:id/update', requireAdmin, upload.single('image'), asy
     return res.redirect('/admin/trainers');
   }
   try {
-    const trainers = loadJson('trainers.json');
-    const idx = trainers.findIndex(t => String(t._id) === String(id));
-    if (idx === -1) {
-      req.flash('error', 'Trainer not found.');
-      return res.redirect('/admin/trainers');
-    }
-
-    trainers[idx].name = name.trim();
-    trainers[idx].role = role.trim();
-    trainers[idx].bio = bio.trim();
-
+    let imageUrl = null;
     if (req.file) {
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'trainers', req.file.originalname, req.file.mimetype);
-      if (supabaseUrl) {
-        trainers[idx].image_url = supabaseUrl;
-      } else {
-        const base64Data = req.file.buffer.toString('base64');
-        trainers[idx].image_url = `data:${req.file.mimetype};base64,${base64Data}`;
-      }
+      imageUrl = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     } else if (external_image_url && external_image_url.trim() !== '') {
-      trainers[idx].image_url = external_image_url.trim();
+      imageUrl = external_image_url.trim();
     }
 
-    saveJson('trainers.json', trainers);
+    if (imageUrl) {
+      await querySupabase(
+        `UPDATE trainers SET name = $1, role = $2, bio = $3, image_url = $4 WHERE id = $5`,
+        [name.trim(), role.trim(), bio.trim(), imageUrl, id]
+      );
+    } else {
+      await querySupabase(
+        `UPDATE trainers SET name = $1, role = $2, bio = $3 WHERE id = $4`,
+        [name.trim(), role.trim(), bio.trim(), id]
+      );
+    }
+
     req.flash('success', 'Trainer updated successfully!');
   } catch (err: any) {
     console.error(err);
@@ -2354,46 +2553,7 @@ app.post('/admin/trainers/:id/update', requireAdmin, upload.single('image'), asy
 app.post('/admin/trainers/delete/:id', requireAdmin, async (req, res) => {
   const id = req.params.id;
   try {
-    const trainers = loadJson('trainers.json');
-    const trainerIndex = trainers.findIndex(t => String(t._id) === String(id));
-    if (trainerIndex === -1) {
-      req.flash('error', 'Trainer not found.');
-      return res.redirect('/admin/trainers');
-    }
-
-    const trainerToDelete = trainers[trainerIndex];
-
-    // Cleanup local file copy if it is stored locally under /static/uploads/trainers/
-    if (trainerToDelete.image_url && trainerToDelete.image_url.startsWith('/static/uploads/trainers/')) {
-      const relativePath = trainerToDelete.image_url.replace('/static/uploads/trainers/', '');
-      const filePath = path.join(process.cwd(), 'static', 'uploads', 'trainers', relativePath);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Failed to delete local trainer image file:', err);
-        }
-      }
-    }
-
-    // Cleanup Firebase Storage file copy if stored in Cloud
-    if (trainerToDelete.image_url && trainerToDelete.image_url.includes('firebasestorage.googleapis.com') && db) {
-      try {
-        const bucket = getStorage().bucket();
-        const urlParts = trainerToDelete.image_url.split('/o/');
-        if (urlParts.length > 1) {
-          const filePathEncoded = urlParts[1].split('?')[0];
-          const filePath = decodeURIComponent(filePathEncoded);
-          await bucket.file(filePath).delete();
-          console.log('Successfully deleted trainer file from Firebase Storage:', filePath);
-        }
-      } catch (err) {
-        console.error('Failed to delete trainer file from Firebase Storage:', err);
-      }
-    }
-
-    trainers.splice(trainerIndex, 1);
-    saveJson('trainers.json', trainers);
+    await querySupabase('DELETE FROM trainers WHERE id = $1', [id]);
     req.flash('success', 'Trainer deleted successfully!');
   } catch (err: any) {
     console.error('Failed to delete trainer:', err);
@@ -2402,13 +2562,25 @@ app.post('/admin/trainers/delete/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin/trainers');
 });
 
+app.get('/admin_events', (req, res) => res.redirect('/admin/events'));
+
 // ── ADMIN EVENTS ROUTES (WITH LOCAL AND FIREBASE STORAGE INTEGRATION) ──
-app.get('/admin/events', requireAdmin, (req, res) => {
-  const events = loadJson('events.json');
-  res.render('admin/events.html', { events });
+app.get('/admin/events', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM events ORDER BY created_at DESC');
+    const events = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      timestamp: r.created_at
+    }));
+    res.render('admin/events.html', { events });
+  } catch (err) {
+    console.error('Failed to load events from Supabase DB:', err);
+    res.render('admin/events.html', { events: [] });
+  }
 });
 
-app.post('/admin/events/add', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/events/add', upload.single('image'), requireAdmin, async (req, res) => {
   const { title, date, time, location, description, external_image_url, link } = req.body;
   if (!title || !date || !time || !location || !description) {
     req.flash('error', 'Title, date, time, location, and description are required.');
@@ -2432,20 +2604,11 @@ app.post('/admin/events/add', requireAdmin, upload.single('image'), async (req, 
       imageUrl = 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=600';
     }
 
-    const events = loadJson('events.json');
-    const newEvent = {
-      _id: uuidv4(),
-      title: title.trim(),
-      date: date.trim(),
-      time: time.trim(),
-      location: location.trim(),
-      description: description.trim(),
-      image_url: imageUrl,
-      link: link && link.trim() !== '' ? link.trim() : '/registration',
-      timestamp: new Date().toISOString()
-    };
-    events.unshift(newEvent);
-    saveJson('events.json', events);
+    await querySupabase(
+      `INSERT INTO events (id, title, date, time, location, description, image_url, link, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [uuidv4(), title.trim(), date.trim(), time.trim(), location.trim(), description.trim(), imageUrl, link && link.trim() !== '' ? link.trim() : '/registration', new Date().toISOString()]
+    );
 
     req.flash('success', 'Event added successfully!');
   } catch (err: any) {
@@ -2458,44 +2621,7 @@ app.post('/admin/events/add', requireAdmin, upload.single('image'), async (req, 
 app.post('/admin/events/delete/:id', requireAdmin, async (req, res) => {
   const id = req.params.id;
   try {
-    const events = loadJson('events.json');
-    const eventIndex = events.findIndex(e => String(e._id) === String(id));
-    if (eventIndex === -1) {
-      req.flash('error', 'Event not found.');
-      return res.redirect('/admin/events');
-    }
-
-    const eventToDelete = events[eventIndex];
-
-    if (eventToDelete.image_url && eventToDelete.image_url.startsWith('/static/uploads/events/')) {
-      const relativePath = eventToDelete.image_url.replace('/static/uploads/events/', '');
-      const filePath = path.join(process.cwd(), 'static', 'uploads', 'events', relativePath);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Failed to delete local event image file:', err);
-        }
-      }
-    }
-
-    if (eventToDelete.image_url && eventToDelete.image_url.includes('firebasestorage.googleapis.com') && db) {
-      try {
-        const bucket = getStorage().bucket();
-        const urlParts = eventToDelete.image_url.split('/o/');
-        if (urlParts.length > 1) {
-          const filePathEncoded = urlParts[1].split('?')[0];
-          const filePath = decodeURIComponent(filePathEncoded);
-          await bucket.file(filePath).delete();
-          console.log('Successfully deleted event file from Firebase Storage:', filePath);
-        }
-      } catch (err) {
-        console.error('Failed to delete event file from Firebase Storage:', err);
-      }
-    }
-
-    events.splice(eventIndex, 1);
-    saveJson('events.json', events);
+    await querySupabase('DELETE FROM events WHERE id = $1', [id]);
     req.flash('success', 'Event deleted successfully!');
   } catch (err: any) {
     console.error('Failed to delete event:', err);
@@ -3117,44 +3243,41 @@ app.post('/admin/payments/:id/update', requireAdmin, (req, res) => {
 });
 
 // ── ADMIN LIVETRACK ROUTES ──
-app.get('/admin_livetrack', requireAdmin, (req, res) => {
-  const updates = loadJson('livetrack.json');
-  res.render('admin/livetrack.html', { updates });
+app.get('/admin_livetrack', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM livetrack ORDER BY created_at DESC');
+    const updates = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      timestamp: r.created_at
+    }));
+    res.render('admin/livetrack.html', { updates });
+  } catch (err) {
+    console.error('Failed to load livetrack from Supabase DB:', err);
+    res.render('admin/livetrack.html', { updates: [] });
+  }
 });
 
-app.post('/admin/livetrack/add', requireAdmin, upload.single('image'), async (req, res) => {
-  const { title, event_date, update_type, description, link_url, link_text } = req.body;
-  if (!title || !event_date || !req.file) {
-    req.flash('error', 'Title, date, and image file are required.');
+app.post('/admin/livetrack/add', upload.single('image'), requireAdmin, async (req, res) => {
+  const { title, event_date, update_type, description, link_url, link_text, image_url } = req.body;
+  if (!title || !event_date || (!req.file && !image_url)) {
+    req.flash('error', 'Title, date, and an image (file upload or URL) are required.');
     return res.redirect('/admin_livetrack');
   }
 
   try {
-    let imageUrl = '';
-    const supabaseUrl = await uploadToSupabase(req.file.buffer, 'livetrack', req.file.originalname, req.file.mimetype);
-    if (supabaseUrl) {
-      imageUrl = supabaseUrl;
-    } else {
-      const base64Data = req.file.buffer.toString('base64');
-      imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+    let finalImageUrl = (image_url || '').trim();
+    if (req.file) {
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'livetrack', req.file.originalname, req.file.mimetype);
+      finalImageUrl = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     }
-    const filename = imageUrl;
 
-    const updates = loadJson('livetrack.json');
-    const newUpdate = {
-      _id: uuidv4(),
-      title: title.trim(),
-      event_date: event_date.trim(),
-      update_type: update_type,
-      image_filename: filename,
-      image_url: imageUrl,
-      description: (description || '').trim(),
-      link_url: (link_url || '').trim(),
-      link_text: (link_text || '').trim(),
-      timestamp: new Date().toISOString()
-    };
-    updates.unshift(newUpdate);
-    saveJson('livetrack.json', updates);
+    await querySupabase(
+      `INSERT INTO livetrack (id, title, event_date, update_type, image_filename, image_url, description, link_url, link_text, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [uuidv4(), title.trim(), event_date.trim(), update_type, finalImageUrl, finalImageUrl, (description || '').trim(), (link_url || '').trim(), (link_text || '').trim(), new Date().toISOString()]
+    );
+
     logActivity('admin', `Added live track update: ${title}`);
     req.flash('success', 'Live track event posted successfully!');
   } catch (err: any) {
@@ -3164,7 +3287,7 @@ app.post('/admin/livetrack/add', requireAdmin, upload.single('image'), async (re
   res.redirect('/admin_livetrack');
 });
 
-app.post('/admin/livetrack/:id/update', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/livetrack/:id/update', upload.single('image'), requireAdmin, async (req, res) => {
   const id = req.params.id;
   const { title, event_date, update_type, description, link_url, link_text } = req.body;
   if (!title || !event_date) {
@@ -3172,34 +3295,24 @@ app.post('/admin/livetrack/:id/update', requireAdmin, upload.single('image'), as
     return res.redirect('/admin_livetrack');
   }
   try {
-    const updates = loadJson('livetrack.json');
-    const idx = updates.findIndex(u => String(u._id) === String(id));
-    if (idx === -1) {
-      req.flash('error', 'Live track event not found.');
-      return res.redirect('/admin_livetrack');
-    }
-
-    updates[idx].title = title.trim();
-    updates[idx].event_date = event_date.trim();
-    updates[idx].update_type = update_type;
-    updates[idx].description = (description || '').trim();
-    updates[idx].link_url = (link_url || '').trim();
-    updates[idx].link_text = (link_text || '').trim();
-
+    let imageUrl = null;
     if (req.file) {
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'livetrack', req.file.originalname, req.file.mimetype);
-      if (supabaseUrl) {
-        updates[idx].image_url = supabaseUrl;
-        updates[idx].image_filename = supabaseUrl;
-      } else {
-        const base64Data = req.file.buffer.toString('base64');
-        const base64Url = `data:${req.file.mimetype};base64,${base64Data}`;
-        updates[idx].image_url = base64Url;
-        updates[idx].image_filename = base64Url;
-      }
+      imageUrl = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     }
 
-    saveJson('livetrack.json', updates);
+    if (imageUrl) {
+      await querySupabase(
+        `UPDATE livetrack SET title = $1, event_date = $2, update_type = $3, description = $4, link_url = $5, link_text = $6, image_filename = $7, image_url = $7 WHERE id = $8`,
+        [title.trim(), event_date.trim(), update_type, (description || '').trim(), (link_url || '').trim(), (link_text || '').trim(), imageUrl, id]
+      );
+    } else {
+      await querySupabase(
+        `UPDATE livetrack SET title = $1, event_date = $2, update_type = $3, description = $4, link_url = $5, link_text = $6 WHERE id = $7`,
+        [title.trim(), event_date.trim(), update_type, (description || '').trim(), (link_url || '').trim(), (link_text || '').trim(), id]
+      );
+    }
+
     req.flash('success', 'Live track event updated successfully!');
   } catch (err: any) {
     console.error(err);
@@ -3208,64 +3321,62 @@ app.post('/admin/livetrack/:id/update', requireAdmin, upload.single('image'), as
   res.redirect('/admin_livetrack');
 });
 
-app.post('/admin/livetrack/delete/:id', requireAdmin, (req, res) => {
+app.post('/admin/livetrack/delete/:id', requireAdmin, async (req, res) => {
   const id = req.params.id;
-  const updates = loadJson('livetrack.json');
-  const idx = updates.findIndex(u => String(u._id) === String(id));
-  if (idx !== -1) {
-    const updateToDelete = updates[idx];
-    
-    if (updateToDelete.image_filename) {
-      const filePath = path.join(process.cwd(), 'static', 'uploads', 'livetrack', updateToDelete.image_filename);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Failed to delete local livetrack image file:', err);
-        }
-      }
-    }
-
-    updates.splice(idx, 1);
-    saveJson('livetrack.json', updates);
+  try {
+    await querySupabase('DELETE FROM livetrack WHERE id = $1', [id]);
     logActivity('admin', `Deleted live track update ID ${id}`);
     req.flash('success', 'Live track event deleted.');
-  } else {
-    req.flash('error', 'Live track event not found.');
+  } catch (err: any) {
+    console.error('Failed to delete live track event:', err);
+    req.flash('error', 'Failed to delete live track event.');
   }
   res.redirect('/admin_livetrack');
 });
 
 // ── ADMIN AUDIT LOGS ROUTE ──
-app.get('/admin_audit_logs', requireAdmin, (req, res) => {
+app.get('/admin_audit_logs', requireAdmin, async (req, res) => {
   const q = (req.query.q || '').toString().toLowerCase().trim();
-  let logs = loadJson('audit_logs.json');
+  
+  try {
+    let result;
+    if (q) {
+      result = await queryNeon(
+        `SELECT * FROM audit_logs 
+         WHERE LOWER(user_type) LIKE $1 OR LOWER(action) LIKE $1 
+         ORDER BY timestamp DESC`,
+        [`%${q}%`]
+      );
+    } else {
+      result = await queryNeon(`SELECT * FROM audit_logs ORDER BY timestamp DESC`);
+    }
 
-  if (q) {
-    logs = logs.filter(l => 
-      (l.user && l.user.toLowerCase().includes(q)) || 
-      (l.action && l.action.toLowerCase().includes(q)) ||
-      (l.ip_address && l.ip_address.includes(q))
-    );
+    const mappedLogs = result.rows.map(row => ({
+      _id: row.id,
+      id: row.id,
+      user: row.user_type,
+      action: row.action,
+      ip_address: '',
+      timestamp: row.timestamp ? new Date(row.timestamp) : null
+    }));
+
+    if (req.query.export === 'csv') {
+      res.setHeader('Content-disposition', 'attachment; filename=audit_logs.csv');
+      res.setHeader('Content-type', 'text/csv');
+      res.write('ID,User,Action,IP Address,Timestamp\n');
+      mappedLogs.forEach(l => {
+        const timeStr = l.timestamp ? l.timestamp.toISOString() : '';
+        res.write(`"${l.id}","${l.user}","${l.action.replace(/"/g, '""')}","${l.ip_address || ''}","${timeStr}"\n`);
+      });
+      return res.end();
+    }
+
+    res.render('admin/audit_logs.html', { logs: mappedLogs, q });
+  } catch (err: any) {
+    console.error('Failed to retrieve audit logs:', err);
+    req.flash('error', 'Failed to retrieve audit logs from Neon DB.');
+    res.redirect('/admin');
   }
-
-  const mappedLogs = logs.map(l => ({
-    ...l,
-    timestamp: l.timestamp ? new Date(l.timestamp) : null
-  }));
-
-  if (req.query.export === 'csv') {
-    res.setHeader('Content-disposition', 'attachment; filename=audit_logs.csv');
-    res.setHeader('Content-type', 'text/csv');
-    res.write('ID,User,Action,IP Address,Timestamp\n');
-    mappedLogs.forEach(l => {
-      const timeStr = l.timestamp ? l.timestamp.toISOString() : '';
-      res.write(`"${l.id}","${l.user}","${l.action.replace(/"/g, '""')}","${l.ip_address || ''}","${timeStr}"\n`);
-    });
-    return res.end();
-  }
-
-  res.render('admin/audit_logs.html', { logs: mappedLogs, q });
 });
 
 // ── ADMIN EXPORT ROUTE ──
@@ -3311,12 +3422,23 @@ app.get('/admin/export', requireAdmin, (req, res) => {
 });
 
 // ── ADMIN SLIDES ROUTES ──
-app.get('/admin_slides', requireAdmin, (req, res) => {
-  const slides = loadJson('slides.json');
-  res.render('admin/slides.html', { slides });
+app.get('/admin_slides', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM slides ORDER BY display_order ASC');
+    const slides = result.rows.map(r => ({
+      ...r,
+      _id: r.id,
+      order: r.display_order,
+      timestamp: r.created_at
+    }));
+    res.render('admin/slides.html', { slides });
+  } catch (err) {
+    console.error('Failed to load slides from Supabase DB:', err);
+    res.render('admin/slides.html', { slides: [] });
+  }
 });
 
-app.post('/admin/slides/add', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/slides/add', upload.single('image'), requireAdmin, async (req, res) => {
   const { title, subtitle, cta_link, cta_text, order } = req.body;
   if (!title || !req.file) {
     req.flash('error', 'Title and slide image are required.');
@@ -3331,23 +3453,13 @@ app.post('/admin/slides/add', requireAdmin, upload.single('image'), async (req, 
       const base64Data = req.file.buffer.toString('base64');
       imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
     }
-    const filename = imageUrl;
 
-    const slides = loadJson('slides.json');
-    const newSlide = {
-      _id: uuidv4(),
-      title: title.trim(),
-      subtitle: (subtitle || '').trim(),
-      cta_link: (cta_link || '').trim(),
-      cta_text: cta_text || 'Learn More',
-      order: parseInt(order || '0'),
-      image_filename: filename,
-      image_url: imageUrl,
-      timestamp: new Date().toISOString()
-    };
-    slides.push(newSlide);
-    slides.sort((a, b) => (a.order || 0) - (b.order || 0));
-    saveJson('slides.json', slides);
+    await querySupabase(
+      `INSERT INTO slides (id, title, subtitle, cta_link, cta_text, display_order, image_filename, image_url, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [uuidv4(), title.trim(), (subtitle || '').trim(), (cta_link || '').trim(), cta_text || 'Learn More', parseInt(order || '0'), imageUrl, imageUrl, new Date().toISOString()]
+    );
+
     logActivity('admin', `Added hero slide: ${title}`);
     req.flash('success', 'Hero slide added successfully!');
   } catch (err: any) {
@@ -3357,33 +3469,20 @@ app.post('/admin/slides/add', requireAdmin, upload.single('image'), async (req, 
   res.redirect('/admin_slides');
 });
 
-app.post('/admin/slides/delete/:id', requireAdmin, (req, res) => {
+app.post('/admin/slides/delete/:id', requireAdmin, async (req, res) => {
   const id = req.params.id;
-  const slides = loadJson('slides.json');
-  const idx = slides.findIndex(s => String(s._id) === String(id));
-  if (idx !== -1) {
-    const slideToDelete = slides[idx];
-    if (slideToDelete.image_filename) {
-      const filePath = path.join(process.cwd(), 'static', 'uploads', 'slides', slideToDelete.image_filename);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Failed to delete local slide image file:', err);
-        }
-      }
-    }
-    slides.splice(idx, 1);
-    saveJson('slides.json', slides);
+  try {
+    await querySupabase('DELETE FROM slides WHERE id = $1', [id]);
     logActivity('admin', `Deleted hero slide ID ${id}`);
     req.flash('success', 'Hero slide deleted successfully.');
-  } else {
-    req.flash('error', 'Hero slide not found.');
+  } catch (err: any) {
+    console.error('Failed to delete hero slide:', err);
+    req.flash('error', 'Failed to delete hero slide.');
   }
   res.redirect('/admin_slides');
 });
 
-app.post('/admin/slides/:id/update', requireAdmin, upload.single('image'), async (req, res) => {
+app.post('/admin/slides/:id/update', upload.single('image'), requireAdmin, async (req, res) => {
   const id = req.params.id;
   const { title, subtitle, cta_link, cta_text, order } = req.body;
   if (!title) {
@@ -3391,40 +3490,24 @@ app.post('/admin/slides/:id/update', requireAdmin, upload.single('image'), async
     return res.redirect('/admin_slides');
   }
   try {
-    const slides = loadJson('slides.json');
-    const idx = slides.findIndex(s => String(s._id) === String(id));
-    if (idx === -1) {
-      req.flash('error', 'Hero slide not found.');
-      return res.redirect('/admin_slides');
-    }
-
+    let imageUrl = null;
     if (req.file) {
-      if (slides[idx].image_filename && !slides[idx].image_filename.includes('data:') && !slides[idx].image_filename.includes('http')) {
-        const oldFilePath = path.join(process.cwd(), 'static', 'uploads', 'slides', slides[idx].image_filename);
-        if (fs.existsSync(oldFilePath)) {
-          try { fs.unlinkSync(oldFilePath); } catch (e) {}
-        }
-      }
       const supabaseUrl = await uploadToSupabase(req.file.buffer, 'slides', req.file.originalname, req.file.mimetype);
-      if (supabaseUrl) {
-        slides[idx].image_url = supabaseUrl;
-        slides[idx].image_filename = supabaseUrl;
-      } else {
-        const base64Data = req.file.buffer.toString('base64');
-        const base64Url = `data:${req.file.mimetype};base64,${base64Data}`;
-        slides[idx].image_url = base64Url;
-        slides[idx].image_filename = base64Url;
-      }
+      imageUrl = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     }
 
-    slides[idx].title = title.trim();
-    slides[idx].subtitle = (subtitle || '').trim();
-    slides[idx].cta_link = (cta_link || '').trim();
-    slides[idx].cta_text = cta_text || 'Learn More';
-    slides[idx].order = parseInt(order || '0');
+    if (imageUrl) {
+      await querySupabase(
+        `UPDATE slides SET title = $1, subtitle = $2, cta_link = $3, cta_text = $4, display_order = $5, image_filename = $6, image_url = $6 WHERE id = $7`,
+        [title.trim(), (subtitle || '').trim(), (cta_link || '').trim(), cta_text || 'Learn More', parseInt(order || '0'), imageUrl, id]
+      );
+    } else {
+      await querySupabase(
+        `UPDATE slides SET title = $1, subtitle = $2, cta_link = $3, cta_text = $4, display_order = $5 WHERE id = $6`,
+        [title.trim(), (subtitle || '').trim(), (cta_link || '').trim(), cta_text || 'Learn More', parseInt(order || '0'), id]
+      );
+    }
 
-    slides.sort((a, b) => (a.order || 0) - (b.order || 0));
-    saveJson('slides.json', slides);
     logActivity('admin', `Updated hero slide ID ${id}`);
     req.flash('success', 'Hero slide updated successfully!');
   } catch (err: any) {
@@ -3432,6 +3515,57 @@ app.post('/admin/slides/:id/update', requireAdmin, upload.single('image'), async
     req.flash('error', `Failed to update slide: ${err.message}`);
   }
   res.redirect('/admin_slides');
+});
+
+// ── ADMIN OFFICE PHOTOS ROUTES ──
+app.get('/admin_office_photos', requireAdmin, async (req, res) => {
+  try {
+    const result = await querySupabase('SELECT * FROM office_photos ORDER BY created_at DESC');
+    res.render('admin/office_photos.html', { photos: result.rows });
+  } catch (err) {
+    console.error('Failed to load office photos from Supabase DB:', err);
+    res.render('admin/office_photos.html', { photos: [] });
+  }
+});
+
+app.post('/admin/office_photos/add', upload.single('image'), requireAdmin, async (req, res) => {
+  const { image_url } = req.body;
+  if (!req.file && !image_url) {
+    req.flash('error', 'Photo file upload or Image URL is required.');
+    return res.redirect('/admin_office_photos');
+  }
+  try {
+    let imageUrl = (image_url || '').trim();
+    if (req.file) {
+      const supabaseUrl = await uploadToSupabase(req.file.buffer, 'office', req.file.originalname, req.file.mimetype);
+      imageUrl = supabaseUrl || `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    }
+
+    await querySupabase(
+      `INSERT INTO office_photos (id, image_url) VALUES ($1, $2)`,
+      [uuidv4(), imageUrl]
+    );
+
+    logActivity('admin', `Uploaded new office photo`);
+    req.flash('success', 'Office photo added successfully!');
+  } catch (err: any) {
+    console.error('Failed to add office photo:', err);
+    req.flash('error', `Failed to add photo: ${err.message}`);
+  }
+  res.redirect('/admin_office_photos');
+});
+
+app.post('/admin/office_photos/delete/:id', requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  try {
+    await querySupabase('DELETE FROM office_photos WHERE id = $1', [id]);
+    logActivity('admin', `Deleted office photo ID ${id}`);
+    req.flash('success', 'Office photo deleted successfully.');
+  } catch (err: any) {
+    console.error('Failed to delete office photo:', err);
+    req.flash('error', 'Failed to delete office photo.');
+  }
+  res.redirect('/admin_office_photos');
 });
 
 // Fallback error handler

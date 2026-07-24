@@ -1,2 +1,106 @@
-"{% extends \"admin/base_admin.html\" %}\n\n{% block title %}Events Management{% endblock %}\n\n{% block content %}\n<div class=\"page-header\">\n    <h1>Events Management</h1>\n    <p>Add, edit, or remove upcoming events and workshops shown on the homepage</p>\n</div>\n\n<div class=\"card\">\n    <div class=\"card-header\">\n        <div class=\"card-title\">Add New Event</div>\n    </div>\n    <form method=\"POST\" action=\"{{ url_for('admin_add_event') }}\" enctype=\"multipart/form-data\">\n        <input type=\"hidden\" name=\"csrf_token\" value=\"{{ csrf_token() }}\">\n        <div class=\"form-grid\" style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1rem;\">\n            <div class=\"form-group\">\n                <label>Event Title *</label>\n                <input type=\"text\" name=\"title\" required placeholder=\"e.g., Full Stack Workshop\">\n            </div>\n            <div class=\"form-group\">\n                <label>Date *</label>\n                <input type=\"date\" name=\"date\" required>\n            </div>\n        </div>\n        <div class=\"form-grid\" style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1rem;\">\n            <div class=\"form-group\">\n                <label>Time *</label>\n                <input type=\"text\" name=\"time\" required placeholder=\"e.g., 10:00 AM - 1:00 PM\">\n            </div>\n            <div class=\"form-group\">\n                <label>Location *</label>\n                <input type=\"text\" name=\"location\" required placeholder=\"e.g., Online / Zoom or Guntur Office\">\n            </div>\n        </div>\n        <div class=\"form-group\" style=\"margin-bottom: 1rem;\">\n            <label>Description *</label>\n            <textarea name=\"description\" rows=\"3\" required placeholder=\"Brief description of the event details and key takeaways...\"></textarea>\n        </div>\n        <div class=\"form-grid\" style=\"display: grid; 
-<truncated 4117 bytes>
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Events Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Events Management</h1>
+    <p>Add, edit, or remove upcoming events and workshops shown on the site</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Add New Event</div>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_event') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Event Title *</label>
+                <input type="text" name="title" required placeholder="e.g., Full Stack Workshop">
+            </div>
+            <div class="form-group">
+                <label>Date *</label>
+                <input type="date" name="date" required>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Time *</label>
+                <input type="text" name="time" required placeholder="e.g., 10:00 AM - 1:00 PM">
+            </div>
+            <div class="form-group">
+                <label>Location *</label>
+                <input type="text" name="location" required placeholder="e.g., Online / Zoom or Guntur Office">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" rows="3" required placeholder="Brief description of the event details and key takeaways..."></textarea>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Upload Banner Image</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Or External Image URL</label>
+                <input type="text" name="external_image_url" placeholder="https://images.unsplash.com/...">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Redirect/Registration Link (Optional)</label>
+            <input type="text" name="link" placeholder="e.g., /registration or https://...">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Event</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Upcoming Events ({{ events|length }})</div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Banner</th>
+                    <th>Title</th>
+                    <th>Date & Time</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if not events %}
+                <tr><td colspan="6"><div class="empty-state"><i data-lucide="calendar"></i><p>No events scheduled yet.</p></div></td></tr>
+                {% endif %}
+                {% for e in events %}
+                <tr>
+                    <td>
+                        <img src="{{ e.image_url or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=100&auto=format&fit=crop' }}" alt="{{ e.title }}" style="width:65px; height:45px; object-fit:cover; border-radius:0.4rem;">
+                    </td>
+                    <td><strong>{{ e.title }}</strong></td>
+                    <td style="white-space:nowrap;">📅 {{ e.date }}<br><small style="color:var(--gray);">⏰ {{ e.time }}</small></td>
+                    <td>📍 {{ e.location }}</td>
+                    <td style="max-width:220px; font-size:0.85rem;">{{ (e.description or '').slice(0, 80) }}...</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_delete_event', id=e.id) }}" onsubmit="return confirm('Delete this event?');" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2" style="width:14px;"></i> Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

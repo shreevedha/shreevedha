@@ -34,8 +34,12 @@
         </div>
         <div class="form-grid">
             <div class="form-group">
-                <label>Upload Image (optional)</label>
+                <label>Upload Image File (optional)</label>
                 <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Or Image URL</label>
+                <input type="text" name="image_url" placeholder="https://images.unsplash.com/...">
             </div>
         </div>
         <button type="submit" class="btn btn-primary"><i data-lucide="plus"></i> Add Project</button>
@@ -49,15 +53,16 @@
     {% if projects %}
     <div class="admin-gallery-grid">
         {% for p in projects %}
+        {% set img_src = url_for('static', filename='uploads/projects/' + (p.image_filename or 'placeholder.jpg')) %}
         <div class="admin-gallery-card">
             {% if p.image_filename %}
-            <img src="{{ url_for('static', filename='uploads/projects/' + p.image_filename) }}" alt="{{ p.title }}">
+            <img src="{{ img_src }}" alt="{{ p.title }}" style="aspect-ratio: 16/9; object-fit: cover; width: 100%;">
             {% else %}
             <div style="height:160px; display:flex; align-items:center; justify-content:center; background:#e2e8f0; color:#94a3b8;"><i data-lucide="folder-git-2"></i></div>
             {% endif %}
             <div class="info">
                 <h4>{{ p.title }}</h4>
-                <p>{{  (p.description or '').slice(0, 60)  }}{% if p.description|length > 60 %}...{% endif %}</p>
+                <p>{{ p.description }}</p>
             </div>
             <div class="actions">
                 {% if p.github_link %}
@@ -69,7 +74,7 @@
                     data-tech="{{ p.tech_stack or '' }}"
                     data-github="{{ p.github_link or '' }}"
                     data-description="{{ p.description }}"
-                    data-image="{% if p.image_filename %}{{ url_for('static', filename='uploads/projects/' + p.image_filename) }}{% endif %}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
+                    data-image="{% if p.image_filename %}{{ img_src }}{% endif %}"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Edit</button>
                 <form method="POST" action="{{ url_for('admin_delete_project', id=p._id) }}" onsubmit="return confirm('Delete this project?');" style="display:inline; flex:1;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger btn-sm" style="width:100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>

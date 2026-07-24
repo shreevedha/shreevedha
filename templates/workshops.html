@@ -1,102 +1,161 @@
 {% extends "base.html" %}
 
-{% block title %}Workshops | Shreevedha Solutions{% endblock %}
+{% block title %}Hands-on Workshops | Shreevedha Solutions{% endblock %}
 
 {% block extra_css %}
 <style>
     .page-hero {
         background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
         color: white;
-        padding: 3rem 0;
+        padding: 4rem 0 3.5rem;
         text-align: center;
     }
-    .page-hero h1 { font-size: 2.5rem; color: var(--primary-gold); }
-    .content-section { padding: 3rem 0; }
-    .info-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        margin-bottom: 2rem;
+    .page-hero h1 { font-size: 2.8rem; color: var(--primary-gold); font-weight: 800; margin-bottom: 0.75rem; }
+    .page-hero p  { font-size: 1.1rem; opacity: 0.88; max-width: 650px; margin: 0 auto; }
+
+    .content-section { padding: 3.5rem 0 5rem; }
+    
+    .section-header-title {
+        font-size: 1.8rem; color: var(--primary-blue); font-weight: 800; margin-bottom: 1.5rem;
     }
-    .workshop-list {
+
+    .workshop-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin: 2rem 0;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3.5rem;
     }
+    
     .workshop-card {
-        background: #f8fafc;
-        padding: 1.5rem;
-        border-radius: 0.8rem;
-        border-left: 4px solid var(--primary-gold);
-    }
-    .workshop-card h3 { color: var(--primary-blue); margin-bottom: 0.5rem; }
-    .workshop-card .date { color: var(--primary-gold); font-weight: 600; margin-bottom: 0.5rem; }
-    .form-card {
         background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-radius: 1.25rem;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
-    .form-group { margin-bottom: 1.2rem; }
-    .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; color: var(--primary-blue); }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 0.5rem; }
-    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 0.8rem; border-radius: 2rem; cursor: pointer; width: 100%; font-weight: 600; transition: 0.3s; }
-    .btn-submit:hover { background: var(--primary-gold); color: black; }
-    .alert { margin-top: 1rem; padding: 0.8rem; border-radius: 0.5rem; text-align: center; }
-    .alert-success { background: #d4edda; color: #155724; }
-    .alert-error { background: #f8d7da; color: #721c24; }
+    .workshop-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(10,38,71,0.12);
+        border-color: var(--primary-gold);
+    }
+    .workshop-img {
+        width: 100%; height: 180px; object-fit: cover; display: block;
+    }
+    .workshop-body {
+        padding: 1.5rem; display: flex; flex-direction: column; flex: 1;
+    }
+    .workshop-date {
+        color: var(--primary-gold); font-weight: 800; font-size: 0.85rem; margin-bottom: 0.5rem;
+        display: flex; align-items: center; gap: 0.4rem;
+    }
+    .workshop-body h3 {
+        font-size: 1.25rem; color: var(--primary-blue); font-weight: 700; margin-bottom: 0.6rem; line-height: 1.35;
+    }
+    .workshop-body p {
+        color: #475569; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.25rem; flex: 1;
+    }
+    .btn-workshop-reg {
+        display: inline-block; width: 100%; text-align: center;
+        background: var(--primary-gold); color: #0A2647; font-weight: 800; font-size: 0.95rem;
+        padding: 0.75rem 1.2rem; border-radius: 2rem; text-decoration: none; transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(245,197,24,0.25);
+    }
+    .btn-workshop-reg:hover { background: #ffd700; transform: translateY(-2px); }
+
+    .form-card {
+        background: white; border-radius: 1.25rem; padding: 2.5rem;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;
+        max-width: 720px; margin: 0 auto;
+    }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-weight: 700; margin-bottom: 0.4rem; color: var(--primary-blue); font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.65rem; font-family: inherit; font-size: 0.9rem;
+    }
+    .btn-submit {
+        background: var(--primary-blue); color: white; border: none; padding: 0.85rem 2rem;
+        border-radius: 2rem; cursor: pointer; width: 100%; font-weight: 800; font-size: 1.05rem; transition: 0.3s;
+    }
+    .btn-submit:hover { background: var(--primary-gold); color: #0A2647; }
 </style>
 {% endblock %}
 
 {% block content %}
 <section class="page-hero">
     <div class="container">
-        <h1>Hands‑on Workshops</h1>
-        <p>Short‑term intensive programs to master cutting‑edge technologies</p>
+        <h1>🛠️ Hands-on Industry Workshops</h1>
+        <p>Short-term intensive bootcamps to master cutting-edge technologies with live practical projects</p>
     </div>
 </section>
 
 <div class="container content-section">
-    <div class="info-card">
-        <h2 style="color: var(--primary-blue);">Upcoming Workshops</h2>
-        <div class="workshop-list">
-            <div class="workshop-card"><div class="date">📅 Apr 20‑22, 2026</div><h3>Generative AI & Prompt Engineering</h3><p>Learn LLMs, LangChain, and build AI apps.</p></div>
-            <div class="workshop-card"><div class="date">📅 May 5‑7, 2026</div><h3>Full Stack Bootcamp</h3><p>Build a complete MERN project in 3 days.</p></div>
-            <div class="workshop-card"><div class="date">📅 May 15‑17, 2026</div><h3>Data Science with Python</h3><p>Hands‑on analysis, visualization, and ML.</p></div>
-        </div>
-        <p>Workshops are available online, offline, or hybrid. Each includes live coding, assignments, and a participation certificate. Ideal for students and working professionals looking to upskill quickly.</p>
+    <h2 class="section-header-title">📅 Upcoming Workshops & Bootcamps</h2>
+    
+    <div class="workshop-grid">
+        {% if workshops %}
+            {% for w in workshops %}
+            <div class="workshop-card">
+                <img src="{{ w.image_url or w.image_filename or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop' }}" alt="{{ w.title }}" class="workshop-img">
+                <div class="workshop-body">
+                    <div class="workshop-date">📅 Date: {{ w.event_date or 'Upcoming' }}</div>
+                    <h3>{{ w.title }}</h3>
+                    <p>{{ w.description }}</p>
+                    <a href="/registration?course={{ w.title }}" class="btn-workshop-reg">Register for Workshop →</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="workshop-card">
+                <div class="workshop-body">
+                    <div class="workshop-date">📅 Date: Aug 15, 2026</div>
+                    <h3>Generative AI & Agentic AI Masterclass</h3>
+                    <p>Learn LLMs, LangChain, RAG architecture, OpenAI APIs, and Agentic AI building in 3 days.</p>
+                    <a href="/registration?course=Generative%20AI%20Workshop" class="btn-workshop-reg">Register for Workshop →</a>
+                </div>
+            </div>
+            <div class="workshop-card">
+                <div class="workshop-body">
+                    <div class="workshop-date">📅 Date: Aug 25, 2026</div>
+                    <h3>Full Stack MERN Bootcamp & Cloud Deploy</h3>
+                    <p>Build a complete React, Node, Express & MongoDB web app with Vercel deployment.</p>
+                    <a href="/registration?course=Full%20Stack%20Bootcamp" class="btn-workshop-reg">Register for Workshop →</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 
+    <!-- Registration Form -->
     <div class="form-card">
-        <h3 style="color: var(--primary-blue);">Register for a Workshop</h3>
+        <h3 style="color: var(--primary-blue); font-size:1.5rem; font-weight:800; margin-bottom:1rem; text-align:center;">✍️ Reserve Your Seat for Workshop</h3>
         <form method="POST" action="{{ url_for('registration') }}">
-            <input type="hidden" name="course" value="Workshop">
-            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required></div>
-            <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
-            <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required></div>
-            <div class="form-group"><label>Select Workshop</label>
-                <select name="workshop_name">
-                    <option>Generative AI & Prompt Engineering</option>
-                    <option>Full Stack Bootcamp</option>
-                    <option>Data Science with Python</option>
+            <div class="form-group"><label>Full Name *</label><input type="text" name="name" required placeholder="John Doe"></div>
+            <div class="form-group"><label>Email Address *</label><input type="email" name="email" required placeholder="john@example.com"></div>
+            <div class="form-group"><label>Phone Number *</label><input type="tel" name="phone" required placeholder="+91 9876543210"></div>
+            <div class="form-group"><label>Select Workshop Program *</label>
+                <select name="course" required>
+                    {% if workshops %}
+                        {% for w in workshops %}
+                        <option value="{{ w.title }}">{{ w.title }} ({{ w.event_date }})</option>
+                        {% endfor %}
+                    {% else %}
+                        <option>Generative AI & Agentic AI Masterclass</option>
+                        <option>Full Stack MERN Bootcamp</option>
+                        <option>Data Science & Python Analytics</option>
+                    {% endif %}
                 </select>
             </div>
-            <div class="form-group"><label>Mode</label>
-                <select name="mode">
-                    <option>Online</option><option>Offline</option><option>Hybrid</option>
+            <div class="form-group"><label>Learning Mode *</label>
+                <select name="mode" required>
+                    <option value="Online">Online Interactive</option>
+                    <option value="Offline">Offline Campus Lab</option>
+                    <option value="Hybrid">Hybrid Mode</option>
                 </select>
             </div>
-            <button type="submit" class="btn-submit">Register →</button>
+            <button type="submit" class="btn-submit">Register Now →</button>
         </form>
-        {% set messages = get_flashed_messages({ with_categories: true }) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        
     </div>
 </div>
 {% endblock %}

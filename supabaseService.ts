@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_KEY || '';
@@ -13,7 +15,6 @@ export async function uploadToSupabase(fileBuffer: Buffer, folder: string, filen
     return null;
   }
   
-  // Create a clean filename with folder and timestamp prefix
   const cleanFilename = `${folder}/${Date.now()}_${filename.replace(/\s+/g, '_')}`;
   
   try {
@@ -25,18 +26,17 @@ export async function uploadToSupabase(fileBuffer: Buffer, folder: string, filen
       });
 
     if (error) {
-      console.error('Supabase upload error:', error);
+      console.warn('Supabase upload skipped (error/unreachable), falling back:', error.message || error);
       return null;
     }
 
-    // Get public URL
     const { data: publicUrlData } = supabase.storage
       .from('publicimages')
       .getPublicUrl(cleanFilename);
 
-    return publicUrlData.publicUrl;
-  } catch (err) {
-    console.error('Failed uploading to Supabase Storage:', err);
+    return publicUrlData?.publicUrl || null;
+  } catch (err: any) {
+    console.warn('Supabase Storage connection offline or ENOTFOUND, using fallback:', err?.message || err);
     return null;
   }
 }

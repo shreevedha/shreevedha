@@ -1,0 +1,65 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Office Photos Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Office Photos Management</h1>
+    <p>Add or remove office infrastructure photos shown on the About Us page</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Upload New Photo</div>
+    </div>
+    <form method="POST" action="/admin/office_photos/add" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Upload Image File (Max 2MB)</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group file-input-wrapper">
+                <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Or Image URL</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearFileInput(this)" style="padding:0.15rem 0.4rem; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">✖ Clear</button>
+                </label>
+                <input type="text" name="image_url" placeholder="https://images.unsplash.com/...">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Photo</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Office Photos ({{ photos|length }})</div>
+    </div>
+    {% if photos %}
+    <div class="admin-gallery-grid">
+        {% for p in photos %}
+        <div class="admin-gallery-card">
+            <img src="{{ p.image_url }}" alt="Office Infrastructure" style="aspect-ratio: 16/9; object-fit: cover; width: 100%;">
+            <div class="actions" style="padding: 1rem;">
+                <form method="POST" action="/admin/office_photos/delete/{{ p.id }}" onsubmit="return confirm('Delete this office photo?');" style="display:inline; flex:1;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger" style="width:100%; font-size:0.75rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No office photos yet. Upload your first photo above.</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

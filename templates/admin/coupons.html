@@ -1,0 +1,88 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Coupon Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Coupon Code Management</h1>
+    <p>Create and manage discount codes for student course registrations</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Create New Coupon</div>
+    </div>
+    <form method="POST" action="/admin/coupons/add">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Coupon Code *</label>
+                <input type="text" name="code" required placeholder="e.g. SHREEVEDHA50" style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Discount Type *</label>
+                <select name="discount_type" required>
+                    <option value="percentage">Percentage Off (%)</option>
+                    <option value="fixed">Fixed Amount Off (₹)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Discount Value *</label>
+                <input type="number" step="any" name="discount_value" required placeholder="e.g. 50 or 1000">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Coupon</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Active Coupons ({{ coupons|length }})</div>
+    </div>
+    {% if coupons %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Discount</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in coupons %}
+                <tr>
+                    <td><strong style="color:var(--primary-blue); font-size:1.05rem;">{{ c.code }}</strong></td>
+                    <td>
+                        {% if c.discount_type == 'percentage' %}
+                        <span class="badge badge-success" style="font-size:0.85rem;">{{ c.discount_value }}% OFF</span>
+                        {% else %}
+                        <span class="badge badge-info" style="font-size:0.85rem;">₹{{ c.discount_value }} OFF</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge badge-success">{{ c.status|capitalize }}</span></td>
+                    <td>{{ c.created_at.strftime('%b %d, %Y') if c.created_at and c.created_at.strftime else 'Active' }}</td>
+                    <td>
+                        <form method="POST" action="/admin/coupons/delete/{{ c.id }}" onsubmit="return confirm('Delete this coupon?');" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm"><i data-lucide="trash-2"></i> Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No coupons active yet. Create your first discount code above.</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

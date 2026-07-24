@@ -1,46 +1,403 @@
 {% extends "base.html" %}
-{% block title %}{{ course.name }} | Shreevedha Solutions{% endblock %}
+
+{% block title %}{{ course.title }} | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Course Detail Layout ── */
+    .course-detail-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #1A1A2E 100%);
+        color: white;
+        padding: 3.5rem 0 3rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-flex {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2.5rem;
+        align-items: start;
+    }
+    .hero-text h1 {
+        font-size: 2.4rem; color: var(--primary-gold); font-weight: 800; margin-bottom: 1rem; line-height: 1.25;
+    }
+    .hero-badges {
+        display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center;
+    }
+    .badge-pill {
+        background: rgba(245,197,24,0.15); border: 1px solid rgba(245,197,24,0.4);
+        color: var(--primary-gold); font-size: 0.8rem; font-weight: 700;
+        padding: 0.3rem 0.85rem; border-radius: 2rem;
+    }
+    .hero-text p {
+        font-size: 1.05rem; opacity: 0.88; line-height: 1.65; margin-bottom: 1.5rem; max-width: 720px;
+    }
+
+    /* ── Sticky Pricing Card ── */
+    .pricing-card {
+        background: white;
+        color: var(--dark);
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+        border: 2px solid var(--primary-gold);
+        position: sticky;
+        top: 90px;
+    }
+    .pricing-card-header {
+        border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.25rem;
+    }
+    .mode-tabs {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;
+        background: #f1f5f9; padding: 0.35rem; border-radius: 0.65rem; margin-bottom: 1.25rem;
+    }
+    .mode-tab {
+        border: none; background: transparent; padding: 0.45rem; border-radius: 0.5rem;
+        font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.25s; color: #64748b;
+    }
+    .mode-tab.active {
+        background: var(--primary-blue); color: white; box-shadow: 0 2px 6px rgba(10,38,71,0.2);
+    }
+    .price-display {
+        display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.5rem;
+    }
+    .current-price { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); line-height: 1; }
+    .original-price { font-size: 1.1rem; color: #94a3b8; text-decoration: line-through; }
+    .save-badge {
+        background: #ef4444; color: white; font-weight: 800; font-size: 0.75rem;
+        padding: 0.2rem 0.6rem; border-radius: 2rem;
+    }
+
+    /* ── Coupon Section ── */
+    .coupon-box {
+        background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.75rem;
+        padding: 0.85rem; margin: 1.25rem 0;
+    }
+    .coupon-input-group {
+        display: flex; gap: 0.5rem; margin-top: 0.4rem;
+    }
+    .coupon-input-group input {
+        flex: 1; padding: 0.45rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;
+        font-family: inherit; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+    }
+    .coupon-btn {
+        background: var(--primary-blue); color: white; border: none; padding: 0.45rem 0.9rem;
+        border-radius: 0.5rem; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: 0.2s;
+    }
+    .coupon-btn:hover { background: var(--primary-gold); color: #0A2647; }
+    .coupon-msg { font-size: 0.78rem; margin-top: 0.4rem; display: none; font-weight: 600; }
+
+    .btn-enroll-now {
+        display: block; width: 100%; text-align: center; background: var(--primary-gold);
+        color: #0A2647; font-weight: 800; font-size: 1.1rem; padding: 0.9rem; border-radius: 2rem;
+        text-decoration: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(245,197,24,0.3);
+    }
+    .btn-enroll-now:hover { background: #ffd700; transform: translateY(-2px); }
+
+    /* ── Main Content Grid ── */
+    .course-detail-main { padding: 3.5rem 0 5rem; }
+    .main-grid {
+        display: grid; grid-template-columns: 1fr 380px; gap: 2.5rem;
+    }
+    .section-title {
+        font-size: 1.6rem; color: var(--primary-blue); font-weight: 800; margin-bottom: 1.25rem;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    /* ══ INTERACTIVE ACCORDION SYLLABUS ══ */
+    .syllabus-accordion {
+        display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 3rem;
+    }
+    .accordion-item {
+        border: 1px solid #e2e8f0; border-radius: 0.85rem; overflow: hidden; background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03); transition: 0.25s;
+    }
+    .accordion-item:hover { border-color: var(--primary-gold); }
+    .accordion-header {
+        width: 100%; text-align: left; background: #f8fafc; border: none;
+        padding: 1.1rem 1.35rem; font-family: 'Outfit', sans-serif; font-size: 1.05rem;
+        font-weight: 700; color: var(--primary-blue); cursor: pointer;
+        display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+        transition: background 0.2s;
+    }
+    .accordion-header:hover { background: #f1f5f9; }
+    .accordion-header .arrow-icon {
+        width: 20px; height: 20px; transition: transform 0.3s ease; color: var(--gray);
+    }
+    .accordion-item.open .accordion-header { background: #e0f2fe; color: #0369a1; }
+    .accordion-item.open .arrow-icon { transform: rotate(180deg); color: #0369a1; }
+    .accordion-body {
+        display: none; padding: 1.25rem 1.5rem; background: white; border-top: 1px solid #e2e8f0;
+    }
+    .accordion-item.open .accordion-body { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .topic-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.65rem; }
+    .topic-item {
+        display: flex; align-items: center; gap: 0.55rem; font-size: 0.92rem; color: #334155;
+    }
+    .topic-item i { color: #10b981; width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ── Tools & Projects Chips ── */
+    .chips-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 3rem; }
+    .tech-chip {
+        background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--primary-blue);
+        padding: 0.4rem 1rem; border-radius: 2rem; font-weight: 700; font-size: 0.88rem;
+    }
+    .project-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+    .project-card {
+        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.85rem; padding: 1.1rem;
+        transition: 0.25s; border-left: 4px solid var(--primary-gold);
+    }
+    .project-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.06); }
+    .project-card h4 { font-size: 0.95rem; color: var(--primary-blue); margin-bottom: 0.2rem; }
+
+    @media (max-width: 992px) {
+        .hero-flex, .main-grid { grid-template-columns: 1fr; }
+        .pricing-card { position: static; margin-top: 2rem; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="section">
+
+<!-- Course Hero -->
+<section class="course-detail-hero">
     <div class="container">
-        <div class="grid-2">
-            <div>
-                <img src="{{ course.image }}" alt="{{ course.name }}" style="width:100%; border-radius: 1rem;">
-            </div>
-            <div>
-                <h1>{{ course.name }}</h1>
+        <div class="hero-flex">
+            <div class="hero-text">
+                <div class="hero-badges">
+                    <span class="badge-pill">🎓 {{ course.category or 'Professional Track' }}</span>
+                    <span class="badge-pill" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#34d399;">⏱ {{ course.duration or '60 Days' }}</span>
+                    <span class="badge-pill" style="background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.4); color:#f87171;">🔥 50% DISCOUNT OFFER</span>
+                </div>
+                <h1>{{ course.title }}</h1>
                 <p>{{ course.description }}</p>
-                <div><strong>Duration:</strong> {{ course.duration }}</div>
-                <div><strong>Mode:</strong> {{ course.mode }}</div>
-                <div><strong>Price (Online):</strong> {{ course.price_online }}</div>
-                <div><strong>Price (Offline):</strong> {{ course.price_offline }}</div>
-                <a href="{{ url_for('registration') }}" class="btn btn-primary" style="margin-top: 1rem;">Enroll Now</a>
+                <div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.9rem; opacity:0.85;">
+                    <span>✅ Live Practical Projects</span>
+                    <span>✅ 1-on-1 Mentorship</span>
+                    <span>✅ Verified Certification</span>
+                </div>
             </div>
-        </div>
-        <div style="margin-top: 3rem;">
-            <h2>Syllabus</h2>
-            <ul>
-                {% for topic in course.syllabus %}
-                <li>{{ topic }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div>
-            <h2>Tools & Technologies</h2>
-            <ul>
-                {% for tool in course.tools %}
-                <li>{{ tool }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div>
-            <h2>Projects</h2>
-            <ul>
-                {% for project in course.projects %}
-                <li>{{ project }}</li>
-                {% endfor %}
-            </ul>
+            
+            <!-- Mobile Pricing Banner Target -->
+            <div></div>
         </div>
     </div>
 </section>
+
+<!-- Main Course Body -->
+<div class="course-detail-main">
+    <div class="container">
+        <div class="main-grid">
+            
+            <!-- Left Column: Syllabus & Tools -->
+            <div>
+                <!-- Interactive Dropdown Syllabus Accordion -->
+                <h2 class="section-title">📚 Course Syllabus & Modules</h2>
+                <p style="color:#64748b; margin-bottom: 1.5rem;">Click on any module to view topic breakdown</p>
+
+                <div class="syllabus-accordion">
+                    {% if course.syllabus and course.syllabus[0].module_title %}
+                        {% for mod in course.syllabus %}
+                        <div class="accordion-item {% if loop.first %}open{% endif %}">
+                            <button class="accordion-header" onclick="toggleAccordion(this)">
+                                <span>{{ mod.module_title }}</span>
+                                <i data-lucide="chevron-down" class="arrow-icon"></i>
+                            </button>
+                            <div class="accordion-body">
+                                <ul class="topic-list">
+                                    {% for topic in mod.topics %}
+                                    <li class="topic-item"><i data-lucide="check-circle-2"></i> {{ topic }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Standard topic list fallback styled as module dropdown -->
+                        <div class="accordion-item open">
+                            <button class="accordion-header" onclick="toggleAccordion(this)">
+                                <span>Module 1: Comprehensive Course Modules</span>
+                                <i data-lucide="chevron-down" class="arrow-icon"></i>
+                            </button>
+                            <div class="accordion-body">
+                                <ul class="topic-list">
+                                    {% for topic in course.syllabus %}
+                                    <li class="topic-item"><i data-lucide="check-circle-2"></i> {{ topic }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tools & Technologies -->
+                <h2 class="section-title">🛠️ Tools & Technologies Mastered</h2>
+                <div class="chips-grid">
+                    {% if course.tools is string %}
+                        {% for tool in course.tools.split(',') %}
+                        <span class="tech-chip">⚡ {{ tool.trim() }}</span>
+                        {% endfor %}
+                    {% else %}
+                        {% for tool in course.tools %}
+                        <span class="tech-chip">⚡ {{ tool }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Projects Showcase -->
+                <h2 class="section-title">🚀 Real-World Capstone Projects</h2>
+                <div class="project-card-grid">
+                    {% if course.projects is string %}
+                        {% for project in course.projects.split(',') %}
+                        <div class="project-card">
+                            <h4>💻 {{ project.trim() }}</h4>
+                            <p style="font-size:0.8rem; color:#64748b; margin:0;">Industry-aligned portfolio project built during hands-on lab sessions.</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for project in course.projects %}
+                        <div class="project-card">
+                            <h4>💻 {{ project }}</h4>
+                            <p style="font-size:0.8rem; color:#64748b; margin:0;">Industry-aligned portfolio project built during hands-on lab sessions.</p>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Pricing & Checkout Widget -->
+            <div>
+                <div class="pricing-card">
+                    <div class="pricing-card-header">
+                        <span style="font-size:0.8rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:0.05em;">Select Learning Mode</span>
+                        <div class="mode-tabs" style="margin-top:0.5rem;">
+                            <button class="mode-tab active" onclick="switchMode('online', this)">Online</button>
+                            <button class="mode-tab" onclick="switchMode('offline', this)">Offline</button>
+                            <button class="mode-tab" onclick="switchMode('hybrid', this)">Hybrid</button>
+                        </div>
+
+                        <div class="price-display">
+                            <span class="current-price" id="displayCurrentPrice">{{ course.price_online or '₹2,999' }}</span>
+                            <span class="original-price" id="displayOriginalPrice">{{ course.price_online_original or '₹5,999' }}</span>
+                            <span class="save-badge" id="displaySaveBadge">SAVE 50%</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:#64748b; margin:0;">Inclusive of taxes & certification fees.</p>
+                    </div>
+
+                    <!-- Coupon Engine -->
+                    <div class="coupon-box">
+                        <label style="font-size:0.82rem; font-weight:700; color:var(--primary-blue); display:block;">🏷️ Have a Promo Coupon Code?</label>
+                        <div class="coupon-input-group">
+                            <input type="text" id="couponCodeInput" placeholder="e.g. SHREEVEDHA50">
+                            <button type="button" class="coupon-btn" onclick="applyCouponCode()">Apply</button>
+                        </div>
+                        <div class="coupon-msg" id="couponMsg"></div>
+                    </div>
+
+                    <a href="/registration?course={{ course.id }}" class="btn-enroll-now" id="enrollBtnLink">Enroll Now →</a>
+
+                    <div style="margin-top:1.25rem; font-size:0.82rem; color:#64748b; display:flex; flex-direction:column; gap:0.4rem;">
+                        <span>🔒 100% Secure Registration</span>
+                        <span>⚡ Instant Access to LMS Dashboard</span>
+                        <span>📞 Free Career Counselling Support</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+
+    // Accordion Toggle
+    function toggleAccordion(button) {
+        const item = button.parentElement;
+        item.classList.toggle('open');
+    }
+
+    // Pricing Data Map
+    const pricesMap = {
+        online: {
+            current: "{{ course.price_online or '₹2,999' }}",
+            original: "{{ course.price_online_original or '₹5,999' }}"
+        },
+        offline: {
+            current: "{{ course.price_offline or '₹9,999' }}",
+            original: "{{ course.price_offline_original or '₹19,999' }}"
+        },
+        hybrid: {
+            current: "{{ course.price_hybrid or '₹7,999' }}",
+            original: "{{ course.price_hybrid_original or '₹14,999' }}"
+        }
+    };
+
+    let activeMode = 'online';
+
+    function switchMode(mode, tab) {
+        activeMode = mode;
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const p = pricesMap[mode];
+        document.getElementById('displayCurrentPrice').innerText = p.current;
+        document.getElementById('displayOriginalPrice').innerText = p.original;
+        
+        // Reset Coupon
+        document.getElementById('couponMsg').style.display = 'none';
+        document.getElementById('enrollBtnLink').href = `/registration?course={{ course.id }}&mode=${mode}`;
+    }
+
+    // Dynamic Coupon Code Engine
+    async function applyCouponCode() {
+        const input = document.getElementById('couponCodeInput');
+        const code = input.value.trim();
+        const msg = document.getElementById('couponMsg');
+
+        if (!code) {
+            msg.style.display = 'block';
+            msg.style.color = '#ef4444';
+            msg.innerText = 'Please enter a coupon code.';
+            return;
+        }
+
+        const currentPriceText = pricesMap[activeMode].current;
+
+        try {
+            const res = await fetch('/api/apply-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({ code, price: currentPriceText })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                msg.style.display = 'block';
+                msg.style.color = '#10b981';
+                msg.innerText = `✓ ${data.message} Final Price: ₹${data.finalPrice.toLocaleString('en-IN')}`;
+
+                document.getElementById('displayCurrentPrice').innerText = `₹${data.finalPrice.toLocaleString('en-IN')}`;
+                document.getElementById('displaySaveBadge').innerText = `COUPON APPLIED`;
+            } else {
+                msg.style.display = 'block';
+                msg.style.color = '#ef4444';
+                msg.innerText = data.message || 'Invalid coupon code.';
+            }
+        } catch (err) {
+            console.error('Failed applying coupon:', err);
+            msg.style.display = 'block';
+            msg.style.color = '#ef4444';
+            msg.innerText = 'Error applying coupon code.';
+        }
+    }
+</script>
 {% endblock %}

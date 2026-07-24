@@ -164,6 +164,86 @@
         border-radius: 2rem;
         font-weight: bold;
     }
+    /* Office Carousel Styles */
+    .office-carousel-section {
+        margin: 4rem 0;
+    }
+    .office-carousel-container {
+        position: relative;
+        max-width: 900px;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: 2px solid var(--primary-gold, #f5a623);
+        aspect-ratio: 16 / 9;
+    }
+    .office-carousel {
+        display: flex;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        width: 100%;
+    }
+    .office-slide {
+        min-width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    .office-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .office-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(10, 38, 71, 0.85);
+        color: white;
+        border: 2px solid var(--primary-gold, #f5a623);
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .office-nav-btn:hover {
+        background: var(--primary-gold, #f5a623);
+        color: #0a2647;
+        transform: translateY(-50%) scale(1.1);
+    }
+    .office-nav-btn.prev-btn {
+        left: 1.5rem;
+    }
+    .office-nav-btn.next-btn {
+        right: 1.5rem;
+    }
+    /* Dots Indicator */
+    .carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+    }
+    .carousel-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ccc;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .carousel-dot.active {
+        background: var(--primary-gold, #f5a623);
+        transform: scale(1.25);
+    }
+
     @media (max-width: 768px) {
         .split-section {
             grid-template-columns: 1fr;
@@ -194,6 +274,30 @@
             <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=450&fit=crop" alt="Shreevedha Team">
         </div>
     </div>
+
+    <!-- Office Gallery Section (Sliding Images) -->
+    <section class="office-carousel-section">
+        <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-blue, #1a3a6b);">🏢 Our Office & Infrastructure</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-light, #666);">Take a virtual tour of our modern classroom and learning workspace</p>
+        
+        <div class="office-carousel-container">
+            <div class="office-carousel">
+                {% for photo in office_photos %}
+                <div class="office-slide">
+                    <img src="{{ photo }}" alt="Office Infrastructure">
+                </div>
+                {% endfor %}
+            </div>
+            <button class="office-nav-btn prev-btn" id="officePrevBtn">❮</button>
+            <button class="office-nav-btn next-btn" id="officeNextBtn">❯</button>
+        </div>
+        
+        <div class="carousel-dots" id="carouselDots">
+            {% for photo in office_photos %}
+            <span class="carousel-dot {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></span>
+            {% endfor %}
+        </div>
+    </section>
 
     <!-- Collaborations & Accreditations (NEW) -->
     <div class="collab-section">
@@ -304,4 +408,60 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const carousel = document.querySelector('.office-carousel');
+        const slides = document.querySelectorAll('.office-slide');
+        const prevBtn = document.getElementById('officePrevBtn');
+        const nextBtn = document.getElementById('officeNextBtn');
+        const dots = document.querySelectorAll('.carousel-dot');
+        
+        if (!carousel || slides.length === 0) return;
+        
+        let currentIndex = 0;
+        
+        function updateCarousel(index) {
+            currentIndex = index;
+            if (currentIndex < 0) currentIndex = slides.length - 1;
+            if (currentIndex >= slides.length) currentIndex = 0;
+            
+            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            dots.forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === currentIndex);
+            });
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            updateCarousel(currentIndex - 1);
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            updateCarousel(currentIndex + 1);
+        });
+        
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                updateCarousel(index);
+            });
+        });
+        
+        // Autoplay
+        let autoplayInterval = setInterval(() => {
+            updateCarousel(currentIndex + 1);
+        }, 5000);
+        
+        const container = document.querySelector('.office-carousel-container');
+        if (container) {
+            container.addEventListener('mouseenter', () => clearInterval(autoplayInterval));
+            container.addEventListener('mouseleave', () => {
+                autoplayInterval = setInterval(() => {
+                    updateCarousel(currentIndex + 1);
+                }, 5000);
+            });
+        }
+    });
+</script>
 {% endblock %}

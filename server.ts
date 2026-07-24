@@ -1082,7 +1082,7 @@ app.get('/', async (req, res) => {
       livetrackEvents: displayEvents,
       slides: slides,
       maps_api_key: process.env.GOOGLE_MAPS_API_KEY || '',
-      office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
+      office_address_hyderabad: 'INNOV8 Pranava Business Park, Land Mark Residency, Kondapur, Kothaguda, Hyderabad, Telangana 500084',
       office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'
     });
   } catch (err) {
@@ -1123,8 +1123,8 @@ app.get('/', async (req, res) => {
       ],
       slides: [],
       maps_api_key: '',
-      office_address_hyderabad: 'Hitech City, Kondapur, Hyderabad, Telangana, India',
-      office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Arundalpet, Guntur 522003, Andhra Pradesh, India'
+      office_address_hyderabad: 'INNOV8 Pranava Business Park, Land Mark Residency, Kondapur, Kothaguda, Hyderabad, Telangana 500084',
+      office_address_guntur: '6/9/27, Line 9/2, Arundalpet, Guntur 522003, Andhra Pradesh, India'
     });
   }
 });

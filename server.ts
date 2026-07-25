@@ -1072,7 +1072,18 @@ app.get('/', async (req, res) => {
       }
     ];
 
-    const displayEvents = combinedEvents.length > 0 ? combinedEvents.slice(0, 3) : defaultEvents;
+    let displayEvents = [...combinedEvents];
+    if (displayEvents.length < 3) {
+      const existingTitles = new Set(displayEvents.map(e => (e.title || '').toLowerCase()));
+      for (const defEvt of defaultEvents) {
+        if (displayEvents.length >= 3) break;
+        if (!existingTitles.has((defEvt.title || '').toLowerCase())) {
+          displayEvents.push(defEvt);
+        }
+      }
+    } else {
+      displayEvents = displayEvents.slice(0, 3);
+    }
 
     res.render('index.html', {
       courses: COURSES_DATA.slice(0, 3),

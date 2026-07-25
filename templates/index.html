@@ -61,6 +61,23 @@
         transform: translateY(-3px);
     }
 
+    /* Live Events 3-Column Grid */
+    .live-events-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.75rem;
+    }
+    @media (max-width: 992px) {
+        .live-events-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 640px) {
+        .live-events-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     /* Stats Section - Labels now visible */
     .stats {
         background: var(--primary-blue);
@@ -488,7 +505,7 @@
     <div class="container">
         <h2 class="section-title">Upcoming & Current Programs</h2>
         <p style="text-align: center; margin-top: -1.5rem; margin-bottom: 2.5rem; color: #64748b;">Join our latest workshops, hackathons, events, and placement drives</p>
-        <div class="course-grid">
+        <div class="live-events-grid">
             {% for evt in livetrackEvents %}
             <div class="course-card" style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 1rem; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
                 <div>

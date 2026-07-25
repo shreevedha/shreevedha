@@ -231,75 +231,42 @@
                     <div class="hours-row"><span>Sunday</span><span>Closed</span></div>
                 </div>
 
-                <!-- Both Google Maps Embeds (Hyderabad HQ & Guntur Branch) -->
-                <div class="maps-section" style="margin-top: 1.5rem;">
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.85rem;">
-                        <button type="button" class="btn btn-gold btn-sm map-tab-btn" onclick="switchMapTab('hydMap')" id="btnHydMap" style="flex:1; border-radius: 0.5rem; font-size: 0.82rem; padding: 0.5rem; font-weight: 700;">
-                            📍 Hyderabad Map
-                        </button>
-                        <button type="button" class="btn btn-outline btn-sm map-tab-btn" onclick="switchMapTab('gunturMap')" id="btnGunturMap" style="flex:1; border-radius: 0.5rem; font-size: 0.82rem; padding: 0.5rem; font-weight: 700;">
-                            📍 Guntur Map
-                        </button>
-                    </div>
-
+                <!-- Both Embedded Google Maps (Hyderabad HQ & Guntur Branch) -->
+                <div class="maps-section" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
                     <!-- Hyderabad HQ Map -->
-                    <div id="hydMapContainer" class="map-container" style="display: block;">
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 0.4rem;">📍 Hyderabad HQ Google Map:</div>
+                    <div class="map-container" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.85rem;">
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span>📍 Hyderabad HQ Map</span>
+                            <a href="https://maps.app.goo.gl/LUnhNiASuoMjBFQ76" target="_blank" style="font-size: 0.78rem; color: var(--primary-blue); font-weight: 600; text-decoration: underline;">Open in Maps ↗</a>
+                        </div>
                         <iframe 
                             src="https://www.google.com/maps/embed?pb=!3m2!1sen!2sin!4v1784914475656!5m2!1sen!2sin!6m8!1m7!1slKTbCwraynzfZCozfzV9jg!2m2!1d17.46156227138606!2d78.36713755267392!3f104.56340599702062!4f9.361399791334804!5f0.7820865974627469" 
                             width="100%" 
-                            height="230" 
+                            height="220" 
                             style="border:0; border-radius:0.5rem;" 
                             allowfullscreen="" 
                             loading="lazy"
                             referrerpolicy="strict-origin-when-cross-origin">
                         </iframe>
-                        <div style="margin-top: 0.5rem; text-align: center;">
-                            <a href="https://maps.app.goo.gl/LUnhNiASuoMjBFQ76" target="_blank" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 2rem; font-size: 0.8rem; font-weight: 600; text-decoration: none; padding: 0.35rem 0.85rem;">
-                                📍 Open Hyderabad in Google Maps
-                            </a>
-                        </div>
                     </div>
 
                     <!-- Guntur Branch Map -->
-                    <div id="gunturMapContainer" class="map-container" style="display: none;">
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 0.4rem;">📍 Guntur Branch Google Map:</div>
+                    <div class="map-container" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.85rem;">
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span>📍 Guntur Branch Map</span>
+                            <a href="https://maps.google.com/?q=6/9/27,+Line+9/2,+Arundalpet,+Guntur+522003" target="_blank" style="font-size: 0.78rem; color: var(--primary-blue); font-weight: 600; text-decoration: underline;">Open in Maps ↗</a>
+                        </div>
                         <iframe 
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3829.356491745228!2d80.4362143!3d16.3050186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a4a755d4d3d82f7%3A0x6b6c0b9b3e1b1b1b!2sArundalpet%2C%20Guntur%2C%20Andhra%20Pradesh%20522003!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
                             width="100%" 
-                            height="230" 
+                            height="220" 
                             style="border:0; border-radius:0.5rem;" 
                             allowfullscreen="" 
                             loading="lazy"
                             referrerpolicy="strict-origin-when-cross-origin">
                         </iframe>
-                        <div style="margin-top: 0.5rem; text-align: center;">
-                            <a href="https://maps.google.com/?q=6/9/27,+Line+9/2,+Arundalpet,+Guntur+522003" target="_blank" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 2rem; font-size: 0.8rem; font-weight: 600; text-decoration: none; padding: 0.35rem 0.85rem;">
-                                📍 Open Guntur in Google Maps
-                            </a>
-                        </div>
                     </div>
                 </div>
-
-                <script>
-                    function switchMapTab(target) {
-                        const hydMap = document.getElementById('hydMapContainer');
-                        const gunturMap = document.getElementById('gunturMapContainer');
-                        const btnHyd = document.getElementById('btnHydMap');
-                        const btnGuntur = document.getElementById('btnGunturMap');
-                        if (target === 'hydMap') {
-                            hydMap.style.display = 'block';
-                            gunturMap.style.display = 'none';
-                            btnHyd.className = 'btn btn-gold btn-sm map-tab-btn';
-                            btnGuntur.className = 'btn btn-outline btn-sm map-tab-btn';
-                        } else {
-                            hydMap.style.display = 'none';
-                            gunturMap.style.display = 'block';
-                            btnHyd.className = 'btn btn-outline btn-sm map-tab-btn';
-                            btnGuntur.className = 'btn btn-gold btn-sm map-tab-btn';
-                        }
-                    }
-                </script>
             </div>
 
             <!-- Right Column: Contact Form -->

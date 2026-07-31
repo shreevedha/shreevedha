@@ -52,8 +52,17 @@ async function getNeonEnrollments() {
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let _filename = '';
+let _dirname = '';
+try {
+  _filename = fileURLToPath(import.meta.url);
+  _dirname = path.dirname(_filename);
+} catch (e) {
+  _filename = typeof __filename !== 'undefined' ? __filename : process.cwd();
+  _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+}
+const __filename = _filename;
+const __dirname = _dirname;
 
 declare global {
   interface String {

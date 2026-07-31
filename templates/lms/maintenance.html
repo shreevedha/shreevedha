@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Maintenance | Shreevedha Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-blue: #0A2647;
+            --primary-gold: #F5C518;
+            --card-bg: #FFFFFF;
+            --text-color: #0F172A;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0A2647 0%, #0F172A 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 1.5rem;
+            color: white;
+        }
+        .maintenance-card {
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--text-color);
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 540px;
+            padding: 3rem 2.25rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .maintenance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #F5C518, #0A2647, #F5C518);
+        }
+        .brand-logo {
+            height: 55px;
+            margin-bottom: 1.5rem;
+        }
+        .icon-badge {
+            width: 80px;
+            height: 80px;
+            background: #FEF3C7;
+            color: #D97706;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 10px 20px rgba(217, 119, 6, 0.15);
+        }
+        h2 {
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 0.75rem;
+            font-size: 1.85rem;
+        }
+        p.subtitle {
+            color: #475569;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        .status-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.92rem;
+            color: #334155;
+            margin-bottom: 0.6rem;
+        }
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        .status-item i {
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+        }
+        .btn-group-custom {
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-home {
+            background: var(--primary-blue);
+            color: white;
+            padding: 0.75rem 1.4rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .btn-home:hover {
+            background: #F5C518;
+            color: #0A2647;
+            transform: translateY(-2px);
+        }
+        .btn-secondary-custom {
+            background: #F1F5F9;
+            color: #334155;
+            padding: 0.75rem 1.4rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .btn-secondary-custom:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-card">
+        <img src="{{ url_for('static', filename='uploads/Shree.png') }}" onerror="this.onerror=null; this.src='/static/logo.png';" alt="Shreevedha Logo" class="brand-logo">
+        
+        <div class="icon-badge">
+            <i class="bi bi-tools"></i>
+        </div>
+
+        <h2>LMS Under Maintenance</h2>
+        <p class="subtitle">
+            Our Student Learning Management System (LMS) is currently undergoing scheduled maintenance & system upgrades to improve course access, performance, and features.
+        </p>
+
+        <div class="status-box">
+            <div class="status-item">
+                <i class="bi bi-arrow-repeat spin"></i>
+                <div><strong>System Upgrade:</strong> Platform performance & security enhancement</div>
+            </div>
+            <div class="status-item">
+                <i class="bi bi-clock-history"></i>
+                <div><strong>Estimated Time:</strong> Back online shortly</div>
+            </div>
+            <div class="status-item">
+                <i class="bi bi-headset"></i>
+                <div><strong>Support:</strong> connect@shreevedha.co.in | +91 73969 25602</div>
+            </div>
+        </div>
+
+        <div class="btn-group-custom">
+            <a href="{{ url_for('home') }}" class="btn-home">
+                <i class="bi bi-house-door-fill"></i> Return to Main Site
+            </a>
+            <a href="{{ url_for('contact') }}" class="btn-secondary-custom">
+                <i class="bi bi-envelope-fill"></i> Contact Us
+            </a>
+            <a href="{{ url_for('lms_login') }}" class="btn-secondary-custom" style="font-size:0.85rem; padding: 0.6rem 1rem; opacity: 0.8;">
+                <i class="bi bi-key-fill"></i> Login
+            </a>
+        </div>
+    </div>
+</body>
+</html>

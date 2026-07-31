@@ -31,6 +31,11 @@
             <h3>LMS Portal</h3>
             <p class="text-muted">LMS Login</p>
         </div>
+
+        <div class="alert alert-warning border-0 shadow-sm mb-3 text-center" style="border-radius: 0.75rem; background: #FEF3C7; color: #92400E; font-size: 0.88rem;">
+            <i class="bi bi-tools me-1" style="color: #D97706;"></i>
+            <strong>Notice:</strong> LMS Portal is currently under scheduled maintenance.
+        </div>
         {% set messages = get_flashed_messages({ with_categories: true }) %}
             {% if messages %}
                 {% for category, message in messages %}

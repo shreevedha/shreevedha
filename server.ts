@@ -243,6 +243,7 @@ env.addGlobal('url_for', (endpoint: string, options: any = {}) => {
     'projects': '/projects',
     
     // LMS Routes
+    'lms': '/lms',
     'lms_login': '/lms/login',
     'lms_register': '/lms/register',
     'lms_logout': '/lms/logout',
@@ -1426,6 +1427,11 @@ app.post('/contact', async (req, res) => {
     req.flash('error', 'Message submission failed due to a database error. Please try again.');
   }
   res.redirect('/contact');
+});
+
+// ── LMS LANDING & MAINTENANCE ──────────────────────────────────
+app.get('/lms', (req, res) => {
+  res.render('lms/maintenance.html');
 });
 
 // ── LMS AUTHENTICATION ──────────────────────────────────────────

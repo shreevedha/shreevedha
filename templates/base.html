@@ -365,6 +365,12 @@
                 <a href="{{ url_for('contact') }}"
                    {% if request.endpoint == 'contact' %}class="active"{% endif %}>Contact</a>
 
+                <!-- 6. LMS Button -->
+                <a href="{{ url_for('lms') }}" class="btn btn-outline"
+                   style="border: 1.5px solid var(--primary-gold); color: var(--primary-gold); font-weight: 700; border-radius: 2rem; padding: 0.4rem 1rem; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease;">
+                   🎓 LMS
+                </a>
+
                 <!-- Register CTA Button -->
                 <a href="{{ url_for('registration') }}" class="btn btn-primary">Register Now</a>
 
@@ -391,6 +397,8 @@
             <a href="{{ url_for('livetrack') }}" class="indent">📡 Live Track</a>
 
             <a href="{{ url_for('contact') }}">📞 Contact</a>
+            <a href="{{ url_for('lms') }}" class="btn btn-outline"
+               style="text-align:center; margin-top:0.5rem; border: 1.5px solid var(--primary-gold); color: var(--primary-gold); font-weight: 700;">🎓 Student LMS</a>
             <a href="{{ url_for('registration') }}" class="btn btn-primary"
                style="text-align:center; margin-top:0.5rem;">Register Now</a>
         </div>

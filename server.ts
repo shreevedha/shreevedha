@@ -3660,6 +3660,19 @@ app.post('/admin/office_photos/delete/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin_office_photos');
 });
 
+// Global Express 500 Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Global Express Error:', err);
+  try {
+    res.status(500).render('error.html', {
+      error_code: 500,
+      error_message: err?.message || 'An unexpected server error occurred'
+    });
+  } catch (renderErr) {
+    res.status(500).send(`<h1>500 - Server Error</h1><p>${err?.message || 'Internal Server Error'}</p>`);
+  }
+});
+
 // Fallback error handler
 app.use((req, res) => {
   res.status(404).render('error.html', {

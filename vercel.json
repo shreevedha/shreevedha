@@ -1,14 +1,19 @@
 {
+  "version": 2,
   "buildCommand": "npm run build",
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "templates/**"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.ts"
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["templates/**", "static/**", "dist/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }

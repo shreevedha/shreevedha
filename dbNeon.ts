@@ -14,6 +14,10 @@ export const neonPool = new pg.Pool({
   }
 });
 
+neonPool.on('error', (err) => {
+  console.error('Neon pool background error:', err?.message || err);
+});
+
 export async function queryNeon(text: string, params?: any[]) {
   if (!neonPool) {
     throw new Error('Neon database connection pool is not initialized. Ensure DATABASE_URL is set.');

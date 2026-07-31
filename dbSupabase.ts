@@ -15,6 +15,10 @@ export const supabasePool = new pg.Pool({
   }
 });
 
+supabasePool.on('error', (err) => {
+  console.error('Supabase pool background error:', err?.message || err);
+});
+
 export async function querySupabase(text: string, params?: any[]) {
   try {
     return await supabasePool.query(text, params);

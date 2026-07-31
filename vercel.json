@@ -1,5 +1,9 @@
 {
-  "buildCommand": "npm run build",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "templates/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",

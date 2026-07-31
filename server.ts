@@ -3681,7 +3681,7 @@ app.use((req, res) => {
   });
 });
 
-if (!process.env.VERCEL) {
+if (!process.env.VERCEL && !process.env.VERCEL_ENV && !process.env.NOW_REGION) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Express server running on http://0.0.0.0:${PORT}`);
   });

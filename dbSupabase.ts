@@ -1,6 +1,6 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
-import { queryNeon } from './dbNeon.js';
+import { queryNeon } from './dbNeon.ts';
 dotenv.config();
 
 const connectionString = 'postgresql://postgres:Shreevedha%400678@db.kiuiizukxrlgnryweqvp.supabase.co:5432/postgres';

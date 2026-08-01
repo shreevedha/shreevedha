@@ -14,10 +14,10 @@ import admin from 'firebase-admin';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { verifyAdminPasswordSync, hashAdminPasswordSync } from './src/utils/bcrypt.ts';
-import { listPrivateFolderFiles } from './googleDriveService.js';
-import { uploadToSupabase } from './supabaseService.js';
-import { queryNeon } from './dbNeon.js';
-import { querySupabase } from './dbSupabase.js';
+import { listPrivateFolderFiles } from './googleDriveService.ts';
+import { uploadToSupabase } from './supabaseService.ts';
+import { queryNeon } from './dbNeon.ts';
+import { querySupabase } from './dbSupabase.ts';
 
 async function getNeonCourses() {
   try {

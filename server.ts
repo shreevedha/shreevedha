@@ -185,10 +185,10 @@ app.use((req, res, next) => {
 
 // ── Nunjucks Template Engine Setup ─────────────────────────────
 const templatesDirs = [
-  path.join(process.cwd(), 'templates'),
-  path.join(appDirname, 'templates'),
-  path.join(appDirname, '..', 'templates'),
-  'templates'
+  path.resolve(process.cwd(), 'templates'),
+  path.resolve(appDirname, 'templates'),
+  path.resolve(appDirname, '..', 'templates'),
+  path.resolve('templates')
 ];
 const env = nunjucks.configure(templatesDirs, {
   autoescape: true,

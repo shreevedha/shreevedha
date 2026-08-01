@@ -201,6 +201,7 @@ const env = nunjucks.configure(templatesDirs, {
   express: app,
   watch: false
 });
+app.set('views', templatesDirs);
 
 env.addFilter('truncateWords', (str: any, count: number) => {
   const cleanStr = String(str || '').trim();

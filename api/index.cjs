@@ -1,3 +1,6 @@
+try { require('firebase-admin'); } catch (e) {}
+try { require('googleapis'); } catch (e) {}
+
 const path = require('path');
 const fs = require('fs');
 

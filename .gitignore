@@ -36,7 +36,6 @@ Thumbs.db
 .vercel
 .env*
 node_modules/
-dist/
 scratch/
 *.log
 *.png

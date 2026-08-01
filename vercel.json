@@ -1,7 +1,7 @@
 {
   "functions": {
-    "api/*": {
-      "includeFiles": ["templates/**", "static/**", "dist/**", "*.json"]
+    "api/index.cjs": {
+      "includeFiles": "templates/**"
     }
   },
   "rewrites": [

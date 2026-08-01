@@ -126,23 +126,22 @@ function hashPassword(password: string): string {
   return crypto.createHmac('sha256', salt).update(password).digest('hex');
 }
 
-// ── Firebase Admin Initialization ──────────────────────────────
 let db: Firestore | null = null;
 try {
   const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
   if (fs.existsSync(configPath)) {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    admin.initializeApp({
-      projectId: config.projectId,
-      storageBucket: config.storageBucket
-    });
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        projectId: config.projectId,
+        storageBucket: config.storageBucket
+      });
+    }
     db = getFirestore(config.firestoreDatabaseId);
     console.log('Firebase Admin initialized successfully with database:', config.firestoreDatabaseId);
-  } else {
-    console.warn('firebase-applet-config.json not found, continuing without Firestore.');
   }
-} catch (error) {
-  console.error('Failed to initialize Firebase Admin SDK:', error);
+} catch (err) {
+  console.warn('Firebase Admin failed to initialize:', err);
 }
 
 const app = express();

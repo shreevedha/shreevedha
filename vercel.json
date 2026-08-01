@@ -1,13 +1,13 @@
 {
   "functions": {
-    "api/index.ts": {
+    "api/index.cjs": {
       "includeFiles": ["templates/**", "static/**", "*.json"]
     }
   },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api/index.cjs"
     }
   ]
 }

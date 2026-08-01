@@ -1,13 +1,18 @@
 {
-  "functions": {
-    "api/index.cjs": {
-      "includeFiles": "templates/**"
-    }
-  },
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.cjs"
+      "src": "api/index.cjs",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "{templates,static}/**"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.cjs"
     }
   ]
 }

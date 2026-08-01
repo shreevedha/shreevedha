@@ -38,8 +38,8 @@ Thumbs.db
 node_modules/
 scratch/
 *.log
-*.png
 *.csv
+!static/
 
 .vercel
 .env*

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "esbuild server.ts --bundle --platform=node --format=cjs --external:firebase-admin --external:googleapis --outfile=api/index.cjs && node -e \"require('fs').appendFileSync('api/index.cjs', '\\nmodule.exports = module.exports.default || module.exports;\\n')\"",
+    "build": "esbuild server.ts --bundle --platform=node --format=cjs --external:firebase-admin --external:googleapis --outfile=api/index.cjs",
     "start": "node dist/server.js",
     "lint": "tsc --noEmit"
   },

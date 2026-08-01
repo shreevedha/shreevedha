@@ -79887,6 +79887,8 @@ if (!process.env.VERCEL && !process.env.VERCEL_ENV && !process.env.NOW_REGION) {
     console.log(`Express server running on http://0.0.0.0:${PORT}`);
   });
 }
+module.exports = app;
+module.exports.default = app;
 var server_default = app;
 /*! Bundled license information:
 
@@ -80261,5 +80263,3 @@ media-typer/index.js:
    * MIT Licensed
    *)
 */
-
-module.exports = module.exports.default || module.exports;

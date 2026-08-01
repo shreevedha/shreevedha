@@ -3696,4 +3696,6 @@ if (!process.env.VERCEL && !process.env.VERCEL_ENV && !process.env.NOW_REGION) {
   });
 }
 
+module.exports = app;
+(module.exports as any).default = app;
 export default app;

@@ -76591,8 +76591,6 @@ async function querySupabase(text, params) {
 
 // server.ts
 var import_crypto2 = __toESM(require("crypto"), 1);
-var import_url = require("url");
-var import_meta = {};
 async function getNeonCourses() {
   try {
     const res = await queryNeon("SELECT * FROM courses");
@@ -76613,12 +76611,12 @@ async function getNeonEnrollments() {
 }
 var appFilename = "";
 var appDirname = "";
-try {
-  if (typeof import_meta !== "undefined" && import_meta.url) {
-    appFilename = (0, import_url.fileURLToPath)(import_meta.url);
-    appDirname = import_path.default.dirname(appFilename);
-  }
-} catch (e) {
+if (typeof __filename !== "undefined") {
+  appFilename = __filename;
+  appDirname = import_path.default.dirname(__filename);
+} else {
+  appDirname = process.cwd();
+  appFilename = import_path.default.join(appDirname, "server.ts");
 }
 if (!appDirname) {
   appDirname = typeof __dirname !== "undefined" ? __dirname : process.cwd();
@@ -80263,3 +80261,5 @@ media-typer/index.js:
    * MIT Licensed
    *)
 */
+
+module.exports = module.exports.default || module.exports;

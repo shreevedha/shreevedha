@@ -54,12 +54,13 @@ import { fileURLToPath } from 'url';
 
 let appFilename = '';
 let appDirname = '';
-try {
-  if (typeof import.meta !== 'undefined' && import.meta.url) {
-    appFilename = fileURLToPath(import.meta.url);
-    appDirname = path.dirname(appFilename);
-  }
-} catch (e) {}
+if (typeof __filename !== 'undefined') {
+  appFilename = __filename;
+  appDirname = path.dirname(__filename);
+} else {
+  appDirname = process.cwd();
+  appFilename = path.join(appDirname, 'server.ts');
+}
 
 if (!appDirname) {
   appDirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();

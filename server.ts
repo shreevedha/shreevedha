@@ -184,12 +184,18 @@ app.use((req, res, next) => {
 });
 
 // ── Nunjucks Template Engine Setup ─────────────────────────────
-const templatesDirs = [
+const rawTemplatesDirs = [
   path.resolve(process.cwd(), 'templates'),
   path.resolve(appDirname, 'templates'),
   path.resolve(appDirname, '..', 'templates'),
   path.resolve('templates')
 ];
+const templatesDirs = rawTemplatesDirs.filter(d => {
+  try { return fs.existsSync(d); } catch (e) { return false; }
+});
+if (templatesDirs.length === 0) {
+  templatesDirs.push(path.resolve(process.cwd(), 'templates'));
+}
 const env = nunjucks.configure(templatesDirs, {
   autoescape: true,
   express: app,

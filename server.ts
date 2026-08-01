@@ -13,7 +13,7 @@ import multer from 'multer';
 import admin from 'firebase-admin';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-import { verifyAdminPasswordSync, hashAdminPasswordSync } from './src/utils/bcrypt.js';
+import { verifyAdminPasswordSync, hashAdminPasswordSync } from './src/utils/bcrypt.ts';
 import { listPrivateFolderFiles } from './googleDriveService.js';
 import { uploadToSupabase } from './supabaseService.js';
 import { queryNeon } from './dbNeon.js';

@@ -2,7 +2,7 @@ import pg from 'pg';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_6vrfhkj4iMam@ep-dark-fire-aptgnjh6-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_6vrfhkj4iMam@ep-dark-fire-aptgnjh6-pooler.c-7.us-east-1.aws.neon.tech/neondb';
 
 let _neonPool: pg.Pool | null = null;
 export function getNeonPool() {

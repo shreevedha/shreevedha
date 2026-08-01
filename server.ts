@@ -52,17 +52,19 @@ async function getNeonEnrollments() {
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
-let _filename = '';
-let _dirname = '';
+let appFilename = '';
+let appDirname = '';
 try {
-  _filename = fileURLToPath(import.meta.url);
-  _dirname = path.dirname(_filename);
-} catch (e) {
-  _filename = typeof __filename !== 'undefined' ? __filename : process.cwd();
-  _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+  if (typeof import.meta !== 'undefined' && import.meta.url) {
+    appFilename = fileURLToPath(import.meta.url);
+    appDirname = path.dirname(appFilename);
+  }
+} catch (e) {}
+
+if (!appDirname) {
+  appDirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+  appFilename = typeof __filename !== 'undefined' ? __filename : path.join(process.cwd(), 'server.ts');
 }
-const __filename = _filename;
-const __dirname = _dirname;
 
 declare global {
   interface String {
@@ -185,8 +187,8 @@ app.use((req, res, next) => {
 // ── Nunjucks Template Engine Setup ─────────────────────────────
 const templatesDirs = [
   path.join(process.cwd(), 'templates'),
-  path.join(__dirname, 'templates'),
-  path.join(__dirname, '..', 'templates'),
+  path.join(appDirname, 'templates'),
+  path.join(appDirname, '..', 'templates'),
   'templates'
 ];
 const env = nunjucks.configure(templatesDirs, {

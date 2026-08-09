@@ -22,6 +22,7 @@ static/uploads/lms/
 
 # Pre-change backups — old code/DB/data, never publish
 _backup/
+static/uploads/office_originals_backup/
 
 # Submitted PII captured by public forms — do NOT publish to a public repo
 static/data/contacts.json

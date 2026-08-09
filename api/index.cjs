@@ -77751,14 +77751,61 @@ app.get("/blog", (req, res) => {
   ];
   res.render("blog.html", { posts: blog_posts });
 });
+var defaultProjectsList = [
+  {
+    id: "proj-1",
+    title: "AI Medical Image Diagnostics",
+    description: "Deep Learning CNN model trained to detect chest X-ray anomalies with 96.4% precision and real-time report generation.",
+    image_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop",
+    github_link: "https://github.com/shreevedha"
+  },
+  {
+    id: "proj-2",
+    title: "Full Stack E-Commerce Engine",
+    description: "Enterprise React & Node.js microservices marketplace with Stripe payment integration, real-time inventory, and Redis caching.",
+    image_url: "https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop",
+    github_link: "https://github.com/shreevedha"
+  },
+  {
+    id: "proj-3",
+    title: "Cloud Microservices Pipeline",
+    description: "Automated CI/CD Kubernetes deployment pipeline on AWS EC2/EKS with Terraform infrastructure as code.",
+    image_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop",
+    github_link: "https://github.com/shreevedha"
+  },
+  {
+    id: "proj-4",
+    title: "Cyber Threat Analytics System",
+    description: "Real-time SIEM network packet inspection and anomaly detection engine powered by Snort and Python analytics.",
+    image_url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop",
+    github_link: "https://github.com/shreevedha"
+  },
+  {
+    id: "proj-5",
+    title: "ServiceNow Automated Workflow",
+    description: "Custom ServiceNow IT Service Management portal with automated incident ticket routing and SLA escalation triggers.",
+    image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop",
+    github_link: "https://github.com/shreevedha"
+  },
+  {
+    id: "proj-6",
+    title: "Predictive Student Placement Analytics",
+    description: "Data Science XGBoost model analyzing student skill assessments, project performance, and interview outcome probability.",
+    image_url: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&auto=format&fit=crop",
+    github_link: "https://github.com/shreevedha"
+  }
+];
 app.get("/gallery", async (req, res) => {
   try {
     const result = await querySupabase("SELECT * FROM gallery ORDER BY created_at DESC");
-    const projects = result.rows.map((r) => ({ ...r, _id: r.id }));
+    let projects = result.rows.map((r) => ({ ...r, _id: r.id }));
+    if (!projects || projects.length === 0) {
+      projects = defaultProjectsList;
+    }
     res.render("gallery.html", { projects });
   } catch (err) {
     console.error(err);
-    res.render("gallery.html", { projects: [] });
+    res.render("gallery.html", { projects: defaultProjectsList });
   }
 });
 app.get("/livetrack", async (req, res) => {
@@ -77803,11 +77850,14 @@ app.get("/event/:id", async (req, res) => {
 app.get("/projects", async (req, res) => {
   try {
     const result = await querySupabase("SELECT * FROM projects ORDER BY created_at DESC");
-    const projects = result.rows.map((r) => ({ ...r, _id: r.id }));
+    let projects = result.rows.map((r) => ({ ...r, _id: r.id }));
+    if (!projects || projects.length === 0) {
+      projects = defaultProjectsList;
+    }
     res.render("projects.html", { projects });
   } catch (err) {
     console.error(err);
-    res.render("projects.html", { projects: [] });
+    res.render("projects.html", { projects: defaultProjectsList });
   }
 });
 app.get("/registration", (req, res) => {

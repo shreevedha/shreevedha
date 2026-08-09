@@ -175,12 +175,12 @@
         {% if projects %}
             {% for project in projects %}
             <div class="project-card">
-                <img src="{{ url_for('static', filename='uploads/projects/' + project.image_filename) }}" alt="{{ project.title }}">
+                <img src="{{ project.image_url or (url_for('static', filename='uploads/projects/' + project.image_filename) if project.image_filename else 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop') }}" alt="{{ project.title }}">
                 <div class="project-info">
                     <h3>{{ project.title }}</h3>
                     <p>{{ project.description | truncateWords(25) }}</p>
                     {% if project.github_link %}
-                    <a href="{{ project.github_link }}" target="_blank" class="github-link">🔗 GitHub</a>
+                    <a href="{{ project.github_link }}" target="_blank" class="github-link"><i data-lucide="github" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"></i> View Project</a>
                     {% else %}
                     <span style="color: #999;">No GitHub link</span>
                     {% endif %}

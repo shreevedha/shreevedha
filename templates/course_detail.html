@@ -166,16 +166,16 @@
         <div class="hero-flex">
             <div class="hero-text">
                 <div class="hero-badges">
-                    <span class="badge-pill">🎓 {{ course.category or 'Professional Track' }}</span>
-                    <span class="badge-pill" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#34d399;">⏱ {{ course.duration or '60 Days' }}</span>
-                    <span class="badge-pill" style="background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.4); color:#f87171;">🔥 50% DISCOUNT OFFER</span>
+                    <span class="badge-pill">{{ course.category or 'Professional Track' }}</span>
+                    <span class="badge-pill" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#34d399;">{{ course.duration or '60 Days' }}</span>
+                    <span class="badge-pill" style="background:rgba(245,197,24,0.15); border-color:rgba(245,197,24,0.4); color:#F5C518;">50% Discount Offer</span>
                 </div>
                 <h1>{{ course.title }}</h1>
                 <p>{{ course.description }}</p>
                 <div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.9rem; opacity:0.85;">
-                    <span>✅ Live Practical Projects</span>
-                    <span>✅ 1-on-1 Mentorship</span>
-                    <span>✅ Verified Certification</span>
+                    <span><i data-lucide="check-circle" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Live Practical Projects</span>
+                    <span><i data-lucide="check-circle" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> 1-on-1 Mentorship</span>
+                    <span><i data-lucide="check-circle" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Verified Certification</span>
                 </div>
             </div>
             
@@ -193,7 +193,7 @@
             <!-- Left Column: Syllabus & Tools -->
             <div>
                 <!-- Interactive Dropdown Syllabus Accordion -->
-                <h2 class="section-title">📚 Course Syllabus & Modules</h2>
+                <h2 class="section-title">Course Syllabus & Modules</h2>
                 <p style="color:#64748b; margin-bottom: 1.5rem;">Click on any module to view topic breakdown</p>
 
                 <div class="syllabus-accordion">
@@ -232,33 +232,33 @@
                 </div>
 
                 <!-- Tools & Technologies -->
-                <h2 class="section-title">🛠️ Tools & Technologies Mastered</h2>
+                <h2 class="section-title">Tools & Technologies Mastered</h2>
                 <div class="chips-grid">
                     {% if course.tools is string %}
                         {% for tool in course.tools.split(',') %}
-                        <span class="tech-chip">⚡ {{ tool.trim() }}</span>
+                        <span class="tech-chip">{{ tool.trim() }}</span>
                         {% endfor %}
                     {% else %}
                         {% for tool in course.tools %}
-                        <span class="tech-chip">⚡ {{ tool }}</span>
+                        <span class="tech-chip">{{ tool }}</span>
                         {% endfor %}
                     {% endif %}
                 </div>
 
                 <!-- Projects Showcase -->
-                <h2 class="section-title">🚀 Real-World Capstone Projects</h2>
+                <h2 class="section-title">Real-World Capstone Projects</h2>
                 <div class="project-card-grid">
                     {% if course.projects is string %}
                         {% for project in course.projects.split(',') %}
                         <div class="project-card">
-                            <h4>💻 {{ project.trim() }}</h4>
+                            <h4>{{ project.trim() }}</h4>
                             <p style="font-size:0.8rem; color:#64748b; margin:0;">Industry-aligned portfolio project built during hands-on lab sessions.</p>
                         </div>
                         {% endfor %}
                     {% else %}
                         {% for project in course.projects %}
                         <div class="project-card">
-                            <h4>💻 {{ project }}</h4>
+                            <h4>{{ project }}</h4>
                             <p style="font-size:0.8rem; color:#64748b; margin:0;">Industry-aligned portfolio project built during hands-on lab sessions.</p>
                         </div>
                         {% endfor %}

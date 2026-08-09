@@ -231,7 +231,7 @@
 <!-- Hero -->
 <section class="courses-hero">
     <div class="container">
-        <h1>🎓 Our Industry Courses</h1>
+        <h1>Our Industry Courses</h1>
         <p>Choose your preferred learning path – Online, Offline, or Hybrid. Gain practical skills with 50% discount offers!</p>
         <div class="hero-stats">
             <div class="hero-stat"><strong>10+</strong><span>Programs</span></div>
@@ -246,7 +246,6 @@
 <div class="filter-bar">
     <div class="container">
         <button class="filter-btn active" onclick="filterCat('all',this)">All Courses</button>
-        <button class="filter-btn" onclick="filterCat('Programming',this)">💻 Programming</button>
         <button class="filter-btn" onclick="filterCat('Programming',this)">Programming</button>
         <button class="filter-btn" onclick="filterCat('DSA',this)">DSA</button>
         <button class="filter-btn" onclick="filterCat('Full Stack',this)">Full Stack</button>
@@ -270,15 +269,22 @@
                 <img src="{{ c.image or 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&auto=format&fit=crop' }}" alt="{{ c.title }}">
                 <span class="category-tag">{{ c.category or 'Course' }}</span>
                 <span class="discount-badge">50% OFF</span>
-                <div class="price-block">
-                    <span class="price-pill price-online">🌐 {{ c.price_online or '₹2,999' }} <del>{{ c.price_online_original or '₹5,999' }}</del></span>
-                    <span class="price-pill price-offline">🏫 {{ c.price_offline or '₹9,999' }} <del>{{ c.price_offline_original or '₹19,999' }}</del></span>
-                    <span class="price-pill price-hybrid">🔀 {{ c.price_hybrid or '₹7,999' }} <del>{{ c.price_hybrid_original or '₹14,999' }}</del></span>
-                </div>
             </div>
             <div class="course-content">
                 <h3>{{ c.title }}</h3>
                 <p>{{ (c.description or '').slice(0, 110) }}{% if c.description|length > 110 %}...{% endif %}</p>
+                
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 0.6rem; padding: 0.6rem 0.75rem; margin-bottom: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                        <span style="color: #475569; font-weight: 600;">Online:</span>
+                        <span><strong style="color: #0A2647; font-weight: 800;">{{ c.price_online or '₹2,999' }}</strong> <del style="color: #94A3B8; font-size: 0.72rem;">{{ c.price_online_original or '₹5,999' }}</del></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                        <span style="color: #475569; font-weight: 600;">Offline (Campus):</span>
+                        <span><strong style="color: #0A2647; font-weight: 800;">{{ c.price_offline or '₹9,999' }}</strong> <del style="color: #94A3B8; font-size: 0.72rem;">{{ c.price_offline_original or '₹19,999' }}</del></span>
+                    </div>
+                </div>
+
                 <div class="course-tools">
                     {% if c.tools is string %}
                         {% for tool in c.tools.split(',') %}
@@ -291,7 +297,7 @@
                     {% endif %}
                 </div>
                 <div class="course-meta">
-                    <span class="duration-badge">⏱ {{ c.duration or '60 Days' }}</span>
+                    <span class="duration-badge"><i data-lucide="clock" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> {{ c.duration or '60 Days' }}</span>
                     <a href="/course/{{ c.id }}" class="btn-outline-gold">View Details →</a>
                 </div>
             </div>
@@ -302,10 +308,10 @@
     <!-- ══ SPECIAL COMBO COURSE ══ -->
     <div class="combo-section" id="comboSection">
         <div class="combo-section-label">
-            <h2>🌟 Special Combo Package 🌟</h2>
+            <h2>Special Combo Package</h2>
         </div>
         <div class="combo-card">
-            <span class="combo-badge">🔥 BEST VALUE</span>
+            <span class="combo-badge">BEST VALUE</span>
             <div class="combo-left">
                 <h3>AI Automation Master Program</h3>
                 <p class="combo-tagline">
@@ -313,28 +319,28 @@
                     Industries today need engineers who automate workflows using AI — this program transforms you into one.
                 </p>
                 <div class="combo-topics">
-                    <span class="combo-topic">🐍 Python</span>
-                    <span class="combo-topic">📊 Data Science</span>
-                    <span class="combo-topic">🤖 Machine Learning</span>
-                    <span class="combo-topic">🧠 Deep Learning</span>
-                    <span class="combo-topic">🌐 Artificial Intelligence</span>
-                    <span class="combo-topic">🕵️ Agentic AI</span>
-                    <span class="combo-topic">✨ Prompt Engineering</span>
+                    <span class="combo-topic">Python</span>
+                    <span class="combo-topic">Data Science</span>
+                    <span class="combo-topic">Machine Learning</span>
+                    <span class="combo-topic">Deep Learning</span>
+                    <span class="combo-topic">Artificial Intelligence</span>
+                    <span class="combo-topic">Agentic AI</span>
+                    <span class="combo-topic">Prompt Engineering</span>
                 </div>
-                <a href="/registration" class="btn-combo">🚀 Enroll Now</a>
+                <a href="/registration" class="btn-combo">Enroll Now</a>
             </div>
             <div class="combo-right">
                 <div class="combo-price-row">
-                    <div>Online</div>
-                    <div><strong style="color:white; font-size:1.2rem;">₹7,999</strong> <del style="color:#aaa; font-size:0.8rem;">₹15,999</del></div>
+                    <div style="color: white; font-weight: 600;">Online</div>
+                    <div><strong style="color:white; font-size:1.2rem; font-weight:800;">₹7,999</strong> <del style="color:#cbd5e1; font-size:0.8rem;">₹15,999</del></div>
                 </div>
                 <div class="combo-price-row highlight">
-                    <div>Offline (Campus)</div>
-                    <div><strong style="color:var(--primary-gold); font-size:1.3rem;">₹14,999</strong> <del style="color:#aaa; font-size:0.85rem;">₹29,999</del></div>
+                    <div style="color: var(--primary-gold); font-weight: 700;">Offline (Campus)</div>
+                    <div><strong style="color:var(--primary-gold); font-size:1.3rem; font-weight:800;">₹14,999</strong> <del style="color:#cbd5e1; font-size:0.85rem;">₹29,999</del></div>
                 </div>
                 <div class="combo-price-row">
-                    <div>Hybrid</div>
-                    <div><strong style="color:white; font-size:1.2rem;">₹11,999</strong> <del style="color:#aaa; font-size:0.8rem;">₹23,999</del></div>
+                    <div style="color: white; font-weight: 600;">Hybrid</div>
+                    <div><strong style="color:white; font-size:1.2rem; font-weight:800;">₹11,999</strong> <del style="color:#cbd5e1; font-size:0.8rem;">₹23,999</del></div>
                 </div>
             </div>
         </div>
@@ -345,8 +351,8 @@
         <h2>Need Guidance Picking a Program?</h2>
         <p>Connect with our expert counsellors for a free 1-on-1 strategy session.</p>
         <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:1.5rem;">
-            <a href="/contact" style="background:var(--primary-gold); color:#0A2647; padding:0.8rem 2rem; border-radius:2rem; font-weight:800; text-decoration:none;">📞 Talk to Counsellor</a>
-            <a href="/registration" style="background:transparent; color:white; border:2px solid white; padding:0.8rem 2rem; border-radius:2rem; font-weight:700; text-decoration:none;">✍️ Register Now</a>
+            <a href="/contact" style="background:var(--primary-gold); color:#0A2647; padding:0.8rem 2rem; border-radius:2rem; font-weight:800; text-decoration:none;">Talk to Counsellor</a>
+            <a href="/registration" style="background:transparent; color:white; border:2px solid white; padding:0.8rem 2rem; border-radius:2rem; font-weight:700; text-decoration:none;">Register Now</a>
         </div>
     </div>
 

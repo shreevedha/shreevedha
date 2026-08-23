@@ -14,6 +14,7 @@
     <div class="card-header">
         <div class="card-title">All Certificates ({{ certificates|length }})</div>
         <div class="table-actions">
+            <a href="{{ url_for('admin_certificate_templates') }}" class="btn btn-outline"><i data-lucide="layout"></i> Layout Templates</a>
             <a href="{{ url_for('public_verify_certificate') }}" target="_blank" class="btn btn-outline"><i data-lucide="shield-check"></i> Verify Portal</a>
             <a href="{{ url_for('admin_export', data_type='certificates') }}" class="btn btn-outline">Export CSV</a>
             <button class="btn btn-primary" onclick="document.getElementById('certModal').classList.add('active')">+ Issue Certificate</button>
@@ -149,6 +150,17 @@
             </div>
 
             <div class="form-group">
+                <label>Select Template Layout</label>
+                <select name="template_id">
+                    {% for t in templates %}
+                    <option value="{{ t.id }}">{{ t.name }} ({{ t.border_style }})</option>
+                    {% else %}
+                    <option value="classic-gold">Classic Royal Gold</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label>Performance Grade / Distinction</label>
                 <select name="grade">
                     <option value="Distinction">Distinction</option>
@@ -157,6 +169,22 @@
                     <option value="First Class">First Class</option>
                     <option value="Completed">Completed</option>
                 </select>
+            </div>
+
+            <div style="background:#f8fafc; padding:1rem; border-radius:0.5rem; margin-bottom:1rem; border:1px solid #e2e8f0;">
+                <h5 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Additional Custom Variables / Certificate Details</h5>
+                <div class="form-group">
+                    <label>Duration (Optional)</label>
+                    <input type="text" name="duration" placeholder="e.g. 3 Months / 400 Hours">
+                </div>
+                <div class="form-group">
+                    <label>Capstone Project Title (Optional)</label>
+                    <input type="text" name="project_title" placeholder="e.g. AI Diagnostic Medical Imaging System">
+                </div>
+                <div class="form-group">
+                    <label>Lead Mentor / Trainer Name (Optional)</label>
+                    <input type="text" name="mentor_name" placeholder="e.g. Dr. K. S. Verma">
+                </div>
             </div>
 
             <div class="form-group">

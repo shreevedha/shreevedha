@@ -328,49 +328,57 @@
         </div>
     </div>
 
-    <div class="cert-container">
-        <img src="/static/uploads/Shree.png" alt="Watermark" class="cert-watermark">
+    <div class="cert-container" style="background: {{ template.bg_color or '#FDFBF7' }}; border: 16px {{ 'solid' if template.border_style == 'solid-blue' else 'double' }} {{ template.accent_color or '#D4AF37' }};">
+        <img src="{{ template.watermark_url or '/static/uploads/Shree.png' }}" alt="Watermark" class="cert-watermark">
 
-        <div class="cert-frame">
+        <div class="cert-frame" style="border-color: {{ template.primary_color or '#0A2647' }};">
             <div class="cert-header">
                 <img src="/static/uploads/Shree.png" alt="Shreevedha Solutions" class="cert-logo">
                 <div class="cert-header-text">
-                    <h4>SHREEVEDHA SOLUTIONS INDIA PVT LTD</h4>
-                    <p>An ISO 9001:2015 Certified Institution | AICTE Partner</p>
+                    <h4 style="color: {{ template.primary_color or '#0A2647' }};">{{ template.header_title or 'SHREEVEDHA SOLUTIONS INDIA PVT LTD' }}</h4>
+                    <p>{{ template.header_subtitle or 'An ISO 9001:2015 Certified Institution | AICTE Partner' }}</p>
                 </div>
             </div>
 
-            <div class="cert-title">Certificate of {{ certificate.certificate_type or 'Completion' }}</div>
-            <div class="cert-subtitle">Official Educational Credential</div>
+            <div class="cert-title" style="color: {{ template.primary_color or '#0A2647' }};">Certificate of {{ certificate.certificate_type or 'Completion' }}</div>
+            <div class="cert-subtitle" style="color: {{ template.accent_color or '#AA771C' }};">Official Educational Credential</div>
 
             <div class="cert-recipient-label">This certificate is proudly awarded to</div>
-            <div class="cert-recipient-name">{{ certificate.student.name if certificate.student else (certificate.student_name or 'Jane Student') }}</div>
+            <div class="cert-recipient-name" style="color: {{ template.primary_color or '#0A2647' }};">{{ certificate.student.name if certificate.student else (certificate.student_name or 'Jane Student') }}</div>
 
             <div class="cert-body">
                 For successfully completing the comprehensive training program and demonstrating proficiency in
-                <span class="cert-course-name">{{ certificate.course.title if certificate.course else (certificate.course_title or certificate.course_id) }}</span>
+                <span class="cert-course-name" style="color: {{ template.primary_color or '#0A2647' }};">{{ certificate.course.title if certificate.course else (certificate.course_title or certificate.course_id) }}</span>
                 having satisfied all academic assessment requirements with performance grade
                 <strong>{{ certificate.grade or 'Distinction' }}</strong>.
+
+                {% if certificate.duration or certificate.project_title or certificate.mentor_name %}
+                <div style="margin-top: 1.2rem; font-size: 0.95rem; background: rgba(0,0,0,0.02); padding: 0.8rem 1.2rem; border-radius: 0.5rem; border: 1px dashed rgba(0,0,0,0.1); display: inline-block; text-align: left;">
+                    {% if certificate.duration %}<div style="margin-bottom:0.2rem;"><strong>Program Duration:</strong> {{ certificate.duration }}</div>{% endif %}
+                    {% if certificate.project_title %}<div style="margin-bottom:0.2rem;"><strong>Capstone Project:</strong> {{ certificate.project_title }}</div>{% endif %}
+                    {% if certificate.mentor_name %}<div style="margin-bottom:0.2rem;"><strong>Lead Mentor:</strong> {{ certificate.mentor_name }}</div>{% endif %}
+                </div>
+                {% endif %}
             </div>
 
             <div class="cert-footer">
                 <div class="cert-sec">
-                    <div class="signature-line"><span class="sig-font">S. V. Director</span></div>
-                    <label>Managing Director</label>
-                    <p>Shreevedha Solutions</p>
+                    <div class="signature-line" style="border-color: {{ template.primary_color or '#0A2647' }};"><span class="sig-font">{{ template.signatory1_name or 'S. V. Director' }}</span></div>
+                    <label style="color: {{ template.primary_color or '#0A2647' }};">{{ template.signatory1_title or 'Managing Director' }}</label>
+                    <p>{{ template.signatory1_sub or 'Shreevedha Solutions' }}</p>
                 </div>
 
                 <div class="cert-sec">
-                    <div class="cert-badge">
+                    <div class="cert-badge" style="background: linear-gradient(135deg, {{ template.accent_color or '#D4AF37' }} 0%, #AA771C 100%);">
                         <span>★ VERIFIED ★</span>
-                        <span style="font-size:0.5rem; margin-top:2px;">OFFICIAL</span>
+                        <span style="font-size:0.5rem; margin-top:2px;">{{ template.seal_text or 'OFFICIAL' }}</span>
                     </div>
                 </div>
 
                 <div class="cert-sec">
-                    <div class="signature-line"><span class="sig-font">Academic Head</span></div>
-                    <label>Academic Registrar</label>
-                    <p>Board of Examinations</p>
+                    <div class="signature-line" style="border-color: {{ template.primary_color or '#0A2647' }};"><span class="sig-font">{{ template.signatory2_name or 'Academic Head' }}</span></div>
+                    <label style="color: {{ template.primary_color or '#0A2647' }};">{{ template.signatory2_title or 'Academic Registrar' }}</label>
+                    <p>{{ template.signatory2_sub or 'Board of Examinations' }}</p>
                 </div>
 
                 <div class="qr-box">

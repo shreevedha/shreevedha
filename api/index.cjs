@@ -76830,6 +76830,7 @@ env.addGlobal("url_for", (endpoint, options = {}) => {
     "admin_issue_certificate": "/admin/lms/certificates/issue",
     "admin_bulk_certificates": "/admin/lms/certificates/bulk",
     "admin_download_certificate": "/admin/lms/certificates/download",
+    "admin_certificate_templates": "/admin_certificate_templates",
     "verify_certificate": "/certificates/verify",
     "public_verify_certificate": "/verify-certificate",
     "admin_questions": "/admin_questions",
@@ -79448,14 +79449,80 @@ app.get("/verify-certificate/:cert_id", (req, res) => {
     course,
     issue_date: cert.issue_date ? new Date(cert.issue_date) : /* @__PURE__ */ new Date()
   };
-  res.render("certificate_view.html", { certificate: certData });
+  const templates = loadJson("certificate_templates.json");
+  const template = templates.find((t) => t.id === cert.template_id) || templates[0] || {
+    id: "classic-gold",
+    name: "Classic Royal Gold",
+    border_style: "double-gold",
+    primary_color: "#0A2647",
+    accent_color: "#D4AF37",
+    bg_color: "#FDFBF7",
+    header_title: "SHREEVEDHA SOLUTIONS INDIA PVT LTD",
+    header_subtitle: "An ISO 9001:2015 Certified Institution | AICTE Partner",
+    signatory1_name: "S. V. Director",
+    signatory1_title: "Managing Director",
+    signatory1_sub: "Shreevedha Solutions",
+    signatory2_name: "Academic Head",
+    signatory2_title: "Academic Registrar",
+    signatory2_sub: "Board of Examinations",
+    seal_text: "OFFICIAL VERIFIED",
+    watermark_url: "/static/uploads/Shree.png"
+  };
+  res.render("certificate_view.html", { certificate: certData, template });
 });
 app.get("/certificates/verify/:cert_id", (req, res) => {
   res.redirect(`/verify-certificate/${req.params.cert_id}`);
 });
+app.get("/admin_certificate_templates", requireAdmin, (req, res) => {
+  const templates = loadJson("certificate_templates.json");
+  res.render("admin/certificate_templates_admin.html", { templates });
+});
+app.post("/admin/lms/certificate_templates/save", requireAdmin, (req, res) => {
+  const { id, name, border_style, primary_color, accent_color, bg_color, header_title, header_subtitle, signatory1_name, signatory1_title, signatory1_sub, signatory2_name, signatory2_title, signatory2_sub, seal_text, watermark_url } = req.body;
+  let templates = loadJson("certificate_templates.json");
+  const slug = (id || name || "template").toLowerCase().replace(/[^a-z0-9]/g, "-");
+  const existingIdx = templates.findIndex((t) => t.id === slug);
+  const newT = {
+    id: slug,
+    name: name || "Custom Template",
+    border_style: border_style || "double-gold",
+    primary_color: primary_color || "#0A2647",
+    accent_color: accent_color || "#D4AF37",
+    bg_color: bg_color || "#FDFBF7",
+    header_title: header_title || "SHREEVEDHA SOLUTIONS INDIA PVT LTD",
+    header_subtitle: header_subtitle || "An ISO 9001:2015 Certified Institution | AICTE Partner",
+    signatory1_name: signatory1_name || "S. V. Director",
+    signatory1_title: signatory1_title || "Managing Director",
+    signatory1_sub: signatory1_sub || "Shreevedha Solutions",
+    signatory2_name: signatory2_name || "Academic Head",
+    signatory2_title: signatory2_title || "Academic Registrar",
+    signatory2_sub: signatory2_sub || "Board of Examinations",
+    seal_text: seal_text || "OFFICIAL VERIFIED",
+    watermark_url: watermark_url || "/static/uploads/Shree.png"
+  };
+  if (existingIdx >= 0) {
+    templates[existingIdx] = newT;
+  } else {
+    templates.push(newT);
+  }
+  saveJson("certificate_templates.json", templates);
+  syncToFirestore("certificate_templates.json", templates);
+  req.flash("success", `Certificate template '${newT.name}' saved successfully!`);
+  res.redirect("/admin_certificate_templates");
+});
+app.post("/admin/lms/certificate_templates/delete/:id", requireAdmin, (req, res) => {
+  const tId = req.params.id;
+  let templates = loadJson("certificate_templates.json");
+  templates = templates.filter((t) => t.id !== tId);
+  saveJson("certificate_templates.json", templates);
+  syncToFirestore("certificate_templates.json", templates);
+  req.flash("success", "Template deleted successfully!");
+  res.redirect("/admin_certificate_templates");
+});
 app.get("/admin_certificates", requireAdmin, (req, res) => {
   const certificates = loadJson("certificates.json");
   const users = loadJson("users.json");
+  const templates = loadJson("certificate_templates.json");
   const courses = COURSES_DATA;
   const mappedCerts = certificates.map((c) => {
     const student = users.find((u) => u.id === c.user_id) || { name: c.student_name || "Jane Student" };
@@ -79470,11 +79537,12 @@ app.get("/admin_certificates", requireAdmin, (req, res) => {
   res.render("admin/certificates_admin.html", {
     certificates: mappedCerts,
     users: users.filter((u) => u.role === "student"),
-    courses
+    courses,
+    templates
   });
 });
 app.post("/admin/lms/certificates/issue", requireAdmin, (req, res) => {
-  const { user_id, course_id, certificate_type, student_name, student_email, grade, custom_cert_id } = req.body;
+  const { user_id, course_id, certificate_type, student_name, student_email, grade, custom_cert_id, template_id, duration, project_title, mentor_name } = req.body;
   let uId = user_id ? parseInt(user_id) : null;
   let certType = certificate_type || "Course Completion";
   let certGrade = grade || "Distinction";
@@ -79506,7 +79574,11 @@ app.post("/admin/lms/certificates/issue", requireAdmin, (req, res) => {
     certificate_type: certType,
     course_id,
     course_title: courseTitle,
+    template_id: template_id || "classic-gold",
     grade: certGrade,
+    duration: duration || "",
+    project_title: project_title || "",
+    mentor_name: mentor_name || "",
     issue_date: (/* @__PURE__ */ new Date()).toISOString()
   };
   certificates.push(newCert);

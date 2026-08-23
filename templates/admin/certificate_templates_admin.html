@@ -1,0 +1,138 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Certificate Templates{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Certificate Templates</h1>
+        <p>Design, customize, and manage certificate layouts and variable presets</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin_certificates') }}" class="btn btn-outline"><i data-lucide="award"></i> Manage Certificates</a>
+        <button class="btn btn-primary" onclick="document.getElementById('templateModal').classList.add('active')">+ Create Template</button>
+    </div>
+</div>
+
+<div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    {% for t in templates %}
+    <div class="card" style="border: 2px solid {{ t.accent_color or '#D4AF37' }}; border-radius: 1rem; position: relative;">
+        <div style="background: {{ t.bg_color or '#FDFBF7' }}; padding: 1.5rem; border-radius: 0.8rem 0.8rem 0 0; text-align: center; border-bottom: 1px solid #e2e8f0;">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: {{ t.accent_color or '#D4AF37' }}; letter-spacing: 1px;">
+                Style: {{ t.border_style or 'double-gold' }}
+            </div>
+            <h3 style="color: {{ t.primary_color or '#0A2647' }}; margin: 0.5rem 0;">{{ t.name }}</h3>
+            <p style="font-size: 0.85rem; color: #64748b; margin: 0;">{{ t.header_title }}</p>
+        </div>
+
+        <div style="padding: 1.2rem; font-size: 0.9rem;">
+            <p style="margin-bottom: 0.5rem;"><strong>Subtitle:</strong> {{ t.header_subtitle }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Signatory 1:</strong> {{ t.signatory1_name }} ({{ t.signatory1_title }})</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Signatory 2:</strong> {{ t.signatory2_name }} ({{ t.signatory2_title }})</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Seal Badge Text:</strong> <span class="badge" style="background: {{ t.accent_color }}; color: white; padding: 0.2rem 0.6rem; border-radius: 1rem;">{{ t.seal_text }}</span></p>
+        </div>
+
+        <div style="padding: 1rem 1.2rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-family: monospace; font-size: 0.8rem; color: #64748b;">ID: {{ t.id }}</span>
+            <div style="display: flex; gap: 0.5rem;">
+                <form method="POST" action="/admin/lms/certificate_templates/delete/{{ t.id }}" onsubmit="return confirm('Are you sure you want to delete this template?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" style="background:#EF4444; color:white; border:none; padding:0.3rem 0.6rem; border-radius:0.3rem; cursor:pointer;" title="Delete Template"><i data-lucide="trash-2"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add Template Modal -->
+<div class="modal-overlay" id="templateModal">
+    <div class="modal-box" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+        <button class="modal-close" onclick="document.getElementById('templateModal').classList.remove('active')">&times;</button>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Add / Customize Certificate Template</h3>
+        <form method="POST" action="/admin/lms/certificate_templates/save">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label>Template Unique ID (Slug)</label>
+                <input type="text" name="id" placeholder="e.g. executive-distinction" required>
+            </div>
+
+            <div class="form-group">
+                <label>Template Name</label>
+                <input type="text" name="name" placeholder="e.g. Executive Distinction Template" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Border Style</label>
+                    <select name="border_style">
+                        <option value="double-gold">Double Gold</option>
+                        <option value="solid-blue">Solid Blue Accent</option>
+                        <option value="emerald-double">Emerald Double</option>
+                        <option value="minimal-dark">Minimal Dark</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Primary Text Color</label>
+                    <input type="color" name="primary_color" value="#0A2647" style="height: 40px; padding: 2px; cursor: pointer;">
+                </div>
+                <div class="form-group">
+                    <label>Accent / Gold Color</label>
+                    <input type="color" name="accent_color" value="#D4AF37" style="height: 40px; padding: 2px; cursor: pointer;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Institution Header Title</label>
+                <input type="text" name="header_title" value="SHREEVEDHA SOLUTIONS INDIA PVT LTD" required>
+            </div>
+
+            <div class="form-group">
+                <label>Header Subtitle / Accreditation Text</label>
+                <input type="text" name="header_subtitle" value="An ISO 9001:2015 Certified Institution | AICTE Partner" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid #e2e8f0;">
+                <div>
+                    <h5 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Left Signatory (Signatory 1)</h5>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="signatory1_name" value="S. V. Director" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="signatory1_title" value="Managing Director" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Organization</label>
+                        <input type="text" name="signatory1_sub" value="Shreevedha Solutions">
+                    </div>
+                </div>
+                <div>
+                    <h5 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Right Signatory (Signatory 2)</h5>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="signatory2_name" value="Academic Head" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="signatory2_title" value="Academic Registrar" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Organization</label>
+                        <input type="text" name="signatory2_sub" value="Board of Examinations">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Official Seal Badge Text</label>
+                <input type="text" name="seal_text" value="OFFICIAL VERIFIED">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Save Template Layout</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

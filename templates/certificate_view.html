@@ -220,7 +220,7 @@
         }
 
         .signature-line {
-            width: 180px;
+            width: 145px;
             border-bottom: 1.5px solid var(--navy-dark);
             margin: 0 auto 0.5rem;
             height: 40px;
@@ -366,6 +366,12 @@
                     <div class="signature-line" style="border-color: {{ template.primary_color or '#0A2647' }};"><span class="sig-font">{{ template.signatory1_name or 'S. V. Director' }}</span></div>
                     <label style="color: {{ template.primary_color or '#0A2647' }};">{{ template.signatory1_title or 'Managing Director' }}</label>
                     <p>{{ template.signatory1_sub or 'Shreevedha Solutions' }}</p>
+                </div>
+
+                <div class="cert-sec">
+                    <div class="signature-line" style="border-color: {{ template.primary_color or '#0A2647' }};"><span class="sig-font">{{ template.signatory3_name or 'S. Fayaz' }}</span></div>
+                    <label style="color: {{ template.primary_color or '#0A2647' }};">{{ template.signatory3_title or 'Authorized Certificate Issuer' }}</label>
+                    <p>{{ template.signatory3_sub or 'Program Coordinator' }}</p>
                 </div>
 
                 <div class="cert-sec">

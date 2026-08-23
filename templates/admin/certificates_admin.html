@@ -1,12 +1,12 @@
 {% extends "admin/base_admin.html" %}
 
-{% block title %}Certificates{% endblock %}
+{% block title %}Certificates Management{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Certificates</h1>
-        <p>Issue and manage certificates</p>
+        <h1>Certificates Management</h1>
+        <p>Issue, verify, and manage official student credentials</p>
     </div>
 </div>
 
@@ -14,32 +14,50 @@
     <div class="card-header">
         <div class="card-title">All Certificates ({{ certificates|length }})</div>
         <div class="table-actions">
+            <a href="{{ url_for('public_verify_certificate') }}" target="_blank" class="btn btn-outline"><i data-lucide="shield-check"></i> Verify Portal</a>
             <a href="{{ url_for('admin_export', data_type='certificates') }}" class="btn btn-outline">Export CSV</a>
             <button class="btn btn-primary" onclick="document.getElementById('certModal').classList.add('active')">+ Issue Certificate</button>
             <button class="btn btn-success" onclick="document.getElementById('bulkCertModal').classList.add('active')">Bulk Issue</button>
         </div>
     </div>
+
+    <div style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+        <input type="text" id="certSearchInput" onkeyup="filterCertificates()" placeholder="Search by Certificate ID, Student Name, or Course..." class="form-control" style="max-width: 400px; padding: 0.5rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+    </div>
+
     <div class="table-wrap">
-        <table class="data-table">
+        <table class="data-table" id="certTable">
             <thead>
                 <tr>
-                    <th>Cert ID</th><th>Student</th><th>Course</th><th>Issue Date</th><th>Actions</th>
+                    <th>Cert ID</th>
+                    <th>Student Name</th>
+                    <th>Type</th>
+                    <th>Course / Domain</th>
+                    <th>Grade</th>
+                    <th>Issue Date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% if not certificates %}
-                <tr><td colspan="5"><div class="empty-state"><i data-lucide="award"></i><p>No certificates issued yet.</p></div></td></tr>
+                <tr><td colspan="7"><div class="empty-state"><i data-lucide="award"></i><p>No certificates issued yet.</p></div></td></tr>
                 {% endif %}
                 {% for c in certificates %}
                 <tr>
                     <td><code>{{ c.certificate_id }}</code></td>
-                    <td>{{ c.student.name }}</td>
-                    <td>{{ c.course.title }}</td>
+                    <td><strong>{{ c.student.name if c.student else (c.student_name or 'Jane Student') }}</strong></td>
+                    <td><span class="badge" style="background:#FEF3C7; color:#92400E; padding:0.2rem 0.6rem; border-radius:1rem; font-size:0.8rem;">{{ c.certificate_type or 'Course' }}</span></td>
+                    <td>{{ c.course.title if c.course else (c.course_title or c.course_id) }}</td>
+                    <td><span class="badge" style="background:#E0E7FF; color:#3730A3; padding:0.2rem 0.6rem; border-radius:1rem; font-size:0.8rem;">{{ c.grade or 'Distinction' }}</span></td>
                     <td>{{ c.issue_date.strftime('%Y-%m-%d') if c.issue_date else '-' }}</td>
                     <td>
                         <div class="table-actions">
-                            <a href="{{ url_for('verify_certificate', cert_id=c.certificate_id) }}" target="_blank" class="btn btn-primary btn-sm">Verify</a>
-                            <a href="{{ url_for('admin_download_certificate', cert_id=c.id) }}" class="btn btn-success btn-sm">Download</a>
+                            <a href="{{ url_for('verify_certificate', cert_id=c.certificate_id) }}" target="_blank" class="btn btn-primary btn-sm" title="View Digital Certificate"><i data-lucide="eye"></i> View</a>
+                            <a href="{{ url_for('admin_download_certificate', cert_id=c.id) }}" class="btn btn-success btn-sm" title="Download Record"><i data-lucide="download"></i> Download</a>
+                            <form method="POST" action="/admin/lms/certificates/delete/{{ c.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to revoke/delete this certificate?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger btn-sm" style="background:#EF4444; color:white; border:none; padding:0.3rem 0.6rem; border-radius:0.3rem; cursor:pointer;" title="Delete Certificate"><i data-lucide="trash-2"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -51,53 +69,137 @@
 
 <!-- Bulk Issue Modal -->
 <div class="modal-overlay" id="bulkCertModal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 550px;">
         <button class="modal-close" onclick="document.getElementById('bulkCertModal').classList.remove('active')">&times;</button>
         <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Bulk Issue Certificates</h3>
         <form method="POST" action="{{ url_for('admin_bulk_certificates') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
+                <label>Certificate Type</label>
+                <select name="certificate_type">
+                    <option value="Course Completion">Course Completion</option>
+                    <option value="Internship Program">Internship Program</option>
+                    <option value="Workshop Certification">Workshop Certification</option>
+                    <option value="Certificate of Merit">Certificate of Merit</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label>Students (hold Ctrl/Cmd to select multiple)</label>
-                <select name="user_ids" multiple required size="6" style="min-height: 150px;">
+                <select name="user_ids" multiple required size="6" style="min-height: 140px;">
                     {% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>{% endfor %}
                 </select>
             </div>
             <div class="form-group">
-                <label>Course</label>
+                <label>Course / Program</label>
                 <select name="course_id" required>
                     {% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Issue to Selected</button>
+            <button type="submit" class="btn btn-primary">Issue to Selected Students</button>
         </form>
     </div>
 </div>
 
 <!-- Issue Modal -->
 <div class="modal-overlay" id="certModal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 600px;">
         <button class="modal-close" onclick="document.getElementById('certModal').classList.remove('active')">&times;</button>
-        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Issue Certificate</h3>
+        <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Issue New Certificate</h3>
         <form method="POST" action="{{ url_for('admin_issue_certificate') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <div class="form-group">
-                <label>Student</label>
-                <select name="user_id" required>
+                <label>Certificate Type</label>
+                <select name="certificate_type" required>
+                    <option value="Course Completion">Course Completion (CRS)</option>
+                    <option value="Internship Program">Internship Program (INT)</option>
+                    <option value="Workshop Certification">Workshop Certification (WKS)</option>
+                    <option value="Certificate of Merit">Certificate of Merit (HON)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Select Registered Student</label>
+                <select name="user_id" id="userIdSelect" onchange="toggleCustomStudent(this.value)">
+                    <option value="">-- Or enter unregistered student below --</option>
                     {% for u in users %}
                     <option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>
                     {% endfor %}
                 </select>
             </div>
+
+            <div id="customStudentFields" style="display: block; background:#f8fafc; padding:1rem; border-radius:0.5rem; margin-bottom:1rem; border:1px solid #e2e8f0;">
+                <div class="form-group">
+                    <label>Student Full Name (for unregistered students)</label>
+                    <input type="text" name="student_name" placeholder="e.g. Rahul Sharma">
+                </div>
+                <div class="form-group">
+                    <label>Student Email Address</label>
+                    <input type="email" name="student_email" placeholder="e.g. rahul@example.com">
+                </div>
+            </div>
+
             <div class="form-group">
-                <label>Course</label>
+                <label>Course / Program Domain</label>
                 <select name="course_id" required>
                     {% for c in courses %}
                     <option value="{{ c.id }}">{{ c.title }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Issue Certificate</button>
+
+            <div class="form-group">
+                <label>Performance Grade / Distinction</label>
+                <select name="grade">
+                    <option value="Distinction">Distinction</option>
+                    <option value="Grade A+">Grade A+</option>
+                    <option value="Grade A">Grade A</option>
+                    <option value="First Class">First Class</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Custom Certificate Code (Optional)</label>
+                <input type="text" name="custom_cert_id" placeholder="Leave blank to auto-generate (e.g. SV-CRS-202608-FSD-8392)">
+                <small style="color:#64748b;">Auto-generated format: <code>SV-[TYPE]-[YYYYMM]-[COURSE]-[CODE]</code></small>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Generate & Issue Certificate</button>
         </form>
     </div>
 </div>
+
+<script>
+    function toggleCustomStudent(val) {
+        const customDiv = document.getElementById('customStudentFields');
+        if (val !== "") {
+            customDiv.style.display = "none";
+        } else {
+            customDiv.style.display = "block";
+        }
+    }
+
+    function filterCertificates() {
+        const input = document.getElementById('certSearchInput');
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById('certTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let visible = false;
+            const tds = tr[i].getElementsByTagName('td');
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j]) {
+                    const txtValue = tds[j].textContent || tds[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        visible = true;
+                        break;
+                    }
+                }
+            }
+            tr[i].style.display = visible ? "" : "none";
+        }
+    }
+</script>
 {% endblock %}

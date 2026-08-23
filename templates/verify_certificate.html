@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Certificate | Shreevedha Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verify-hero {
+        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        color: white;
+        padding: 4rem 0 3rem;
+        text-align: center;
+    }
+    .verify-hero h1 {
+        font-size: 2.5rem;
+        color: var(--primary-gold);
+        margin-bottom: 0.5rem;
+    }
+    .verify-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 650px;
+        margin: 0 auto 2rem;
+    }
+    .search-card {
+        background: white;
+        border-radius: 1.25rem;
+        padding: 2.5rem 2rem;
+        box-shadow: 0 15px 35px rgba(10,38,71,0.1);
+        max-width: 650px;
+        margin: -2.5rem auto 3rem;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        z-index: 10;
+    }
+    .search-box {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .search-box input {
+        flex: 1;
+        padding: 0.9rem 1.2rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 2rem;
+        font-size: 1rem;
+        font-family: monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary-gold);
+        box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.2);
+    }
+    .search-box button {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 0.9rem 1.8rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+    .search-box button:hover {
+        background: var(--primary-gold);
+        color: #000;
+        transform: translateY(-2px);
+    }
+
+    /* Result Card Styles */
+    .result-card {
+        background: white;
+        border-radius: 1.25rem;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        max-width: 800px;
+        margin: 2rem auto 4rem;
+        border: 2px solid #e2e8f0;
+    }
+    .result-card.success {
+        border-color: #10B981;
+    }
+    .result-card.error {
+        border-color: #EF4444;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+    .status-badge.success {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    .status-badge.error {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .cert-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+        text-align: left;
+    }
+    .detail-item {
+        background: #F8FAFC;
+        padding: 1rem 1.2rem;
+        border-radius: 0.8rem;
+        border-left: 4px solid var(--primary-gold);
+    }
+    .detail-item label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #64748B;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 0.3rem;
+    }
+    .detail-item p {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin: 0;
+    }
+
+    .code-sample-box {
+        background: #F8FAFC;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border: 1px dashed #CBD5E1;
+        text-align: left;
+    }
+    .code-sample-box h4 {
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+        .search-box {
+            flex-direction: column;
+        }
+        .search-box button {
+            width: 100%;
+            justify-content: center;
+        }
+        .verify-hero h1 { font-size: 1.8rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="verify-hero">
+    <div class="container">
+        <h1>Verify Certificate Authenticity</h1>
+        <p>Enter the unique certificate verification code to instantly validate official Shreevedha Solutions credentials.</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="search-card">
+        <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box">
+            <input type="text" name="code" value="{{ queried_code or '' }}" placeholder="e.g. SV-CRS-202608-FSD-8392" required autocomplete="off" spellcheck="false">
+            <button type="submit"><i data-lucide="search"></i> Verify Certificate</button>
+        </form>
+    </div>
+
+    {% if queried_code %}
+        {% if certificate %}
+        <div class="result-card success">
+            <div class="status-badge success">
+                <i data-lucide="check-circle-2" style="width:20px;height:20px;"></i>
+                OFFICIALLY VERIFIED & VALID
+            </div>
+            <h2 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Certificate Authenticity Confirmed</h2>
+            <p style="color: #64748B;">This credential was officially issued by Shreevedha Solutions India Pvt Ltd.</p>
+
+            <div class="cert-details-grid">
+                <div class="detail-item">
+                    <label>Certificate ID</label>
+                    <p><code>{{ certificate.certificate_id }}</code></p>
+                </div>
+                <div class="detail-item">
+                    <label>Student Name</label>
+                    <p>{{ certificate.student.name if certificate.student else (certificate.student_name or 'Jane Student') }}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Certificate Type</label>
+                    <p>{{ certificate.certificate_type or 'Course Completion' }}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Course / Program</label>
+                    <p>{{ certificate.course.title if certificate.course else (certificate.course_title or certificate.course_id) }}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Issue Date</label>
+                    <p>{{ certificate.issue_date.strftime('%B %d, %Y') if certificate.issue_date else 'N/A' }}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Performance / Grade</label>
+                    <p>{{ certificate.grade or 'Distinction' }}</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('verify_certificate', cert_id=certificate.certificate_id) }}" target="_blank" class="btn btn-primary" style="padding: 0.8rem 1.8rem; border-radius: 2rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="award"></i> View Official Digital Certificate
+                </a>
+                <button onclick="navigator.clipboard.writeText(window.location.href); alert('Verification link copied to clipboard!');" class="btn btn-outline" style="padding: 0.8rem 1.5rem; border-radius: 2rem; border: 1.5px solid var(--primary-blue); color: var(--primary-blue); display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <i data-lucide="share-2"></i> Share Verification Link
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="result-card error">
+            <div class="status-badge error">
+                <i data-lucide="x-circle" style="width:20px;height:20px;"></i>
+                INVALID / UNVERIFIED CODE
+            </div>
+            <h2 style="color: #991B1B; margin-bottom: 0.5rem;">Certificate Not Found</h2>
+            <p style="color: #64748B;">No record found for certificate code <code>{{ queried_code }}</code> in our official verification database. Please double check the code printed on the certificate.</p>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    <div class="code-sample-box" style="max-width: 800px; margin: 0 auto 4rem;">
+        <h4><i data-lucide="info" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--primary-gold);"></i> Standard Certificate Code Formats</h4>
+        <p style="font-size: 0.95rem; color: #475569; line-height: 1.6;">
+            Shreevedha Solutions issues standardized credentials following a secure structured coding format:
+        </p>
+        <ul style="line-height: 1.8; color: #334155; margin-left: 1.2rem; font-size: 0.95rem;">
+            <li><strong>Course Completion:</strong> <code>SV-CRS-202608-FSD-8392</code> (Format: <code>SV-CRS-[YYYYMM]-[COURSE]-[CODE]</code>)</li>
+            <li><strong>Internship Certificate:</strong> <code>SV-INT-202608-AIML-4921</code> (Format: <code>SV-INT-[YYYYMM]-[DOMAIN]-[CODE]</code>)</li>
+            <li><strong>Workshop Certificate:</strong> <code>SV-WKS-202608-PY-1048</code> (Format: <code>SV-WKS-[YYYYMM]-[TOPIC]-[CODE]</code>)</li>
+            <li><strong>Legacy Certificate Codes:</strong> <code>CERT-FSW-001</code></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

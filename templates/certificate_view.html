@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Certificate - {{ certificate.certificate_id }} | Shreevedha Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-secondary: #AA771C;
+            --navy-dark: #0A2647;
+            --navy-light: #1E3A8A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0f172a;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .action-bar {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: #1e293b;
+            padding: 1rem 1.5rem;
+            border-radius: 0.8rem;
+            border: 1px solid #334155;
+            color: white;
+        }
+
+        .action-bar h3 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gold-primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: none;
+        }
+
+        .btn-print {
+            background: var(--gold-primary);
+            color: #000;
+        }
+        .btn-print:hover {
+            background: #F5C518;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+        }
+        .btn-back:hover {
+            color: white;
+            border-color: white;
+        }
+
+        /* Certificate Landscape Container */
+        .cert-container {
+            width: 100%;
+            max-width: 1000px;
+            background: #FDFBF7;
+            border: 16px double var(--gold-primary);
+            border-radius: 4px;
+            padding: 3.5rem 4rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.04) 0%, transparent 70%);
+        }
+
+        /* Watermark Background */
+        .cert-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        /* Inner Decorative Frame */
+        .cert-frame {
+            border: 2px solid var(--navy-dark);
+            padding: 2.5rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 1.5rem;
+        }
+
+        .cert-logo {
+            height: 65px;
+            object-fit: contain;
+        }
+
+        .cert-header-text {
+            text-align: right;
+        }
+
+        .cert-header-text h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--navy-dark);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .cert-header-text p {
+            font-size: 0.8rem;
+            color: #64748B;
+            margin-top: 0.2rem;
+        }
+
+        .cert-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--navy-dark);
+            letter-spacing: 3px;
+            margin: 1.5rem 0 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .cert-subtitle {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-secondary);
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .cert-recipient-label {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: #475569;
+            margin-bottom: 0.8rem;
+        }
+
+        .cert-recipient-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.8rem;
+            color: var(--navy-dark);
+            margin: 0.5rem 0;
+            line-height: 1.1;
+        }
+
+        .cert-body {
+            max-width: 750px;
+            margin: 1.5rem auto 2.5rem;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #334155;
+        }
+
+        .cert-course-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        .cert-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .cert-sec {
+            text-align: center;
+        }
+
+        .signature-line {
+            width: 180px;
+            border-bottom: 1.5px solid var(--navy-dark);
+            margin: 0 auto 0.5rem;
+            height: 40px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .sig-font {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            color: var(--navy-dark);
+        }
+
+        .cert-sec label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .cert-sec p {
+            font-size: 0.75rem;
+            color: #64748B;
+        }
+
+        .cert-badge {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-secondary) 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+            margin: 0 auto;
+        }
+
+        .qr-box {
+            text-align: center;
+        }
+
+        .qr-box img {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #CBD5E1;
+            padding: 3px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .cert-meta-tag {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #64748B;
+            margin-top: 0.4rem;
+        }
+
+        /* Print Optimization */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .action-bar {
+                display: none !important;
+            }
+            .cert-container {
+                box-shadow: none;
+                max-width: 100%;
+                border-width: 12px;
+                padding: 2.5rem;
+                page-break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cert-container { padding: 2rem 1.5rem; }
+            .cert-frame { padding: 1.2rem; }
+            .cert-title { font-size: 1.6rem; }
+            .cert-recipient-name { font-size: 2.8rem; }
+            .cert-course-name { font-size: 1.2rem; }
+            .cert-footer { flex-direction: column; gap: 2rem; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="action-bar">
+        <h3><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Official Verified Digital Certificate</h3>
+        <div class="btn-group">
+            <button onclick="window.print()" class="btn btn-print">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print / Download PDF
+            </button>
+            <a href="/" class="btn btn-back">Return to Website</a>
+        </div>
+    </div>
+
+    <div class="cert-container">
+        <img src="/static/uploads/Shree.png" alt="Watermark" class="cert-watermark">
+
+        <div class="cert-frame">
+            <div class="cert-header">
+                <img src="/static/uploads/Shree.png" alt="Shreevedha Solutions" class="cert-logo">
+                <div class="cert-header-text">
+                    <h4>SHREEVEDHA SOLUTIONS INDIA PVT LTD</h4>
+                    <p>An ISO 9001:2015 Certified Institution | AICTE Partner</p>
+                </div>
+            </div>
+
+            <div class="cert-title">Certificate of {{ certificate.certificate_type or 'Completion' }}</div>
+            <div class="cert-subtitle">Official Educational Credential</div>
+
+            <div class="cert-recipient-label">This certificate is proudly awarded to</div>
+            <div class="cert-recipient-name">{{ certificate.student.name if certificate.student else (certificate.student_name or 'Jane Student') }}</div>
+
+            <div class="cert-body">
+                For successfully completing the comprehensive training program and demonstrating proficiency in
+                <span class="cert-course-name">{{ certificate.course.title if certificate.course else (certificate.course_title or certificate.course_id) }}</span>
+                having satisfied all academic assessment requirements with performance grade
+                <strong>{{ certificate.grade or 'Distinction' }}</strong>.
+            </div>
+
+            <div class="cert-footer">
+                <div class="cert-sec">
+                    <div class="signature-line"><span class="sig-font">S. V. Director</span></div>
+                    <label>Managing Director</label>
+                    <p>Shreevedha Solutions</p>
+                </div>
+
+                <div class="cert-sec">
+                    <div class="cert-badge">
+                        <span>★ VERIFIED ★</span>
+                        <span style="font-size:0.5rem; margin-top:2px;">OFFICIAL</span>
+                    </div>
+                </div>
+
+                <div class="cert-sec">
+                    <div class="signature-line"><span class="sig-font">Academic Head</span></div>
+                    <label>Academic Registrar</label>
+                    <p>Board of Examinations</p>
+                </div>
+
+                <div class="qr-box">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://www.shreevedha.co.in/verify-certificate/{{ certificate.certificate_id }}" alt="QR Code Verification">
+                    <div class="cert-meta-tag">ID: {{ certificate.certificate_id }}</div>
+                    <div class="cert-meta-tag">Date: {{ certificate.issue_date.strftime('%Y-%m-%d') if certificate.issue_date else '2026-08-23' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

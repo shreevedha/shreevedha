@@ -76831,6 +76831,7 @@ env.addGlobal("url_for", (endpoint, options = {}) => {
     "admin_bulk_certificates": "/admin/lms/certificates/bulk",
     "admin_download_certificate": "/admin/lms/certificates/download",
     "verify_certificate": "/certificates/verify",
+    "public_verify_certificate": "/verify-certificate",
     "admin_questions": "/admin_questions",
     "admin_answer_question": "/admin/lms/questions/answer",
     "admin_payments": "/admin_payments",
@@ -79366,13 +79367,99 @@ app.post("/admin/quizzes/question/delete/:question_id", requireAdmin, (req, res)
     res.redirect("/admin_quizzes");
   }
 });
+function generateCertificateCode(certType, courseTitleOrId, issueDate) {
+  const prefix = "SV";
+  let typeCode = "CRS";
+  const typeLower = (certType || "").toLowerCase();
+  if (typeLower.includes("intern") || typeLower === "int") {
+    typeCode = "INT";
+  } else if (typeLower.includes("work") || typeLower === "wks") {
+    typeCode = "WKS";
+  } else if (typeLower.includes("merit") || typeLower.includes("hon") || typeLower.includes("distinction")) {
+    typeCode = "HON";
+  } else {
+    typeCode = "CRS";
+  }
+  const d = issueDate ? new Date(issueDate) : /* @__PURE__ */ new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const ym = `${year}${month}`;
+  let courseCode = "FSD";
+  const cLower = (courseTitleOrId || "").toLowerCase();
+  if (cLower.includes("python")) courseCode = "PY";
+  else if (cLower.includes("full stack") || cLower.includes("full-stack") || cLower.includes("web")) courseCode = "FSD";
+  else if (cLower.includes("data science") || cLower.includes("analytics")) courseCode = "DSA";
+  else if (cLower.includes("artificial") || cLower.includes("machine learning") || cLower.includes("ai & ml") || cLower.includes("ai/ml")) courseCode = "AIML";
+  else if (cLower.includes("generative ai") || cLower.includes("prompt")) courseCode = "GENAI";
+  else if (cLower.includes("cloud") || cLower.includes("devops")) courseCode = "CDO";
+  else if (cLower.includes("cyber") || cLower.includes("security")) courseCode = "CSEC";
+  else if (cLower.includes("ui/ux") || cLower.includes("design")) courseCode = "UIUX";
+  else if (cLower.includes("digital marketing") || cLower.includes("marketing")) courseCode = "DMKT";
+  else {
+    const words = (courseTitleOrId || "").replace(/[^a-zA-Z0-9 ]/g, "").trim().split(/\s+/);
+    if (words.length >= 2) {
+      courseCode = words.map((w) => w[0]).join("").toUpperCase().substring(0, 4);
+    } else if (words.length === 1 && words[0].length >= 3) {
+      courseCode = words[0].substring(0, 4).toUpperCase();
+    } else {
+      courseCode = "GEN";
+    }
+  }
+  const randomNum = Math.floor(1e3 + Math.random() * 9e3);
+  return `${prefix}-${typeCode}-${ym}-${courseCode}-${randomNum}`;
+}
+app.get("/verify-certificate", (req, res) => {
+  const code = (req.query.code || req.query.id || "").toString().trim();
+  if (!code) {
+    return res.render("verify_certificate.html", { queried_code: null, certificate: null });
+  }
+  const certificates = loadJson("certificates.json");
+  const cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
+  if (!cert) {
+    return res.render("verify_certificate.html", { queried_code: code, certificate: null });
+  }
+  const users = loadJson("users.json");
+  const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
+  const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
+  const certData = {
+    ...cert,
+    student,
+    course,
+    issue_date: cert.issue_date ? new Date(cert.issue_date) : /* @__PURE__ */ new Date()
+  };
+  res.render("verify_certificate.html", { queried_code: code, certificate: certData });
+});
+app.get("/verify", (req, res) => {
+  res.redirect("/verify-certificate" + (req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : ""));
+});
+app.get("/verify-certificate/:cert_id", (req, res) => {
+  const certIdStr = req.params.cert_id.trim();
+  const certificates = loadJson("certificates.json");
+  const cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === certIdStr.toLowerCase());
+  if (!cert) {
+    return res.render("verify_certificate.html", { queried_code: certIdStr, certificate: null });
+  }
+  const users = loadJson("users.json");
+  const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
+  const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
+  const certData = {
+    ...cert,
+    student,
+    course,
+    issue_date: cert.issue_date ? new Date(cert.issue_date) : /* @__PURE__ */ new Date()
+  };
+  res.render("certificate_view.html", { certificate: certData });
+});
+app.get("/certificates/verify/:cert_id", (req, res) => {
+  res.redirect(`/verify-certificate/${req.params.cert_id}`);
+});
 app.get("/admin_certificates", requireAdmin, (req, res) => {
   const certificates = loadJson("certificates.json");
   const users = loadJson("users.json");
   const courses = COURSES_DATA;
   const mappedCerts = certificates.map((c) => {
-    const student = users.find((u) => u.id === c.user_id) || { name: "Unknown Student" };
-    const course = courses.find((cr) => cr.id === c.course_id) || { title: c.course_id, name: c.course_id };
+    const student = users.find((u) => u.id === c.user_id) || { name: c.student_name || "Jane Student" };
+    const course = courses.find((cr) => cr.id === c.course_id) || { title: c.course_title || c.course_id, name: c.course_title || c.course_id };
     return {
       ...c,
       student,
@@ -79387,62 +79474,101 @@ app.get("/admin_certificates", requireAdmin, (req, res) => {
   });
 });
 app.post("/admin/lms/certificates/issue", requireAdmin, (req, res) => {
-  const { user_id, course_id } = req.body;
-  if (!user_id || !course_id) {
-    req.flash("error", "Student and Course are required.");
-    return res.redirect("/admin_certificates");
-  }
+  const { user_id, course_id, certificate_type, student_name, student_email, grade, custom_cert_id } = req.body;
+  let uId = user_id ? parseInt(user_id) : null;
+  let certType = certificate_type || "Course Completion";
+  let certGrade = grade || "Distinction";
+  const courses = COURSES_DATA;
+  const courseObj = courses.find((cr) => cr.id === course_id) || { title: course_id, name: course_id };
+  const courseTitle = courseObj.title || courseObj.name || course_id;
   const certificates = loadJson("certificates.json");
-  const uId = parseInt(user_id);
-  const exists = certificates.some((c) => c.user_id === uId && c.course_id === course_id);
+  let certId = (custom_cert_id || "").trim();
+  if (!certId) {
+    certId = generateCertificateCode(certType, courseTitle);
+  }
+  const exists = certificates.some((c) => c.certificate_id.toLowerCase() === certId.toLowerCase());
   if (exists) {
-    req.flash("error", "Certificate has already been issued to this student for this course.");
+    req.flash("error", `Certificate code '${certId}' already exists. Please choose a unique code or leave blank to auto-generate.`);
     return res.redirect("/admin_certificates");
   }
-  const certId = "CERT-" + v4_default().substring(0, 8).toUpperCase();
+  let finalStudentName = student_name || "Jane Student";
+  if (uId) {
+    const users = loadJson("users.json");
+    const u = users.find((user) => user.id === uId);
+    if (u) finalStudentName = u.name;
+  }
   const newCert = {
-    id: certificates.length > 0 ? Math.max(...certificates.map((c) => c.id)) + 1 : 1,
+    id: certificates.length > 0 ? Math.max(...certificates.map((c) => c.id || 0)) + 1 : 1,
     certificate_id: certId,
     user_id: uId,
+    student_name: finalStudentName,
+    student_email: student_email || "",
+    certificate_type: certType,
     course_id,
+    course_title: courseTitle,
+    grade: certGrade,
     issue_date: (/* @__PURE__ */ new Date()).toISOString()
   };
   certificates.push(newCert);
   saveJson("certificates.json", certificates);
-  logActivity("admin", `Issued certificate ${certId} to user ID ${uId}`);
-  req.flash("success", "Certificate issued successfully!");
+  syncToFirestore("certificates.json", certificates);
+  logActivity("admin", `Issued ${certType} (${certId}) to ${finalStudentName}`);
+  req.flash("success", `Certificate '${certId}' issued successfully to ${finalStudentName}!`);
   res.redirect("/admin_certificates");
 });
 app.post("/admin/lms/certificates/bulk", requireAdmin, (req, res) => {
-  const { user_ids, course_id } = req.body;
+  const { user_ids, course_id, certificate_type } = req.body;
   if (!user_ids || !course_id) {
     req.flash("error", "Students and Course are required.");
     return res.redirect("/admin_certificates");
   }
   const ids = Array.isArray(user_ids) ? user_ids : [user_ids];
   const certificates = loadJson("certificates.json");
+  const users = loadJson("users.json");
+  const courseObj = COURSES_DATA.find((cr) => cr.id === course_id) || { title: course_id, name: course_id };
+  const courseTitle = courseObj.title || courseObj.name || course_id;
+  const certType = certificate_type || "Course Completion";
   let issuedCount = 0;
   ids.forEach((idStr) => {
     const uId = parseInt(idStr);
-    const exists = certificates.some((c) => c.user_id === uId && c.course_id === course_id);
-    if (!exists) {
-      const certId = "CERT-" + v4_default().substring(0, 8).toUpperCase();
-      certificates.push({
-        id: certificates.length > 0 ? Math.max(...certificates.map((c) => c.id)) + 1 : 1,
-        certificate_id: certId,
-        user_id: uId,
-        course_id,
-        issue_date: (/* @__PURE__ */ new Date()).toISOString()
-      });
-      issuedCount++;
-    }
+    const userObj = users.find((u) => u.id === uId);
+    const studentName = userObj ? userObj.name : "Jane Student";
+    const certId = generateCertificateCode(certType, courseTitle);
+    certificates.push({
+      id: certificates.length > 0 ? Math.max(...certificates.map((c) => c.id || 0)) + 1 : 1,
+      certificate_id: certId,
+      user_id: uId,
+      student_name: studentName,
+      certificate_type: certType,
+      course_id,
+      course_title: courseTitle,
+      grade: "Distinction",
+      issue_date: (/* @__PURE__ */ new Date()).toISOString()
+    });
+    issuedCount++;
   });
   if (issuedCount > 0) {
     saveJson("certificates.json", certificates);
-    logActivity("admin", `Bulk issued ${issuedCount} certificates for course ${course_id}`);
+    syncToFirestore("certificates.json", certificates);
+    logActivity("admin", `Bulk issued ${issuedCount} certificates for ${courseTitle}`);
     req.flash("success", `Successfully issued ${issuedCount} certificates!`);
   } else {
     req.flash("warning", "No new certificates were issued.");
+  }
+  res.redirect("/admin_certificates");
+});
+app.post("/admin/lms/certificates/delete/:cert_id", requireAdmin, (req, res) => {
+  const certId = parseInt(req.params.cert_id);
+  let certificates = loadJson("certificates.json");
+  const initialLen = certificates.length;
+  certificates = certificates.filter((c) => c.id !== certId);
+  if (certificates.length < initialLen) {
+    saveJson("certificates.json", certificates);
+    syncToFirestore("certificates.json", certificates);
+    logActivity("admin", `Deleted/Revoked certificate ID ${certId}`);
+    req.flash("success", "Certificate revoked/deleted successfully!");
+  } else {
+    req.flash("error", "Certificate not found.");
   }
   res.redirect("/admin_certificates");
 });
@@ -79455,19 +79581,18 @@ app.get("/admin/lms/certificates/download/:cert_id", requireAdmin, (req, res) =>
     return res.redirect("/admin_certificates");
   }
   const users = loadJson("users.json");
-  const student = users.find((u) => u.id === cert.user_id) || { name: "Unknown" };
-  const courses = COURSES_DATA;
-  const course = courses.find((c) => c.id === cert.course_id) || { title: cert.course_id, name: cert.course_id };
+  const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
+  const course = COURSES_DATA.find((c) => c.id === cert.course_id) || { title: cert.course_title || cert.course_id };
   res.setHeader("Content-disposition", `attachment; filename=certificate_${cert.certificate_id}.txt`);
   res.setHeader("Content-type", "text/plain");
   res.write(`====================================================
 `);
-  res.write(`              SHREEVEDHA SOLUTIONS SOLUTIONS
+  res.write(`              SHREEVEDHA SOLUTIONS INDIA PVT LTD
 `);
   res.write(`====================================================
 
 `);
-  res.write(`CERTIFICATE OF COMPLETION
+  res.write(`CERTIFICATE OF ${(cert.certificate_type || "Completion").toUpperCase()}
 
 `);
   res.write(`Certificate ID: ${cert.certificate_id}
@@ -79481,8 +79606,10 @@ app.get("/admin/lms/certificates/download/:cert_id", requireAdmin, (req, res) =>
   res.write(`has successfully completed the course
 
 `);
-  res.write(`          ${course.title || course.name}
+  res.write(`          ${course.title || course.name || cert.course_title}
 
+`);
+  res.write(`Grade: ${cert.grade || "Distinction"}
 `);
   res.write(`Issued Date: ${new Date(cert.issue_date).toLocaleDateString()}
 
@@ -79490,27 +79617,6 @@ app.get("/admin/lms/certificates/download/:cert_id", requireAdmin, (req, res) =>
   res.write(`====================================================
 `);
   res.end();
-});
-app.get("/certificates/verify/:cert_id", (req, res) => {
-  const certIdStr = req.params.cert_id;
-  const certificates = loadJson("certificates.json");
-  const cert = certificates.find((c) => c.certificate_id === certIdStr);
-  if (!cert) {
-    return res.status(404).send("Certificate not found or invalid.");
-  }
-  const users = loadJson("users.json");
-  const student = users.find((u) => u.id === cert.user_id) || { name: "Unknown Student" };
-  const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_id, name: cert.course_id };
-  res.send(`
-    <div style="font-family: sans-serif; text-align: center; margin-top: 5rem;">
-      <h2 style="color: #0A2647;">Certificate Verification Success</h2>
-      <p><strong>Certificate ID:</strong> ${cert.certificate_id}</p>
-      <p><strong>Issued to:</strong> ${student.name}</p>
-      <p><strong>Course:</strong> ${course.title || course.name}</p>
-      <p><strong>Issue Date:</strong> ${new Date(cert.issue_date).toLocaleDateString()}</p>
-      <a href="/" style="color: #F5C518;">Back to Home</a>
-    </div>
-  `);
 });
 app.get("/admin_questions", requireAdmin, (req, res) => {
   const questions = loadJson("questions.json");

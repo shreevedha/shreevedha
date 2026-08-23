@@ -220,7 +220,7 @@
         }
 
         .signature-line {
-            width: 145px;
+            width: 180px;
             border-bottom: 1.5px solid var(--navy-dark);
             margin: 0 auto 0.5rem;
             height: 40px;
@@ -369,12 +369,6 @@
                 </div>
 
                 <div class="cert-sec">
-                    <div class="signature-line" style="border-color: {{ template.primary_color or '#0A2647' }};"><span class="sig-font">{{ template.signatory3_name or 'S. Fayaz' }}</span></div>
-                    <label style="color: {{ template.primary_color or '#0A2647' }};">{{ template.signatory3_title or 'Authorized Certificate Issuer' }}</label>
-                    <p>{{ template.signatory3_sub or 'Program Coordinator' }}</p>
-                </div>
-
-                <div class="cert-sec">
                     <div class="cert-badge" style="background: linear-gradient(135deg, {{ template.accent_color or '#D4AF37' }} 0%, #AA771C 100%);">
                         <span>★ VERIFIED ★</span>
                         <span style="font-size:0.5rem; margin-top:2px;">{{ template.seal_text or 'OFFICIAL' }}</span>
@@ -391,6 +385,12 @@
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://www.shreevedha.co.in/verify-certificate/{{ certificate.certificate_id }}" alt="QR Code Verification">
                     <div class="cert-meta-tag">ID: {{ certificate.certificate_id }}</div>
                     <div class="cert-meta-tag">Date: {{ certificate.issue_date.strftime('%Y-%m-%d') if certificate.issue_date else '2026-08-23' }}</div>
+
+                    <div style="margin-top: 0.5rem; padding-top: 0.4rem; border-top: 1px dashed #CBD5E1; text-align: center;">
+                        <div style="font-family: 'Great Vibes', cursive; font-size: 1.15rem; color: {{ template.primary_color or '#0A2647' }}; line-height: 1;">{{ template.signatory3_name or 'S. Fayaz' }}</div>
+                        <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: {{ template.primary_color or '#0A2647' }}; margin-top: 2px;">{{ template.signatory3_title or 'Authorized Issuer' }}</div>
+                        <div style="font-size: 0.6rem; color: #64748B;">{{ template.signatory3_sub or 'Program Coordinator' }}</div>
+                    </div>
                 </div>
             </div>
         </div>

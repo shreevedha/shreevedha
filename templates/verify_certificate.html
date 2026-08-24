@@ -9,82 +9,70 @@
     .verify-hero {
         background: radial-gradient(circle at 50% 0%, #153E70 0%, #061329 60%, #020914 100%);
         color: white;
-        padding: 3.2rem 1rem 2.8rem;
+        padding: 2.2rem 1rem 1.8rem;
         text-align: center;
         position: relative;
         overflow: hidden;
         border-bottom: 2px solid rgba(245, 197, 24, 0.3);
     }
-    .verify-hero::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at 50% 30%, rgba(245, 197, 24, 0.1) 0%, transparent 50%);
-        pointer-events: none;
-    }
     
     .registry-tag {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 1.2rem;
+        gap: 0.4rem;
+        padding: 0.3rem 0.95rem;
         border-radius: 2rem;
         background: rgba(245, 197, 24, 0.12);
         border: 1px solid rgba(245, 197, 24, 0.5);
         color: #F5C518;
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         font-weight: 800;
-        letter-spacing: 1.2px;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        margin-bottom: 0.85rem;
-        box-shadow: 0 0 20px rgba(245, 197, 24, 0.2);
+        margin-bottom: 0.6rem;
     }
 
     .verify-hero h1 {
         font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
-        font-size: 2.4rem;
+        font-size: 2rem;
         font-weight: 800;
         background: linear-gradient(135deg, #FFFFFF 0%, #FFE699 40%, #F5C518 70%, #D4AF37 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.3rem;
         letter-spacing: -0.5px;
     }
     .verify-hero p {
-        font-size: 0.98rem;
+        font-size: 0.9rem;
         color: #94A3B8;
-        max-width: 620px;
+        max-width: 580px;
         margin: 0 auto;
-        line-height: 1.6;
+        line-height: 1.5;
     }
 
     /* Luxury Floating Search & CAPTCHA Box */
     .search-card {
         background: white;
-        border-radius: 1.25rem;
-        padding: 1.75rem 2rem;
-        box-shadow: 0 25px 50px rgba(3, 11, 23, 0.16), 0 0 0 2px rgba(245, 197, 24, 0.35);
-        max-width: 780px;
-        margin: -2rem auto 2.5rem;
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 20px 40px rgba(3, 11, 23, 0.14), 0 0 0 2px rgba(245, 197, 24, 0.35);
+        max-width: 760px;
+        margin: -1.5rem auto 1.8rem;
         position: relative;
         z-index: 10;
-        transition: transform 0.3s ease;
     }
 
     .search-input-group {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.6rem;
         width: 100%;
     }
     .search-input-group input {
         flex: 1;
-        padding: 0.85rem 1.25rem;
+        padding: 0.75rem 1.1rem;
         border: 2px solid #CBD5E1;
         border-radius: 2rem;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-family: monospace;
         font-weight: 700;
         letter-spacing: 1px;
@@ -97,13 +85,13 @@
         outline: none;
         border-color: #F5C518;
         background: white;
-        box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.25);
+        box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.25);
     }
     .search-input-group button {
         background: linear-gradient(135deg, #0A2647 0%, #153E70 100%);
         color: white;
         border: 1px solid rgba(245, 197, 24, 0.4);
-        padding: 0.85rem 1.8rem;
+        padding: 0.75rem 1.5rem;
         border-radius: 2rem;
         font-weight: 800;
         font-size: 0.95rem;
@@ -111,44 +99,38 @@
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         white-space: nowrap;
-        box-shadow: 0 4px 14px rgba(10, 38, 71, 0.25);
     }
     .search-input-group button:hover:not(:disabled) {
         background: #F5C518;
         color: #0A2647;
         border-color: #F5C518;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(245, 197, 24, 0.35);
     }
     .search-input-group button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         background: #94A3B8;
-        box-shadow: none;
     }
 
     /* Official Professional reCAPTCHA Style Widget */
     .recaptcha-widget-card {
-        margin-top: 1.2rem;
+        margin-top: 1rem;
         background: #F9FAFB;
         border: 1.5px solid #D1D5DB;
         border-radius: 6px;
-        padding: 10px 14px;
+        padding: 8px 12px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 300px;
+        width: 290px;
         max-width: 100%;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         user-select: none;
-        transition: all 0.3s ease;
     }
     .recaptcha-widget-card.verified {
         border-color: #10B981;
         background: #F0FDF4;
-        box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
     }
     .recaptcha-widget-card.error-shake {
         border-color: #EF4444;
@@ -163,30 +145,26 @@
     .recaptcha-checkbox-area {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         cursor: pointer;
     }
     .recaptcha-box-outer {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     .recaptcha-square {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
         background: white;
         border: 2px solid #C1C1C1;
         border-radius: 3px;
-        transition: border-color 0.2s;
-    }
-    .recaptcha-checkbox-area:hover .recaptcha-square {
-        border-color: #A0A0A0;
     }
     .recaptcha-spinner-ring {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
         border: 3px solid #E5E7EB;
         border-bottom-color: #10B981;
         border-radius: 50%;
@@ -207,7 +185,7 @@
     }
     .recaptcha-text {
         font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-        font-size: 14px;
+        font-size: 13.5px;
         font-weight: 600;
         color: #1E293B;
     }
@@ -215,51 +193,42 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 2px;
+        gap: 1px;
         opacity: 0.85;
     }
-    .recaptcha-brand-text {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        line-height: 1;
-    }
     .recaptcha-brand-text span {
-        font-size: 9px;
+        font-size: 8.5px;
         font-weight: 800;
         color: #475569;
-        letter-spacing: 0.3px;
     }
     .recaptcha-brand-text small {
-        font-size: 7.5px;
+        font-size: 7px;
         color: #94A3B8;
     }
 
     /* Loading Container */
     .loading-container {
         display: none;
-        padding: 2.5rem 1.5rem;
+        padding: 2rem 1.5rem;
         background: white;
-        border-radius: 1.25rem;
-        max-width: 780px;
-        margin: 0 auto 2.5rem;
+        border-radius: 1rem;
+        max-width: 760px;
+        margin: 0 auto 2rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.06);
         border: 1px solid #E2E8F0;
         text-align: center;
     }
 
-    /* Result Details Card - Great Achievement Luxury Styling */
+    /* Ultra-Compact High-Density Result Card */
     .result-card {
         background: white;
-        border-radius: 1.25rem;
-        padding: 2.25rem 2.5rem;
-        box-shadow: 0 20px 50px rgba(10,38,71,0.09);
-        max-width: 880px;
-        margin: 0 auto 3rem;
+        border-radius: 1rem;
+        padding: 1.5rem 1.75rem;
+        box-shadow: 0 15px 35px rgba(10,38,71,0.08);
+        max-width: 860px;
+        margin: 0 auto 2.5rem;
         border: 2px solid #E2E8F0;
         position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
     }
     .result-card.success {
         border-color: #10B981;
@@ -276,20 +245,20 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 1rem;
-        padding-bottom: 1.2rem;
-        margin-bottom: 1.5rem;
+        gap: 0.75rem;
+        padding-bottom: 0.9rem;
+        margin-bottom: 1.1rem;
         border-bottom: 1.5px solid #E2E8F0;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.6rem;
-        padding: 0.55rem 1.3rem;
+        gap: 0.5rem;
+        padding: 0.45rem 1.1rem;
         border-radius: 2rem;
         font-weight: 800;
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         letter-spacing: 0.5px;
         text-transform: uppercase;
     }
@@ -297,107 +266,110 @@
         background: #D1FAE5;
         color: #065F46;
         border: 1.5px solid #10B981;
-        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
-        animation: successPop 0.45s ease-out;
     }
     .status-badge.error {
         background: #FEE2E2;
         color: #991B1B;
         border: 1.5px solid #EF4444;
-        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
-        animation: errorShake 0.45s ease-in-out;
-    }
-
-    @keyframes successPop {
-        0% { transform: scale(0.8); opacity: 0; }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); opacity: 1; }
     }
 
     /* Student Achievement Banner */
     .achievement-banner {
         text-align: left;
-        padding: 1.25rem 1.6rem;
+        padding: 0.9rem 1.25rem;
         background: linear-gradient(135deg, rgba(10,38,71,0.03) 0%, rgba(245,197,24,0.09) 100%);
-        border-radius: 1rem;
+        border-radius: 0.85rem;
         border: 1px solid rgba(245, 197, 24, 0.35);
-        margin-bottom: 1.75rem;
+        margin-bottom: 1.25rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem;
     }
     .achievement-title {
         font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
-        font-size: 1.95rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: #0A2647;
-        margin: 0 0 0.25rem 0;
+        margin: 0 0 0.15rem 0;
         letter-spacing: -0.5px;
     }
     .achievement-subtitle {
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         color: #475569;
         font-weight: 700;
         margin: 0;
     }
 
-    /* Credential Details Grid - Sequential 12 Field Order */
+    /* Compact 2-Column Key-Value Credential Details Grid */
     .cert-details-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        margin: 1.2rem 0 0;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.65rem 1rem;
+        margin: 1rem 0 0;
         text-align: left;
     }
     .detail-item {
         background: white;
-        padding: 0.95rem 1.2rem;
-        border-radius: 0.85rem;
+        padding: 0.65rem 0.95rem;
+        border-radius: 0.65rem;
         border: 1px solid #E2E8F0;
-        border-left: 4px solid #F5C518;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-        transition: all 0.25s ease;
-    }
-    .detail-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(10,38,71,0.08);
-        border-left-color: #0A2647;
+        border-left: 3.5px solid #F5C518;
     }
     .detail-item-header {
         display: flex;
         align-items: center;
-        gap: 0.45rem;
-        margin-bottom: 0.35rem;
+        gap: 0.4rem;
+        margin-bottom: 0.2rem;
     }
     .detail-item label {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
         text-transform: uppercase;
         color: #64748B;
         font-weight: 800;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.5px;
         margin: 0;
     }
     .detail-item p {
-        font-size: 1.02rem;
+        font-size: 0.95rem;
         font-weight: 800;
         color: #0A2647;
         margin: 0;
         word-break: break-word;
     }
 
-    /* 100% Mobile Responsiveness */
+    /* 100% Mobile Responsiveness (Compact Key-Value Stack) */
     @media (max-width: 768px) {
-        .verify-hero { padding: 2.5rem 1rem 2rem; }
-        .verify-hero h1 { font-size: 1.85rem; }
-        .search-card { padding: 1.4rem 1.2rem; margin-top: -1.5rem; }
+        .verify-hero { padding: 1.8rem 1rem 1.4rem; }
+        .verify-hero h1 { font-size: 1.65rem; }
+        .search-card { padding: 1.1rem 1rem; margin-top: -1.2rem; }
         .search-input-group { flex-direction: column; }
         .search-input-group button { width: 100%; justify-content: center; }
-        .result-card { padding: 1.5rem; }
-        .achievement-banner { padding: 1rem; flex-direction: column; align-items: flex-start; }
-        .achievement-title { font-size: 1.55rem; }
-        .cert-details-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+        .result-card { padding: 1.1rem 1.1rem; }
+        .achievement-banner { padding: 0.85rem 1rem; flex-direction: column; align-items: flex-start; }
+        .achievement-title { font-size: 1.4rem; }
+        
+        /* High-Density Mobile 1-Column Compact Rows */
+        .cert-details-grid {
+            grid-template-columns: 1fr;
+            gap: 0.55rem;
+        }
+        .detail-item {
+            padding: 0.55rem 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .detail-item-header {
+            margin-bottom: 0;
+        }
+        .detail-item p {
+            font-size: 0.92rem;
+            text-align: right;
+        }
     }
 </style>
 {% endblock %}
@@ -406,7 +378,7 @@
 <section class="verify-hero">
     <div class="container">
         <div class="registry-tag">
-            <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #F5C518;"></i>
+            <i data-lucide="shield-check" style="width: 15px; height: 15px; color: #F5C518;"></i>
             Central Academic Credential Registry
         </div>
         <h1>Credential Verification Portal</h1>
@@ -433,7 +405,7 @@
                         <div class="recaptcha-square" id="captchaSquare"></div>
                         <div class="recaptcha-spinner-ring" id="captchaSpinner" style="display:none;"></div>
                         <div class="recaptcha-checkmark-svg" id="captchaCheck" style="display:none;">
-                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="#10B981" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="#10B981" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                         </div>
@@ -441,7 +413,7 @@
                     <span class="recaptcha-text" id="captchaTitle">I'm not a robot</span>
                 </div>
                 <div class="recaptcha-brand">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary-blue)" stroke-width="2">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary-blue)" stroke-width="2">
                         <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
                         <path d="M12 8v8M8 12h8" stroke="var(--primary-gold)" stroke-width="2"/>
                     </svg>
@@ -457,8 +429,8 @@
     <!-- Client-Side Loading State -->
     <div class="loading-container" id="loadingState">
         <div class="spinner"></div>
-        <h4 style="color: var(--primary-blue); font-size: 1.15rem; font-weight: 800; margin-top: 1rem; margin-bottom: 0.3rem;">Connecting to Central Registry...</h4>
-        <p style="font-size: 0.88rem; color: #64748B; margin: 0;">Validating official credential security signatures</p>
+        <h4 style="color: var(--primary-blue); font-size: 1.1rem; font-weight: 800; margin-top: 0.9rem; margin-bottom: 0.2rem;">Connecting to Central Registry...</h4>
+        <p style="font-size: 0.85rem; color: #64748B; margin: 0;">Validating official credential security signatures</p>
     </div>
 
     <!-- Compact Result Details Card -->
@@ -469,11 +441,11 @@
         <div class="result-card success">
             <div class="status-header">
                 <div class="status-badge success">
-                    <i data-lucide="check-circle-2" style="width:20px;height:20px;color:#10B981;"></i>
+                    <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
                     VERIFIED • OFFICIALLY VALID CREDENTIAL
                 </div>
-                <div style="font-size: 0.82rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
-                    <i data-lucide="award" style="width:16px;height:16px;color:#F5C518;"></i>
+                <div style="font-size: 0.8rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+                    <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
                     Issuing Authority: <strong style="color: #0A2647;">Shreevedha Solutions India Pvt Ltd</strong>
                 </div>
             </div>
@@ -484,9 +456,9 @@
                     <h3 class="achievement-title">{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'N/A') }}</h3>
                     <p class="achievement-subtitle">{{ certificate.course_title if certificate.course_title else (certificate.course.title if certificate.course else certificate.course_id) }}</p>
                 </div>
-                <div style="background: white; padding: 0.5rem 1rem; border-radius: 0.6rem; border: 1px solid #E2E8F0; text-align: center;">
-                    <span style="font-size: 0.7rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
-                    <strong style="color: #059669; font-size: 0.95rem;">{{ certificate.certification_status if certificate.certification_status else 'TRAINING COMPLETED' }}</strong>
+                <div style="background: white; padding: 0.4rem 0.85rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; text-align: center;">
+                    <span style="font-size: 0.68rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
+                    <strong style="color: #059669; font-size: 0.9rem;">{{ certificate.certification_status if certificate.certification_status else 'TRAINING COMPLETED' }}</strong>
                 </div>
             </div>
 
@@ -495,7 +467,7 @@
                 <!-- 1. Student Full Name -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="user" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="user" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Student Full Name</label>
                     </div>
                     <p>{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'N/A') }}</p>
@@ -504,7 +476,7 @@
                 <!-- 2. Reg. No. / Roll Number -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="hash" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="hash" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Reg. No. / Roll Number</label>
                     </div>
                     <p style="font-family: monospace; letter-spacing: 0.5px;">{{ certificate.reg_no if certificate.reg_no else (certificate.roll_no if certificate.roll_no else 'N/A') }}</p>
@@ -513,7 +485,7 @@
                 <!-- 3. Qualification / Branch -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="graduation-cap" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="graduation-cap" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Qualification / Branch</label>
                     </div>
                     <p>{{ certificate.qualification if certificate.qualification else 'N/A' }}</p>
@@ -522,7 +494,7 @@
                 <!-- 4. College / Institution -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="building-2" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="building-2" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>College / Institution</label>
                     </div>
                     <p>{{ certificate.college_name if certificate.college_name else 'N/A' }}</p>
@@ -531,7 +503,7 @@
                 <!-- 5. Program / Course Title -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="book-open" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="book-open" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Program / Course Title</label>
                     </div>
                     <p>{{ certificate.course_title if certificate.course_title else (certificate.course.title if certificate.course else certificate.course_id) }}</p>
@@ -540,7 +512,7 @@
                 <!-- 6. Certificate Code / ID -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="key-round" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="key-round" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Certificate Code / ID</label>
                     </div>
                     <p style="font-family: monospace; letter-spacing: 0.5px;"><code>{{ certificate.certificate_id }}</code></p>
@@ -549,7 +521,7 @@
                 <!-- 7. Course Duration -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="clock" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="clock" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Course Duration</label>
                     </div>
                     <p>{{ certificate.duration if certificate.duration else 'N/A' }}</p>
@@ -558,7 +530,7 @@
                 <!-- 8. Training Mode -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="laptop" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="laptop" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Training Mode</label>
                     </div>
                     <p>{{ certificate.mode if certificate.mode else 'ONLINE' }}</p>
@@ -567,7 +539,7 @@
                 <!-- 9. Certification Status -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="award" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Certification Status</label>
                     </div>
                     <p><span style="color: #059669;">{{ certificate.certification_status if certificate.certification_status else (certificate.grade if certificate.grade else 'TRAINING COMPLETED') }}</span></p>
@@ -576,16 +548,16 @@
                 <!-- 10. Skill Areas -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="cpu" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="cpu" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Skill Areas</label>
                     </div>
-                    <p style="font-size: 0.9rem; color: #0A2647;">{{ certificate.skill_areas if certificate.skill_areas else 'AWS • DEVOPS • CLOUD • AUTOMATION' }}</p>
+                    <p style="font-size: 0.88rem; color: #0A2647;">{{ certificate.skill_areas if certificate.skill_areas else 'AWS • DEVOPS • CLOUD • AUTOMATION' }}</p>
                 </div>
 
                 <!-- 11. Date of Issuance -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="calendar" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="calendar" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Date of Issuance</label>
                     </div>
                     <p>24-08-2026</p>
@@ -594,7 +566,7 @@
                 <!-- 12. Issuing Organization -->
                 <div class="detail-item">
                     <div class="detail-item-header">
-                        <i data-lucide="shield-check" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <i data-lucide="shield-check" style="width:14px;height:14px;color:#F5C518;"></i>
                         <label>Issuing Organization</label>
                     </div>
                     <p>{{ certificate.issuing_organization if certificate.issuing_organization else 'Shreevedha Solutions India Pvt Ltd' }}</p>
@@ -606,12 +578,12 @@
         <div class="result-card error">
             <div class="status-header">
                 <div class="status-badge error">
-                    <i data-lucide="x-circle" style="width:20px;height:20px;color:#EF4444;"></i>
+                    <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
                     NOT VERIFIED • INVALID CERTIFICATE ID
                 </div>
             </div>
-            <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.3rem; text-align: left;">Certificate ID Not Verified</h4>
-            <p style="color: #64748B; font-size: 0.92rem; text-align: left; line-height: 1.6; margin: 0;">
+            <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
+            <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
                 The Certificate ID <code>{{ queried_code }}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.
             </p>
         </div>
@@ -704,11 +676,11 @@
                     <div class="result-card success">
                         <div class="status-header">
                             <div class="status-badge success">
-                                <i data-lucide="check-circle-2" style="width:20px;height:20px;color:#10B981;"></i>
+                                <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
                                 VERIFIED • OFFICIALLY VALID CREDENTIAL
                             </div>
-                            <div style="font-size: 0.82rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
-                                <i data-lucide="award" style="width:16px;height:16px;color:#F5C518;"></i>
+                            <div style="font-size: 0.8rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+                                <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
                                 Issuing Authority: <strong style="color: #0A2647;">${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</strong>
                             </div>
                         </div>
@@ -718,9 +690,9 @@
                                 <h3 class="achievement-title">${cert.student_name || 'N/A'}</h3>
                                 <p class="achievement-subtitle">${cert.course_title || 'N/A'}</p>
                             </div>
-                            <div style="background: white; padding: 0.5rem 1rem; border-radius: 0.6rem; border: 1px solid #E2E8F0; text-align: center;">
-                                <span style="font-size: 0.7rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
-                                <strong style="color: #059669; font-size: 0.95rem;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</strong>
+                            <div style="background: white; padding: 0.4rem 0.85rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; text-align: center;">
+                                <span style="font-size: 0.68rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
+                                <strong style="color: #059669; font-size: 0.9rem;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</strong>
                             </div>
                         </div>
 
@@ -728,7 +700,7 @@
                             <!-- 1. Student Full Name -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="user" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="user" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Student Full Name</label>
                                 </div>
                                 <p>${cert.student_name || 'N/A'}</p>
@@ -737,7 +709,7 @@
                             <!-- 2. Reg. No. / Roll Number -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="hash" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="hash" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Reg. No. / Roll Number</label>
                                 </div>
                                 <p style="font-family: monospace; letter-spacing: 0.5px;">${cert.reg_no || cert.roll_no || 'N/A'}</p>
@@ -746,7 +718,7 @@
                             <!-- 3. Qualification / Branch -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="graduation-cap" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="graduation-cap" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Qualification / Branch</label>
                                 </div>
                                 <p>${cert.qualification || 'N/A'}</p>
@@ -755,7 +727,7 @@
                             <!-- 4. College / Institution -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="building-2" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="building-2" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>College / Institution</label>
                                 </div>
                                 <p>${cert.college_name || 'N/A'}</p>
@@ -764,7 +736,7 @@
                             <!-- 5. Program / Course Title -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="book-open" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="book-open" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Program / Course Title</label>
                                 </div>
                                 <p>${cert.course_title || 'N/A'}</p>
@@ -773,7 +745,7 @@
                             <!-- 6. Certificate Code / ID -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="key-round" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="key-round" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Certificate Code / ID</label>
                                 </div>
                                 <p style="font-family: monospace; letter-spacing: 0.5px;"><code>${cert.certificate_id}</code></p>
@@ -782,7 +754,7 @@
                             <!-- 7. Course Duration -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="clock" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="clock" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Course Duration</label>
                                 </div>
                                 <p>${cert.duration || 'N/A'}</p>
@@ -791,7 +763,7 @@
                             <!-- 8. Training Mode -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="laptop" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="laptop" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Training Mode</label>
                                 </div>
                                 <p>${cert.mode || 'ONLINE'}</p>
@@ -800,7 +772,7 @@
                             <!-- 9. Certification Status -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="award" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Certification Status</label>
                                 </div>
                                 <p><span style="color: #059669;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</span></p>
@@ -809,7 +781,7 @@
                             <!-- 10. Skill Areas -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="cpu" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="cpu" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Skill Areas</label>
                                 </div>
                                 <p style="font-size: 0.88rem; color: #0A2647;">${cert.skill_areas || 'AWS • DEVOPS • CLOUD • AUTOMATION'}</p>
@@ -818,7 +790,7 @@
                             <!-- 11. Date of Issuance -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="calendar" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="calendar" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Date of Issuance</label>
                                 </div>
                                 <p>24-08-2026</p>
@@ -827,7 +799,7 @@
                             <!-- 12. Issuing Organization -->
                             <div class="detail-item">
                                 <div class="detail-item-header">
-                                    <i data-lucide="shield-check" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <i data-lucide="shield-check" style="width:14px;height:14px;color:#F5C518;"></i>
                                     <label>Issuing Organization</label>
                                 </div>
                                 <p>${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</p>
@@ -839,12 +811,12 @@
                     <div class="result-card error">
                         <div class="status-header">
                             <div class="status-badge error">
-                                <i data-lucide="x-circle" style="width:20px;height:20px;color:#EF4444;"></i>
+                                <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
                                 NOT VERIFIED • INVALID CERTIFICATE ID
                             </div>
                         </div>
-                        <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.3rem; text-align: left;">Certificate ID Not Verified</h4>
-                        <p style="color: #64748B; font-size: 0.92rem; text-align: left; line-height: 1.6; margin: 0;">
+                        <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
+                        <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
                             The Certificate ID <code>${code}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.
                         </p>
                     </div>`;
@@ -864,12 +836,12 @@
                 <div class="result-card error">
                     <div class="status-header">
                         <div class="status-badge error">
-                            <i data-lucide="x-circle" style="width:20px;height:20px;color:#EF4444;"></i>
+                            <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
                             NOT VERIFIED • INVALID CERTIFICATE ID
                         </div>
                     </div>
-                    <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.3rem; text-align: left;">Certificate ID Not Verified</h4>
-                    <p style="color: #64748B; font-size: 0.92rem; text-align: left; line-height: 1.6; margin: 0;">
+                    <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
+                    <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
                         The Certificate ID <code>${code}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.
                     </p>
                 </div>`;

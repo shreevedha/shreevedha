@@ -404,7 +404,7 @@
             <div class="cert-details-grid">
                 <div class="detail-item">
                     <label>Student Full Name</label>
-                    <p>{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'Jane Student') }}</p>
+                    <p>{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'N/A') }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -414,12 +414,12 @@
 
                 <div class="detail-item">
                     <label>Qualification / Branch</label>
-                    <p>{{ certificate.qualification if certificate.qualification else 'M.Tech (CSE)' }}</p>
+                    <p>{{ certificate.qualification if certificate.qualification else 'N/A' }}</p>
                 </div>
 
                 <div class="detail-item">
                     <label>College / Institution</label>
-                    <p>{{ certificate.college_name if certificate.college_name else 'Santhiram Engineering College' }}</p>
+                    <p>{{ certificate.college_name if certificate.college_name else 'N/A' }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -434,7 +434,7 @@
 
                 <div class="detail-item">
                     <label>Course Duration</label>
-                    <p>{{ certificate.duration if certificate.duration else '45 DAYS (07/2026 - 08/2026)' }}</p>
+                    <p>{{ certificate.duration if certificate.duration else 'N/A' }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -529,21 +529,146 @@
         }
 
         const input = document.getElementById('certCodeInput');
-        const btn = document.getElementById('verifyBtn');
-        const loading = document.getElementById('loadingState');
-        const resultContainer = document.getElementById('resultContainer');
         const code = (input.value || '').trim();
 
         if (!code) return false;
 
-        btn.disabled = true;
-        btn.style.opacity = '0.7';
-        document.getElementById('btnText').textContent = 'Verifying...';
+        // Perform instant client-side AJAX fetch for smooth verification UI without page glites
+        event.preventDefault();
+        
+        const btn = document.getElementById('verifyBtn');
+        const loading = document.getElementById('loadingState');
+        const resultContainer = document.getElementById('resultContainer');
+
+        if (btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            document.getElementById('btnText').textContent = 'Verifying...';
+        }
         
         if (loading) loading.style.display = 'block';
-        if (resultContainer) resultContainer.style.opacity = '0.4';
+        if (resultContainer) resultContainer.style.opacity = '0.3';
 
-        return true;
+        fetch(`/api/verify-certificate?code=${encodeURIComponent(code)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (loading) loading.style.display = 'none';
+                if (resultContainer) resultContainer.style.opacity = '1';
+                
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    document.getElementById('btnText').textContent = 'Verify Certificate';
+                }
+
+                if (data.valid && data.certificate) {
+                    const cert = data.certificate;
+                    resultContainer.innerHTML = `
+                    <div class="result-card success">
+                        <div class="status-header">
+                            <div class="status-badge success">
+                                <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
+                                VERIFIED • OFFICIALLY VALID CREDENTIAL
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748B; font-weight: 600;">
+                                Issuing Authority: <strong style="color: var(--primary-blue);">${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</strong>
+                            </div>
+                        </div>
+
+                        <div class="cert-details-grid">
+                            <div class="detail-item">
+                                <label>Student Full Name</label>
+                                <p>${cert.student_name || 'N/A'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Reg. No. / Roll Number</label>
+                                <p style="font-family: monospace; letter-spacing: 0.5px;">${cert.reg_no || cert.roll_no || 'N/A'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Qualification / Branch</label>
+                                <p>${cert.qualification || 'N/A'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>College / Institution</label>
+                                <p>${cert.college_name || 'N/A'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Program / Course Title</label>
+                                <p>${cert.course_title || 'N/A'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Certificate Code / ID</label>
+                                <p style="font-family: monospace; letter-spacing: 0.5px;"><code>${cert.certificate_id}</code></p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Course Duration</label>
+                                <p>${cert.duration || 'N/A'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Training Mode</label>
+                                <p>${cert.mode || 'ONLINE'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Certification Status</label>
+                                <p><span style="color: #059669;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</span></p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Skill Areas</label>
+                                <p style="font-size: 0.88rem; color: #0A2647;">${cert.skill_areas || 'AWS • DEVOPS • CLOUD • AUTOMATION'}</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Date of Issuance</label>
+                                <p>24-08-2026</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Issuing Body</label>
+                                <p>${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    resultContainer.innerHTML = `
+                    <div class="result-card error">
+                        <div class="status-header">
+                            <div class="status-badge error">
+                                <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
+                                NOT VERIFIED • INVALID CERTIFICATE ID
+                            </div>
+                        </div>
+                        <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.25rem; text-align: left;">Certificate ID Not Verified</h4>
+                        <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
+                            The Certificate ID <code>${code}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our official database. Please double check the ID printed on your certificate.
+                        </p>
+                    </div>`;
+                }
+
+                if (window.lucide) window.lucide.createIcons();
+            })
+            .catch(err => {
+                if (loading) loading.style.display = 'none';
+                if (resultContainer) resultContainer.style.opacity = '1';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    document.getElementById('btnText').textContent = 'Verify Certificate';
+                }
+                resultContainer.innerHTML = `
+                <div class="result-card error">
+                    <div class="status-header">
+                        <div class="status-badge error">
+                            <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
+                            NOT VERIFIED • INVALID CERTIFICATE ID
+                        </div>
+                    </div>
+                    <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.25rem; text-align: left;">Certificate ID Not Verified</h4>
+                    <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
+                        The Certificate ID <code>${code}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our official database. Please double check the ID printed on your certificate.
+                    </p>
+                </div>`;
+                if (window.lucide) window.lucide.createIcons();
+            });
+
+        return false;
     }
 </script>
 {% endblock %}

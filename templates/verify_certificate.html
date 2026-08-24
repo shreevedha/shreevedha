@@ -4,16 +4,16 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
     .verify-hero {
-        background: radial-gradient(circle at 50% 0%, #143A66 0%, #061224 60%, #030A14 100%);
+        background: radial-gradient(circle at 50% 0%, #153E70 0%, #061329 60%, #020914 100%);
         color: white;
-        padding: 3rem 1rem 2.8rem;
+        padding: 3.2rem 1rem 2.8rem;
         text-align: center;
         position: relative;
         overflow: hidden;
-        border-bottom: 1px solid rgba(245, 197, 24, 0.2);
+        border-bottom: 2px solid rgba(245, 197, 24, 0.3);
     }
     .verify-hero::before {
         content: '';
@@ -22,7 +22,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle at 50% 30%, rgba(245, 197, 24, 0.08) 0%, transparent 50%);
+        background: radial-gradient(circle at 50% 30%, rgba(245, 197, 24, 0.1) 0%, transparent 50%);
         pointer-events: none;
     }
     
@@ -30,24 +30,24 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.35rem 1.1rem;
+        padding: 0.4rem 1.2rem;
         border-radius: 2rem;
-        background: rgba(245, 197, 24, 0.1);
-        border: 1px solid rgba(245, 197, 24, 0.4);
+        background: rgba(245, 197, 24, 0.12);
+        border: 1px solid rgba(245, 197, 24, 0.5);
         color: #F5C518;
-        font-size: 0.75rem;
+        font-size: 0.78rem;
         font-weight: 800;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
-        margin-bottom: 0.8rem;
-        box-shadow: 0 0 15px rgba(245, 197, 24, 0.15);
+        margin-bottom: 0.85rem;
+        box-shadow: 0 0 20px rgba(245, 197, 24, 0.2);
     }
 
     .verify-hero h1 {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 2.3rem;
+        font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+        font-size: 2.4rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #FFFFFF 0%, #F5C518 50%, #D4AF37 100%);
+        background: linear-gradient(135deg, #FFFFFF 0%, #FFE699 40%, #F5C518 70%, #D4AF37 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 0.4rem;
@@ -61,13 +61,13 @@
         line-height: 1.6;
     }
 
-    /* Floating Search & CAPTCHA Card */
+    /* Luxury Floating Search & CAPTCHA Box */
     .search-card {
         background: white;
         border-radius: 1.25rem;
         padding: 1.75rem 2rem;
-        box-shadow: 0 20px 40px rgba(3, 10, 20, 0.15), 0 0 0 1px rgba(212, 175, 55, 0.25);
-        max-width: 760px;
+        box-shadow: 0 25px 50px rgba(3, 11, 23, 0.16), 0 0 0 2px rgba(245, 197, 24, 0.35);
+        max-width: 780px;
         margin: -2rem auto 2.5rem;
         position: relative;
         z-index: 10;
@@ -82,7 +82,7 @@
     .search-input-group input {
         flex: 1;
         padding: 0.85rem 1.25rem;
-        border: 2px solid #E2E8F0;
+        border: 2px solid #CBD5E1;
         border-radius: 2rem;
         font-size: 1rem;
         font-family: monospace;
@@ -100,9 +100,9 @@
         box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.25);
     }
     .search-input-group button {
-        background: linear-gradient(135deg, #0A2647 0%, #143A66 100%);
+        background: linear-gradient(135deg, #0A2647 0%, #153E70 100%);
         color: white;
-        border: 1px solid rgba(245, 197, 24, 0.3);
+        border: 1px solid rgba(245, 197, 24, 0.4);
         padding: 0.85rem 1.8rem;
         border-radius: 2rem;
         font-weight: 800;
@@ -241,7 +241,7 @@
         padding: 2.5rem 1.5rem;
         background: white;
         border-radius: 1.25rem;
-        max-width: 760px;
+        max-width: 780px;
         margin: 0 auto 2.5rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.06);
         border: 1px solid #E2E8F0;
@@ -253,8 +253,8 @@
         background: white;
         border-radius: 1.25rem;
         padding: 2.25rem 2.5rem;
-        box-shadow: 0 15px 45px rgba(10,38,71,0.08);
-        max-width: 860px;
+        box-shadow: 0 20px 50px rgba(10,38,71,0.09);
+        max-width: 880px;
         margin: 0 auto 3rem;
         border: 2px solid #E2E8F0;
         position: relative;
@@ -317,10 +317,10 @@
     /* Student Achievement Banner */
     .achievement-banner {
         text-align: left;
-        padding: 1.2rem 1.5rem;
-        background: linear-gradient(135deg, rgba(10,38,71,0.03) 0%, rgba(245,197,24,0.08) 100%);
+        padding: 1.25rem 1.6rem;
+        background: linear-gradient(135deg, rgba(10,38,71,0.03) 0%, rgba(245,197,24,0.09) 100%);
         border-radius: 1rem;
-        border: 1px solid rgba(245, 197, 24, 0.3);
+        border: 1px solid rgba(245, 197, 24, 0.35);
         margin-bottom: 1.75rem;
         display: flex;
         align-items: center;
@@ -329,31 +329,31 @@
         gap: 1rem;
     }
     .achievement-title {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 1.85rem;
+        font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+        font-size: 1.95rem;
         font-weight: 800;
         color: #0A2647;
         margin: 0 0 0.25rem 0;
         letter-spacing: -0.5px;
     }
     .achievement-subtitle {
-        font-size: 0.92rem;
+        font-size: 0.95rem;
         color: #475569;
-        font-weight: 600;
+        font-weight: 700;
         margin: 0;
     }
 
-    /* Credential Details Grid */
+    /* Credential Details Grid - Sequential 12 Field Order */
     .cert-details-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1rem;
         margin: 1.2rem 0 0;
         text-align: left;
     }
     .detail-item {
         background: white;
-        padding: 0.9rem 1.15rem;
+        padding: 0.95rem 1.2rem;
         border-radius: 0.85rem;
         border: 1px solid #E2E8F0;
         border-left: 4px solid #F5C518;
@@ -365,18 +365,23 @@
         box-shadow: 0 6px 16px rgba(10,38,71,0.08);
         border-left-color: #0A2647;
     }
+    .detail-item-header {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-bottom: 0.35rem;
+    }
     .detail-item label {
         font-size: 0.72rem;
         text-transform: uppercase;
         color: #64748B;
         font-weight: 800;
-        display: block;
-        margin-bottom: 0.3rem;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.6px;
+        margin: 0;
     }
     .detail-item p {
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: 1.02rem;
+        font-weight: 800;
         color: #0A2647;
         margin: 0;
         word-break: break-word;
@@ -384,14 +389,14 @@
 
     /* 100% Mobile Responsiveness */
     @media (max-width: 768px) {
-        .verify-hero { padding: 2.2rem 1rem 2rem; }
+        .verify-hero { padding: 2.5rem 1rem 2rem; }
         .verify-hero h1 { font-size: 1.85rem; }
         .search-card { padding: 1.4rem 1.2rem; margin-top: -1.5rem; }
         .search-input-group { flex-direction: column; }
         .search-input-group button { width: 100%; justify-content: center; }
         .result-card { padding: 1.5rem; }
         .achievement-banner { padding: 1rem; flex-direction: column; align-items: flex-start; }
-        .achievement-title { font-size: 1.5rem; }
+        .achievement-title { font-size: 1.55rem; }
         .cert-details-grid { grid-template-columns: 1fr; gap: 0.8rem; }
     }
 </style>
@@ -460,7 +465,7 @@
     <div id="resultContainer">
     {% if queried_code %}
         {% if certificate %}
-        <!-- GREEN VERIFIED STATE - LUXURY ACHIEVEMENT DESIGN -->
+        <!-- GREEN VERIFIED STATE - EXACT SEQUENTIAL 12-FIELD ORDER -->
         <div class="result-card success">
             <div class="status-header">
                 <div class="status-badge success">
@@ -469,7 +474,7 @@
                 </div>
                 <div style="font-size: 0.82rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
                     <i data-lucide="award" style="width:16px;height:16px;color:#F5C518;"></i>
-                    Issuing Body: <strong style="color: #0A2647;">Shreevedha Solutions India Pvt Ltd</strong>
+                    Issuing Authority: <strong style="color: #0A2647;">Shreevedha Solutions India Pvt Ltd</strong>
                 </div>
             </div>
 
@@ -485,64 +490,113 @@
                 </div>
             </div>
 
+            <!-- Exact 12-Field Sequential Order Grid -->
             <div class="cert-details-grid">
+                <!-- 1. Student Full Name -->
                 <div class="detail-item">
-                    <label>Student Full Name</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="user" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Student Full Name</label>
+                    </div>
                     <p>{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'N/A') }}</p>
                 </div>
 
+                <!-- 2. Reg. No. / Roll Number -->
                 <div class="detail-item">
-                    <label>Reg. No. / Roll Number</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="hash" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Reg. No. / Roll Number</label>
+                    </div>
                     <p style="font-family: monospace; letter-spacing: 0.5px;">{{ certificate.reg_no if certificate.reg_no else (certificate.roll_no if certificate.roll_no else 'N/A') }}</p>
                 </div>
 
+                <!-- 3. Qualification / Branch -->
                 <div class="detail-item">
-                    <label>Qualification / Branch</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="graduation-cap" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Qualification / Branch</label>
+                    </div>
                     <p>{{ certificate.qualification if certificate.qualification else 'N/A' }}</p>
                 </div>
 
+                <!-- 4. College / Institution -->
                 <div class="detail-item">
-                    <label>College / Institution</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="building-2" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>College / Institution</label>
+                    </div>
                     <p>{{ certificate.college_name if certificate.college_name else 'N/A' }}</p>
                 </div>
 
+                <!-- 5. Program / Course Title -->
                 <div class="detail-item">
-                    <label>Program / Course Title</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="book-open" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Program / Course Title</label>
+                    </div>
                     <p>{{ certificate.course_title if certificate.course_title else (certificate.course.title if certificate.course else certificate.course_id) }}</p>
                 </div>
 
+                <!-- 6. Certificate Code / ID -->
                 <div class="detail-item">
-                    <label>Certificate Code / ID</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="key-round" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Certificate Code / ID</label>
+                    </div>
                     <p style="font-family: monospace; letter-spacing: 0.5px;"><code>{{ certificate.certificate_id }}</code></p>
                 </div>
 
+                <!-- 7. Course Duration -->
                 <div class="detail-item">
-                    <label>Course Duration</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="clock" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Course Duration</label>
+                    </div>
                     <p>{{ certificate.duration if certificate.duration else 'N/A' }}</p>
                 </div>
 
+                <!-- 8. Training Mode -->
                 <div class="detail-item">
-                    <label>Training Mode</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="laptop" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Training Mode</label>
+                    </div>
                     <p>{{ certificate.mode if certificate.mode else 'ONLINE' }}</p>
                 </div>
 
+                <!-- 9. Certification Status -->
                 <div class="detail-item">
-                    <label>Certification Status</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Certification Status</label>
+                    </div>
                     <p><span style="color: #059669;">{{ certificate.certification_status if certificate.certification_status else (certificate.grade if certificate.grade else 'TRAINING COMPLETED') }}</span></p>
                 </div>
 
+                <!-- 10. Skill Areas -->
                 <div class="detail-item">
-                    <label>Skill Areas</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="cpu" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Skill Areas</label>
+                    </div>
                     <p style="font-size: 0.9rem; color: #0A2647;">{{ certificate.skill_areas if certificate.skill_areas else 'AWS • DEVOPS • CLOUD • AUTOMATION' }}</p>
                 </div>
 
+                <!-- 11. Date of Issuance -->
                 <div class="detail-item">
-                    <label>Date of Issuance</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="calendar" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Date of Issuance</label>
+                    </div>
                     <p>24-08-2026</p>
                 </div>
 
+                <!-- 12. Issuing Organization -->
                 <div class="detail-item">
-                    <label>Issuing Organization</label>
+                    <div class="detail-item-header">
+                        <i data-lucide="shield-check" style="width:15px;height:15px;color:#F5C518;"></i>
+                        <label>Issuing Organization</label>
+                    </div>
                     <p>{{ certificate.issuing_organization if certificate.issuing_organization else 'Shreevedha Solutions India Pvt Ltd' }}</p>
                 </div>
             </div>
@@ -655,7 +709,7 @@
                             </div>
                             <div style="font-size: 0.82rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
                                 <i data-lucide="award" style="width:16px;height:16px;color:#F5C518;"></i>
-                                Issuing Body: <strong style="color: #0A2647;">${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</strong>
+                                Issuing Authority: <strong style="color: #0A2647;">${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</strong>
                             </div>
                         </div>
 
@@ -671,52 +725,111 @@
                         </div>
 
                         <div class="cert-details-grid">
+                            <!-- 1. Student Full Name -->
                             <div class="detail-item">
-                                <label>Student Full Name</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="user" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Student Full Name</label>
+                                </div>
                                 <p>${cert.student_name || 'N/A'}</p>
                             </div>
+
+                            <!-- 2. Reg. No. / Roll Number -->
                             <div class="detail-item">
-                                <label>Reg. No. / Roll Number</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="hash" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Reg. No. / Roll Number</label>
+                                </div>
                                 <p style="font-family: monospace; letter-spacing: 0.5px;">${cert.reg_no || cert.roll_no || 'N/A'}</p>
                             </div>
+
+                            <!-- 3. Qualification / Branch -->
                             <div class="detail-item">
-                                <label>Qualification / Branch</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="graduation-cap" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Qualification / Branch</label>
+                                </div>
                                 <p>${cert.qualification || 'N/A'}</p>
                             </div>
+
+                            <!-- 4. College / Institution -->
                             <div class="detail-item">
-                                <label>College / Institution</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="building-2" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>College / Institution</label>
+                                </div>
                                 <p>${cert.college_name || 'N/A'}</p>
                             </div>
+
+                            <!-- 5. Program / Course Title -->
                             <div class="detail-item">
-                                <label>Program / Course Title</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="book-open" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Program / Course Title</label>
+                                </div>
                                 <p>${cert.course_title || 'N/A'}</p>
                             </div>
+
+                            <!-- 6. Certificate Code / ID -->
                             <div class="detail-item">
-                                <label>Certificate Code / ID</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="key-round" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Certificate Code / ID</label>
+                                </div>
                                 <p style="font-family: monospace; letter-spacing: 0.5px;"><code>${cert.certificate_id}</code></p>
                             </div>
+
+                            <!-- 7. Course Duration -->
                             <div class="detail-item">
-                                <label>Course Duration</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="clock" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Course Duration</label>
+                                </div>
                                 <p>${cert.duration || 'N/A'}</p>
                             </div>
+
+                            <!-- 8. Training Mode -->
                             <div class="detail-item">
-                                <label>Training Mode</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="laptop" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Training Mode</label>
+                                </div>
                                 <p>${cert.mode || 'ONLINE'}</p>
                             </div>
+
+                            <!-- 9. Certification Status -->
                             <div class="detail-item">
-                                <label>Certification Status</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Certification Status</label>
+                                </div>
                                 <p><span style="color: #059669;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</span></p>
                             </div>
+
+                            <!-- 10. Skill Areas -->
                             <div class="detail-item">
-                                <label>Skill Areas</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="cpu" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Skill Areas</label>
+                                </div>
                                 <p style="font-size: 0.88rem; color: #0A2647;">${cert.skill_areas || 'AWS • DEVOPS • CLOUD • AUTOMATION'}</p>
                             </div>
+
+                            <!-- 11. Date of Issuance -->
                             <div class="detail-item">
-                                <label>Date of Issuance</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="calendar" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Date of Issuance</label>
+                                </div>
                                 <p>24-08-2026</p>
                             </div>
+
+                            <!-- 12. Issuing Organization -->
                             <div class="detail-item">
-                                <label>Issuing Body</label>
+                                <div class="detail-item-header">
+                                    <i data-lucide="shield-check" style="width:15px;height:15px;color:#F5C518;"></i>
+                                    <label>Issuing Organization</label>
+                                </div>
                                 <p>${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</p>
                             </div>
                         </div>

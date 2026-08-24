@@ -79544,7 +79544,7 @@ app.get("/api/verify-certificate", (req, res) => {
   const users = loadJson("users.json");
   const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
   const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
-  const issueDateFormatted = cert.issue_date ? new Date(cert.issue_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "August 23, 2026";
+  const issueDateFormatted = cert.issue_date ? "24-08-2026" : "24-08-2026";
   return res.json({
     valid: true,
     certificate: {

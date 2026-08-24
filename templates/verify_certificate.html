@@ -265,7 +265,7 @@
     <div class="search-card">
         <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="handleVerifySubmit(event)">
             <div style="display: flex; gap: 0.75rem; width: 100%;" class="search-input-group">
-                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="e.g. SSIPL-AWS-2026-133" required autocomplete="off" spellcheck="false" style="flex: 1;">
+                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="Enter Certificate ID / Code" required autocomplete="off" spellcheck="false" style="flex: 1;">
                 <button type="submit" id="verifyBtn">
                     <i data-lucide="search" id="btnIcon"></i>
                     <span id="btnText">Verify Certificate</span>
@@ -369,22 +369,13 @@
 
                 <div class="detail-item">
                     <label>Date of Issuance</label>
-                    <p>{{ certificate.issue_date.strftime('%B %d, %Y') if certificate.issue_date.strftime is defined else 'August 01, 2026' }}</p>
+                    <p>24-08-2026</p>
                 </div>
 
                 <div class="detail-item">
                     <label>Issuing Body</label>
                     <p>{{ certificate.issuing_organization if certificate.issuing_organization else 'Shreevedha Solutions India Pvt Ltd' }}</p>
                 </div>
-            </div>
-
-            <!-- Accreditation Authorities -->
-            <div class="authority-badges">
-                <span class="authority-badge-item">AICTE Partner</span>
-                <span class="authority-badge-item">APSCHE Associated</span>
-                <span class="authority-badge-item">Govt of India Recognized</span>
-                <span class="authority-badge-item">MSME Registered</span>
-                <span class="authority-badge-item">ISO 9001:2015 Certified</span>
             </div>
 
             <!-- Actions -->

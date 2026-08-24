@@ -3365,49 +3365,12 @@ app.get('/api/verify-certificate', (req, res) => {
 
 app.get('/verify-certificate/:cert_id', (req, res) => {
   const certIdStr = req.params.cert_id.trim();
-  const certificates = loadJson('certificates.json');
-  const cert = certificates.find(c => (c.certificate_id || '').toLowerCase() === certIdStr.toLowerCase());
-
-  if (!cert) {
-    return res.render('verify_certificate.html', { queried_code: certIdStr, certificate: null });
-  }
-
-  const users = loadJson('users.json');
-  const student = users.find(u => u.id === cert.user_id) || { name: cert.student_name || 'Jane Student' };
-  const course = COURSES_DATA.find(cr => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
-
-  const certData = {
-    ...cert,
-    student,
-    course,
-    issue_date: cert.issue_date ? new Date(cert.issue_date) : new Date()
-  };
-
-  const templates = loadJson('certificate_templates.json');
-  const template = templates.find(t => t.id === cert.template_id) || templates[0] || {
-    id: 'classic-gold',
-    name: 'Classic Royal Gold',
-    border_style: 'double-gold',
-    primary_color: '#0A2647',
-    accent_color: '#D4AF37',
-    bg_color: '#FDFBF7',
-    header_title: 'SHREEVEDHA SOLUTIONS INDIA PVT LTD',
-    header_subtitle: 'An ISO 9001:2015 Certified Institution | AICTE Partner',
-    signatory1_name: 'S. V. Director',
-    signatory1_title: 'Managing Director',
-    signatory1_sub: 'Shreevedha Solutions',
-    signatory2_name: 'Academic Head',
-    signatory2_title: 'Academic Registrar',
-    signatory2_sub: 'Board of Examinations',
-    seal_text: 'OFFICIAL VERIFIED',
-    watermark_url: '/static/uploads/Shree.png'
-  };
-
-  res.render('certificate_view.html', { certificate: certData, template });
+  res.redirect(`/verify-certificate?code=${encodeURIComponent(certIdStr)}`);
 });
 
 app.get('/certificates/verify/:cert_id', (req, res) => {
-  res.redirect(`/verify-certificate/${req.params.cert_id}`);
+  const certIdStr = req.params.cert_id.trim();
+  res.redirect(`/verify-certificate?code=${encodeURIComponent(certIdStr)}`);
 });
 
 // ── ADMIN CERTIFICATE TEMPLATES ROUTES ──

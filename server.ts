@@ -788,7 +788,9 @@ async function initDatabase() {
         'registrations.json',
         'contacts.json',
         'trainers.json',
-        'why_shreevedha.json'
+        'why_shreevedha.json',
+        'certificates.json',
+        'certificate_templates.json'
       ];
       
       await Promise.all(files.map(async (file) => {
@@ -963,6 +965,102 @@ function seedData() {
     ];
     saveJson('why_shreevedha.json', seededBenefits);
     console.log('Seeded why_shreevedha.json successfully.');
+  }
+
+  const certificates = loadJson('certificates.json');
+  if (certificates.length === 0) {
+    const seededCertificates = [
+      {
+        id: 1,
+        certificate_id: "SSIPL-AWS-2026-136",
+        user_id: 101,
+        course_id: "aws-devops",
+        student_name: "Avula Chakra Pani Reddy",
+        reg_no: "25X51D5803",
+        roll_no: "25X51D5803",
+        qualification: "M.Tech (CSE)",
+        college_name: "Santhiram Engineering College",
+        course_title: "AWS & DevOps Training Program",
+        certificate_type: "Certificate of Completion",
+        duration: "45 DAYS (07/2026 - 08/2026)",
+        mode: "ONLINE",
+        certification_status: "TRAINING COMPLETED",
+        skill_areas: "AWS • DEVOPS • CLOUD • AUTOMATION",
+        issuing_organization: "Shreevedha Solutions India Pvt Ltd",
+        grade: "TRAINING COMPLETED",
+        issue_date: "2026-08-01T00:00:00.000Z",
+        student: { name: "Avula Chakra Pani Reddy" },
+        course: { title: "AWS & DevOps Training Program" }
+      },
+      {
+        id: 2,
+        certificate_id: "SSIPL-AWS-2026-133",
+        user_id: 102,
+        course_id: "aws-devops",
+        student_name: "Shaik Fayaz",
+        reg_no: "25X51D5816",
+        roll_no: "25X51D5816",
+        qualification: "M.Tech (CSE)",
+        college_name: "Santhiram Engineering College",
+        course_title: "AWS & DevOps Training Program",
+        certificate_type: "Certificate of Completion",
+        duration: "45 DAYS (07/2026 - 08/2026)",
+        mode: "ONLINE",
+        certification_status: "TRAINING COMPLETED",
+        skill_areas: "AWS • DEVOPS • CLOUD • AUTOMATION",
+        issuing_organization: "Shreevedha Solutions India Pvt Ltd",
+        grade: "TRAINING COMPLETED",
+        issue_date: "2026-08-01T00:00:00.000Z",
+        student: { name: "Shaik Fayaz" },
+        course: { title: "AWS & DevOps Training Program" }
+      },
+      {
+        id: 3,
+        certificate_id: "SSIPL-AWS-2026-132",
+        user_id: 103,
+        course_id: "aws-devops",
+        student_name: "Atmakur Sindhu",
+        reg_no: "25X51D5802",
+        roll_no: "25X51D5802",
+        qualification: "M.Tech (CSE)",
+        college_name: "Santhiram Engineering College",
+        course_title: "AWS & DevOps Training Program",
+        certificate_type: "Certificate of Completion",
+        duration: "45 DAYS (07/2026 - 08/2026)",
+        mode: "ONLINE",
+        certification_status: "TRAINING COMPLETED",
+        skill_areas: "AWS • DEVOPS • CLOUD • AUTOMATION",
+        issuing_organization: "Shreevedha Solutions India Pvt Ltd",
+        grade: "TRAINING COMPLETED",
+        issue_date: "2026-08-01T00:00:00.000Z",
+        student: { name: "Atmakur Sindhu" },
+        course: { title: "AWS & DevOps Training Program" }
+      },
+      {
+        id: 4,
+        certificate_id: "CERT-FSW-001",
+        user_id: 1,
+        course_id: "full-stack-web",
+        student_name: "Jane Student",
+        reg_no: "25X51D5899",
+        roll_no: "25X51D5899",
+        qualification: "B.Tech (CSE)",
+        college_name: "Shreevedha Technological Institute",
+        course_title: "Full Stack Web Development",
+        certificate_type: "Certificate of Completion",
+        duration: "90 DAYS",
+        mode: "ONLINE",
+        certification_status: "DISTINCTION",
+        skill_areas: "HTML • CSS • JAVASCRIPT • NODE.JS • REACT",
+        issuing_organization: "Shreevedha Solutions India Pvt Ltd",
+        grade: "DISTINCTION",
+        issue_date: "2026-07-15T10:00:00.000Z",
+        student: { name: "Jane Student" },
+        course: { title: "Full Stack Web Development" }
+      }
+    ];
+    saveJson('certificates.json', seededCertificates);
+    console.log('Seeded certificates.json successfully.');
   }
 }
 initDatabase().catch(err => console.error('Database initialization failed:', err));
@@ -3247,15 +3345,20 @@ app.get('/api/verify-certificate', (req, res) => {
     valid: true,
     certificate: {
       certificate_id: cert.certificate_id,
-      student_name: student.name || cert.student_name || 'Jane Student',
-      student_email: cert.student_email || (student ? student.email : ''),
-      certificate_type: cert.certificate_type || 'Course Completion',
-      course_title: course.title || course.name || cert.course_title || cert.course_id,
-      grade: cert.grade || 'Distinction',
-      issue_date: issueDateFormatted,
-      duration: cert.duration || '',
-      project_title: cert.project_title || '',
-      mentor_name: cert.mentor_name || ''
+      student_name: cert.student_name || student.name || 'Jane Student',
+      reg_no: cert.reg_no || cert.roll_no || 'N/A',
+      roll_no: cert.roll_no || cert.reg_no || 'N/A',
+      qualification: cert.qualification || 'M.Tech (CSE)',
+      college_name: cert.college_name || 'Santhiram Engineering College',
+      course_title: cert.course_title || course.title || course.name || cert.course_id,
+      certificate_type: cert.certificate_type || 'Certificate of Completion',
+      duration: cert.duration || '45 DAYS (07/2026 - 08/2026)',
+      mode: cert.mode || 'ONLINE',
+      certification_status: cert.certification_status || 'TRAINING COMPLETED',
+      skill_areas: cert.skill_areas || 'AWS • DEVOPS • CLOUD • AUTOMATION',
+      issuing_organization: cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd',
+      grade: cert.grade || 'TRAINING COMPLETED',
+      issue_date: issueDateFormatted
     }
   });
 });

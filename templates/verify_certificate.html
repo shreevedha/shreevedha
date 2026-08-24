@@ -111,6 +111,18 @@
         100% { transform: rotate(360deg); }
     }
 
+    /* Keyframe Animations for Status Badges */
+    @keyframes successPop {
+        0% { transform: scale(0.7); opacity: 0; }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes errorShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+    }
+
     /* Result Details Card */
     .result-card {
         background: white;
@@ -144,23 +156,27 @@
     .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.55rem 1.4rem;
+        gap: 0.6rem;
+        padding: 0.6rem 1.5rem;
         border-radius: 2rem;
         font-weight: 800;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         letter-spacing: 0.5px;
         text-transform: uppercase;
     }
     .status-badge.success {
         background: #D1FAE5;
         color: #065F46;
-        border: 1.5px solid #10B981;
+        border: 2px solid #10B981;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+        animation: successPop 0.5s ease-out;
     }
     .status-badge.error {
         background: #FEE2E2;
         color: #991B1B;
-        border: 1.5px solid #EF4444;
+        border: 2px solid #EF4444;
+        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+        animation: errorShake 0.5s ease-in-out;
     }
 
     /* Credential Details Grid */
@@ -221,15 +237,6 @@
         border: 1px solid #E2E8F0;
     }
 
-    .code-sample-box {
-        background: white;
-        border-radius: 1.25rem;
-        padding: 2rem;
-        border: 1px solid #E2E8F0;
-        text-align: left;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
-    }
-
     @media (max-width: 640px) {
         .search-box {
             flex-direction: column;
@@ -254,14 +261,30 @@
 </section>
 
 <div class="container">
-    <!-- Search Form -->
+    <!-- Search Form with Security CAPTCHA -->
     <div class="search-card">
-        <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" onsubmit="handleVerifySubmit(event)">
-            <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="e.g. SSIPL-AWS-2026-133" required autocomplete="off" spellcheck="false">
-            <button type="submit" id="verifyBtn">
-                <i data-lucide="search" id="btnIcon"></i>
-                <span id="btnText">Verify Certificate</span>
-            </button>
+        <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="handleVerifySubmit(event)">
+            <div style="display: flex; gap: 0.75rem; width: 100%;" class="search-input-group">
+                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="e.g. SSIPL-AWS-2026-133" required autocomplete="off" spellcheck="false" style="flex: 1;">
+                <button type="submit" id="verifyBtn">
+                    <i data-lucide="search" id="btnIcon"></i>
+                    <span id="btnText">Verify Certificate</span>
+                </button>
+            </div>
+
+            <!-- Security CAPTCHA Verification Row -->
+            <div style="margin-top: 1.25rem; padding-top: 1.2rem; border-top: 1px dashed #E2E8F0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="font-size: 0.85rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Security CAPTCHA:</span>
+                    <span id="captchaDisplay" style="font-family: monospace; font-size: 1.15rem; font-weight: 800; background: #0A2647; color: #F5C518; padding: 0.35rem 0.95rem; border-radius: 0.5rem; letter-spacing: 2px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                        <!-- Math challenge populated via JS -->
+                    </span>
+                    <button type="button" onclick="initCaptcha()" style="background: none; border: none; color: #64748B; cursor: pointer; padding: 0.3rem; transition: transform 0.2s;" title="Refresh Security CAPTCHA" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0deg)'">
+                        <i data-lucide="rotate-cw" style="width: 18px; height: 18px; vertical-align: middle;"></i>
+                    </button>
+                </div>
+                <input type="text" id="captchaInput" placeholder="Enter answer" required autocomplete="off" style="width: 140px; padding: 0.65rem 0.9rem; border: 2px solid #CBD5E1; border-radius: 1.5rem; text-align: center; font-weight: 800; font-size: 1rem; color: #0A2647; background: #F8FAFC;">
+            </div>
         </form>
     </div>
 
@@ -276,10 +299,11 @@
     <div id="resultContainer">
     {% if queried_code %}
         {% if certificate %}
+        <!-- GREEN VERIFIED STATE WITH CHECKMARK ANIMATION -->
         <div class="result-card success">
             <div class="status-header">
                 <div class="status-badge success">
-                    <i data-lucide="check-circle-2" style="width:20px;height:20px;"></i>
+                    <i data-lucide="check-circle-2" style="width:22px;height:22px;color:#10B981;"></i>
                     VERIFIED • OFFICIALLY VALID CREDENTIAL
                 </div>
                 <div style="font-size: 0.85rem; color: #64748B; font-weight: 600;">
@@ -374,10 +398,11 @@
             </div>
         </div>
         {% else %}
+        <!-- RED UNVERIFIED STATE WITH CROSS SYMBOL & SHAKE ANIMATION -->
         <div class="result-card error">
             <div class="status-header">
                 <div class="status-badge error">
-                    <i data-lucide="x-circle" style="width:20px;height:20px;"></i>
+                    <i data-lucide="x-circle" style="width:22px;height:22px;color:#EF4444;"></i>
                     NOT VERIFIED • INVALID CERTIFICATE ID
                 </div>
             </div>
@@ -389,37 +414,48 @@
         {% endif %}
     {% endif %}
     </div>
-
-    <!-- Standard Formats Guide -->
-    <div class="code-sample-box" style="max-width: 840px; margin: 0 auto 4rem;">
-        <h4 style="color: var(--primary-blue); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem;">
-            <i data-lucide="info" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--primary-gold);"></i> Standard Certificate Code Formats
-        </h4>
-        <p style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 1rem;">
-            Shreevedha Solutions issues standardized credentials following a secure structured coding format:
-        </p>
-        <ul style="line-height: 1.9; color: #334155; margin-left: 1.2rem; font-size: 0.92rem; padding: 0;">
-            <li><strong>AWS & DevOps Program:</strong> <code>SSIPL-AWS-2026-133</code></li>
-            <li><strong>Course Completion:</strong> <code>SV-CRS-202608-FSD-8392</code></li>
-            <li><strong>Internship Certificate:</strong> <code>SV-INT-202608-AIML-4921</code></li>
-            <li><strong>Workshop Certificate:</strong> <code>SV-WKS-202608-PY-1048</code></li>
-        </ul>
-    </div>
 </div>
 
 <script>
+    let expectedCaptchaAnswer = 0;
     let lastRequestTime = 0;
     const RATE_LIMIT_MS = 600;
 
+    function initCaptcha() {
+        const num1 = Math.floor(Math.random() * 9) + 1;
+        const num2 = Math.floor(Math.random() * 9) + 1;
+        expectedCaptchaAnswer = num1 + num2;
+        const display = document.getElementById('captchaDisplay');
+        if (display) {
+            display.textContent = `${num1} + ${num2} = ?`;
+        }
+        const input = document.getElementById('captchaInput');
+        if (input) {
+            input.value = '';
+        }
+    }
+
     function handleVerifySubmit(event) {
         const input = document.getElementById('certCodeInput');
+        const captchaInput = document.getElementById('captchaInput');
         const btn = document.getElementById('verifyBtn');
         const loading = document.getElementById('loadingState');
         const resultContainer = document.getElementById('resultContainer');
         const code = (input.value || '').trim();
 
-        if (!code) return;
+        if (!code) return false;
 
+        // CAPTCHA Validation Check
+        const userAnswer = parseInt((captchaInput ? captchaInput.value : '').trim(), 10);
+        if (isNaN(userAnswer) || userAnswer !== expectedCaptchaAnswer) {
+            event.preventDefault();
+            alert('Incorrect Security CAPTCHA answer. Please solve the security problem to verify.');
+            initCaptcha();
+            if (captchaInput) captchaInput.focus();
+            return false;
+        }
+
+        // Rate Limiting Throttling
         const now = Date.now();
         if (now - lastRequestTime < RATE_LIMIT_MS) {
             event.preventDefault();
@@ -444,5 +480,8 @@
             alert('Copy failed. URL: ' + window.location.href);
         });
     }
+
+    // Initialize Security CAPTCHA on page load
+    document.addEventListener('DOMContentLoaded', initCaptcha);
 </script>
 {% endblock %}

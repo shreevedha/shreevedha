@@ -377,16 +377,6 @@
                     <p>{{ certificate.issuing_organization if certificate.issuing_organization else 'Shreevedha Solutions India Pvt Ltd' }}</p>
                 </div>
             </div>
-
-            <!-- Actions -->
-            <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="{{ url_for('verify_certificate', cert_id=certificate.certificate_id) }}" target="_blank" class="btn btn-primary" style="padding: 0.85rem 2rem; border-radius: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 700; background: var(--primary-gold); color: #0A2647; box-shadow: 0 4px 14px rgba(245, 197, 24, 0.3);">
-                    <i data-lucide="award"></i> View Official HD Certificate →
-                </a>
-                <button onclick="copyVerificationLink()" class="btn btn-outline" style="padding: 0.85rem 1.8rem; border-radius: 2rem; border: 1.5px solid var(--primary-blue); color: var(--primary-blue); display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 700; background: transparent;">
-                    <i data-lucide="share-2"></i> Share Verification Link
-                </button>
-            </div>
         </div>
         {% else %}
         <!-- RED UNVERIFIED STATE WITH CROSS SYMBOL & SHAKE ANIMATION -->

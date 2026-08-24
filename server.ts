@@ -988,7 +988,7 @@ function seedData() {
         skill_areas: "AWS • DEVOPS • CLOUD • AUTOMATION",
         issuing_organization: "Shreevedha Solutions India Pvt Ltd",
         grade: "TRAINING COMPLETED",
-        issue_date: "2026-08-01T00:00:00.000Z",
+        issue_date: "2026-08-24T00:00:00.000Z",
         student: { name: "Avula Chakra Pani Reddy" },
         course: { title: "AWS & DevOps Training Program" }
       },
@@ -1010,7 +1010,7 @@ function seedData() {
         skill_areas: "AWS • DEVOPS • CLOUD • AUTOMATION",
         issuing_organization: "Shreevedha Solutions India Pvt Ltd",
         grade: "TRAINING COMPLETED",
-        issue_date: "2026-08-01T00:00:00.000Z",
+        issue_date: "2026-08-24T00:00:00.000Z",
         student: { name: "Shaik Fayaz" },
         course: { title: "AWS & DevOps Training Program" }
       },
@@ -1032,7 +1032,7 @@ function seedData() {
         skill_areas: "AWS • DEVOPS • CLOUD • AUTOMATION",
         issuing_organization: "Shreevedha Solutions India Pvt Ltd",
         grade: "TRAINING COMPLETED",
-        issue_date: "2026-08-01T00:00:00.000Z",
+        issue_date: "2026-08-24T00:00:00.000Z",
         student: { name: "Atmakur Sindhu" },
         course: { title: "AWS & DevOps Training Program" }
       },

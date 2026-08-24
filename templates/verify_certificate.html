@@ -7,97 +7,97 @@
     .verify-hero {
         background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
         color: white;
-        padding: 4.5rem 1rem 3.5rem;
+        padding: 2.2rem 1rem 1.8rem;
         text-align: center;
     }
     .verify-hero h1 {
-        font-size: 2.6rem;
+        font-size: 2rem;
         color: var(--primary-gold);
         font-weight: 800;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
         letter-spacing: -0.5px;
     }
     .verify-hero p {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         opacity: 0.9;
-        max-width: 650px;
+        max-width: 600px;
         margin: 0 auto;
-        line-height: 1.6;
+        line-height: 1.5;
     }
 
     .search-card {
         background: white;
-        border-radius: 1.25rem;
-        padding: 2.25rem 2rem;
-        box-shadow: 0 15px 35px rgba(10,38,71,0.12);
-        max-width: 700px;
-        margin: -2.5rem auto 2.5rem;
+        border-radius: 1rem;
+        padding: 1.5rem 1.6rem;
+        box-shadow: 0 10px 30px rgba(10,38,71,0.08);
+        max-width: 720px;
+        margin: -1.5rem auto 1.5rem;
         border: 1px solid #e2e8f0;
         position: relative;
         z-index: 10;
     }
-    .search-box {
+    .search-input-group {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.6rem;
+        width: 100%;
     }
-    .search-box input {
+    .search-input-group input {
         flex: 1;
-        padding: 0.95rem 1.3rem;
+        padding: 0.75rem 1.1rem;
         border: 2px solid #cbd5e1;
         border-radius: 2rem;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-family: monospace;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
         transition: all 0.3s ease;
         background: #f8fafc;
     }
-    .search-box input:focus {
+    .search-input-group input:focus {
         outline: none;
         border-color: var(--primary-gold);
         background: white;
-        box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.2);
+        box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
     }
-    .search-box button {
+    .search-input-group button {
         background: var(--primary-blue);
         color: white;
         border: none;
-        padding: 0.95rem 1.8rem;
+        padding: 0.75rem 1.5rem;
         border-radius: 2rem;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         white-space: nowrap;
-        box-shadow: 0 4px 12px rgba(10, 38, 71, 0.2);
+        box-shadow: 0 4px 10px rgba(10, 38, 71, 0.15);
     }
-    .search-box button:hover:not(:disabled) {
+    .search-input-group button:hover:not(:disabled) {
         background: var(--primary-gold);
         color: #0A2647;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
     }
-    .search-box button:disabled {
+    .search-input-group button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         background: #94A3B8;
         box-shadow: none;
     }
 
-    /* Interactive Rotating CAPTCHA Widget */
+    /* Compact Interactive Rotating CAPTCHA Widget */
     .interactive-captcha-card {
-        margin-top: 1.25rem;
+        margin-top: 1rem;
         background: #F8FAFC;
-        padding: 1.1rem 1.25rem;
-        border-radius: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
         border: 1.5px solid #E2E8F0;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.8rem;
         transition: all 0.3s ease;
     }
     .interactive-captcha-card.verified {
@@ -110,27 +110,21 @@
     }
     @keyframes captchaShake {
         0%, 100% { transform: translateX(0); }
-        25%, 75% { transform: translateX(-6px); }
-        50% { transform: translateX(6px); }
+        25%, 75% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
     }
 
     .captcha-checkbox-box {
         display: flex;
         align-items: center;
-        gap: 0.85rem;
+        gap: 0.65rem;
         cursor: pointer;
         user-select: none;
-        padding: 0.4rem 0.6rem;
-        border-radius: 0.6rem;
-        transition: background 0.2s;
-    }
-    .captcha-checkbox-box:hover {
-        background: rgba(0,0,0,0.03);
     }
     .captcha-spinner-ring {
-        width: 24px;
-        height: 24px;
-        border: 3px solid #CBD5E1;
+        width: 20px;
+        height: 20px;
+        border: 2.5px solid #CBD5E1;
         border-bottom-color: var(--primary-gold);
         border-radius: 50%;
         display: inline-block;
@@ -138,20 +132,20 @@
         animation: rotation 0.8s linear infinite;
     }
     .captcha-title {
-        font-size: 0.92rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #1E293B;
     }
     .captcha-subtitle {
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         color: #64748B;
         font-weight: 500;
     }
     .captcha-shield-tag {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        font-size: 0.75rem;
+        gap: 0.3rem;
+        font-size: 0.7rem;
         font-weight: 800;
         color: #475569;
         letter-spacing: 0.5px;
@@ -161,19 +155,19 @@
     /* Loading Overlay & Spinner */
     .loading-container {
         display: none;
-        padding: 3rem 1.5rem;
+        padding: 2rem 1.5rem;
         background: white;
-        border-radius: 1.25rem;
-        max-width: 700px;
-        margin: 0 auto 3rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        border-radius: 1rem;
+        max-width: 720px;
+        margin: 0 auto 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.05);
         border: 1px solid #e2e8f0;
         text-align: center;
     }
     .spinner {
-        width: 46px;
-        height: 46px;
-        border: 4px solid #E2E8F0;
+        width: 38px;
+        height: 38px;
+        border: 3.5px solid #E2E8F0;
         border-bottom-color: var(--primary-gold);
         border-radius: 50%;
         display: inline-block;
@@ -187,24 +181,24 @@
 
     /* Keyframe Animations for Status Badges */
     @keyframes successPop {
-        0% { transform: scale(0.7); opacity: 0; }
-        50% { transform: scale(1.08); }
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.05); }
         100% { transform: scale(1); opacity: 1; }
     }
     @keyframes errorShake {
         0%, 100% { transform: translateX(0); }
-        20%, 60% { transform: translateX(-8px); }
-        40%, 80% { transform: translateX(8px); }
+        20%, 60% { transform: translateX(-6px); }
+        40%, 80% { transform: translateX(6px); }
     }
 
-    /* Result Details Card */
+    /* Compact Result Details Card */
     .result-card {
         background: white;
-        border-radius: 1.25rem;
-        padding: 2.5rem;
-        box-shadow: 0 12px 35px rgba(0,0,0,0.08);
-        max-width: 840px;
-        margin: 0 auto 3.5rem;
+        border-radius: 1rem;
+        padding: 1.5rem 1.8rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        max-width: 820px;
+        margin: 0 auto 2.5rem;
         border: 2px solid #e2e8f0;
         position: relative;
         overflow: hidden;
@@ -221,68 +215,65 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 1rem;
-        padding-bottom: 1.25rem;
-        margin-bottom: 1.5rem;
+        gap: 0.8rem;
+        padding-bottom: 0.8rem;
+        margin-bottom: 1rem;
         border-bottom: 1px solid #E2E8F0;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.6rem;
-        padding: 0.6rem 1.5rem;
+        gap: 0.5rem;
+        padding: 0.45rem 1.1rem;
         border-radius: 2rem;
         font-weight: 800;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         letter-spacing: 0.5px;
         text-transform: uppercase;
     }
     .status-badge.success {
         background: #D1FAE5;
         color: #065F46;
-        border: 2px solid #10B981;
-        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
-        animation: successPop 0.5s ease-out;
+        border: 1.5px solid #10B981;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
+        animation: successPop 0.4s ease-out;
     }
     .status-badge.error {
         background: #FEE2E2;
         color: #991B1B;
-        border: 2px solid #EF4444;
-        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
-        animation: errorShake 0.5s ease-in-out;
+        border: 1.5px solid #EF4444;
+        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.2);
+        animation: errorShake 0.4s ease-in-out;
     }
 
-    /* Credential Details Grid */
+    /* Compact 3-Column Credential Details Grid */
     .cert-details-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.25rem;
-        margin: 1.5rem 0;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 0.85rem;
+        margin: 1rem 0 0;
         text-align: left;
     }
     .detail-item {
         background: #F8FAFC;
-        padding: 1.05rem 1.25rem;
-        border-radius: 0.85rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.7rem;
         border: 1px solid #E2E8F0;
-        border-left: 4px solid var(--primary-gold);
-        transition: transform 0.2s;
-    }
-    .detail-item:hover {
-        transform: translateY(-2px);
+        border-left: 3.5px solid var(--primary-gold);
     }
     .detail-item label {
-        font-size: 0.75rem;
+        font-size: 0.7%rem;
         text-transform: uppercase;
         color: #64748B;
         font-weight: 800;
         display: block;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.2rem;
         letter-spacing: 0.5px;
+        font-size: 0.7rem;
     }
     .detail-item p {
-        font-size: 1.05rem;
+        font-size: 0.95rem;
         font-weight: 700;
         color: var(--primary-blue);
         margin: 0;
@@ -290,15 +281,15 @@
     }
 
     @media (max-width: 640px) {
-        .search-box {
+        .search-input-group {
             flex-direction: column;
         }
-        .search-box button {
+        .search-input-group button {
             width: 100%;
             justify-content: center;
         }
-        .verify-hero h1 { font-size: 1.9rem; }
-        .result-card { padding: 1.5rem; }
+        .verify-hero h1 { font-size: 1.7rem; }
+        .result-card { padding: 1.2rem; }
         .status-header { flex-direction: column; align-items: flex-start; }
     }
 </style>
@@ -308,37 +299,37 @@
 <section class="verify-hero">
     <div class="container">
         <h1>Verify Certificate Authenticity</h1>
-        <p>Enter the unique certificate verification code to instantly validate official Shreevedha Solutions credentials.</p>
+        <p>Enter the unique certificate verification code to validate official Shreevedha Solutions credentials.</p>
     </div>
 </section>
 
 <div class="container">
-    <!-- Search Form with Rotating CAPTCHA Checkbox -->
+    <!-- Compact Search Form Card -->
     <div class="search-card">
         <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="handleVerifySubmit(event)">
-            <div style="display: flex; gap: 0.75rem; width: 100%;" class="search-input-group">
-                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="Enter Certificate ID / Code" required autocomplete="off" spellcheck="false" style="flex: 1;">
+            <div class="search-input-group">
+                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="Enter Certificate ID / Code" required autocomplete="off" spellcheck="false">
                 <button type="submit" id="verifyBtn" disabled title="Please complete security verification first">
                     <i data-lucide="search" id="btnIcon"></i>
                     <span id="btnText">Verify Certificate</span>
                 </button>
             </div>
 
-            <!-- Rotating CAPTCHA Security Card -->
+            <!-- Compact Rotating CAPTCHA Security Row -->
             <div class="interactive-captcha-card" id="captchaCard">
                 <div class="captcha-checkbox-box" id="captchaBox" onclick="startCaptchaVerification()">
                     <div id="captchaIconArea">
-                        <i data-lucide="square" id="captchaSquare" style="width:24px;height:24px;color:#94A3B8;"></i>
+                        <i data-lucide="square" id="captchaSquare" style="width:20px;height:20px;color:#94A3B8;"></i>
                         <div class="captcha-spinner-ring" id="captchaSpinner" style="display:none;"></div>
-                        <i data-lucide="check-circle-2" id="captchaCheck" style="width:26px;height:26px;color:#10B981;display:none;"></i>
+                        <i data-lucide="check-circle-2" id="captchaCheck" style="width:22px;height:22px;color:#10B981;display:none;"></i>
                     </div>
                     <div class="captcha-text-area">
                         <div class="captcha-title" id="captchaTitle">Click box to verify security (I'm not a robot)</div>
-                        <div class="captcha-subtitle" id="captchaSubtitle">Runs automated 3-5 second threat inspection check</div>
+                        <div class="captcha-subtitle" id="captchaSubtitle">Runs 3-5s automated security threat check</div>
                     </div>
                 </div>
                 <div class="captcha-shield-tag">
-                    <i data-lucide="shield-check" style="width:18px;height:18px;color:var(--primary-gold);"></i>
+                    <i data-lucide="shield-check" style="width:16px;height:16px;color:var(--primary-gold);"></i>
                     <span>Shreevedha Security</span>
                 </div>
             </div>
@@ -348,30 +339,25 @@
     <!-- Client-Side Loading State -->
     <div class="loading-container" id="loadingState">
         <div class="spinner"></div>
-        <h4 style="color: var(--primary-blue); font-size: 1.2rem; font-weight: 800; margin-top: 1.2rem; margin-bottom: 0.4rem;">Connecting to Verification System...</h4>
-        <p style="font-size: 0.9rem; color: #64748B; margin: 0;">Validating official credential signatures and database security records</p>
+        <h4 style="color: var(--primary-blue); font-size: 1.1rem; font-weight: 800; margin-top: 1rem; margin-bottom: 0.3rem;">Connecting to Verification Database...</h4>
+        <p style="font-size: 0.85rem; color: #64748B; margin: 0;">Validating official credential security signatures</p>
     </div>
 
-    <!-- Server Rendered / Dynamic Result Card (Details Summary ONLY) -->
+    <!-- Compact Result Details Card -->
     <div id="resultContainer">
     {% if queried_code %}
         {% if certificate %}
-        <!-- GREEN VERIFIED STATE WITH CHECKMARK ANIMATION -->
+        <!-- GREEN VERIFIED STATE -->
         <div class="result-card success">
             <div class="status-header">
                 <div class="status-badge success">
-                    <i data-lucide="check-circle-2" style="width:22px;height:22px;color:#10B981;"></i>
+                    <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
                     VERIFIED • OFFICIALLY VALID CREDENTIAL
                 </div>
-                <div style="font-size: 0.85rem; color: #64748B; font-weight: 600;">
+                <div style="font-size: 0.8rem; color: #64748B; font-weight: 600;">
                     Issuing Authority: <strong style="color: var(--primary-blue);">Shreevedha Solutions India Pvt Ltd</strong>
                 </div>
             </div>
-
-            <h2 style="color: var(--primary-blue); margin-bottom: 0.4rem; font-size: 1.6rem; text-align: left;">Official Credential Details</h2>
-            <p style="color: #64748B; font-size: 0.95rem; text-align: left; margin-bottom: 1.5rem;">
-                Matching record verified in Shreevedha Central Academic Credential Registry.
-            </p>
 
             <div class="cert-details-grid">
                 <div class="detail-item">
@@ -421,7 +407,7 @@
 
                 <div class="detail-item">
                     <label>Skill Areas</label>
-                    <p style="font-size: 0.92rem; color: #0A2647;">{{ certificate.skill_areas if certificate.skill_areas else 'AWS • DEVOPS • CLOUD • AUTOMATION' }}</p>
+                    <p style="font-size: 0.88rem; color: #0A2647;">{{ certificate.skill_areas if certificate.skill_areas else 'AWS • DEVOPS • CLOUD • AUTOMATION' }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -436,16 +422,16 @@
             </div>
         </div>
         {% else %}
-        <!-- RED UNVERIFIED STATE WITH CROSS SYMBOL & SHAKE ANIMATION -->
+        <!-- RED UNVERIFIED STATE -->
         <div class="result-card error">
             <div class="status-header">
                 <div class="status-badge error">
-                    <i data-lucide="x-circle" style="width:22px;height:22px;color:#EF4444;"></i>
+                    <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
                     NOT VERIFIED • INVALID CERTIFICATE ID
                 </div>
             </div>
-            <h3 style="color: #991B1B; margin-bottom: 0.5rem; font-size: 1.5rem; text-align: left;">Certificate ID Not Verified</h3>
-            <p style="color: #64748B; font-size: 0.95rem; text-align: left; line-height: 1.6; margin: 0;">
+            <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.25rem; text-align: left;">Certificate ID Not Verified</h4>
+            <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
                 The Certificate ID <code>{{ queried_code }}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our official database. Please double check the ID printed on your certificate.
             </p>
         </div>
@@ -486,7 +472,6 @@
             isCaptchaVerifying = false;
             isCaptchaVerified = true;
 
-            // Enable search button
             if (btn) {
                 btn.disabled = false;
                 btn.removeAttribute('title');
@@ -501,7 +486,7 @@
             const card = document.getElementById('captchaCard');
             if (card) {
                 card.classList.add('error-shake');
-                setTimeout(() => card.classList.remove('error-shake'), 600);
+                setTimeout(() => card.classList.remove('error-shake'), 500);
             }
             alert('Please click the security verification box and wait 3-5 seconds for verification before searching.');
             return false;

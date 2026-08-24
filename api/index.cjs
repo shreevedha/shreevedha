@@ -76833,6 +76833,7 @@ env.addGlobal("url_for", (endpoint, options = {}) => {
     "admin_certificate_templates": "/admin_certificate_templates",
     "verify_certificate": "/certificates/verify",
     "public_verify_certificate": "/verify-certificate",
+    "api_verify_certificate": "/api/verify-certificate",
     "admin_questions": "/admin_questions",
     "admin_answer_question": "/admin/lms/questions/answer",
     "admin_payments": "/admin_payments",
@@ -79432,6 +79433,36 @@ app.get("/verify-certificate", (req, res) => {
 });
 app.get("/verify", (req, res) => {
   res.redirect("/verify-certificate" + (req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : ""));
+});
+app.get("/api/verify-certificate", (req, res) => {
+  const code = (req.query.code || req.query.id || "").toString().trim();
+  if (!code) {
+    return res.json({ valid: false, message: "Please enter a certificate ID to verify." });
+  }
+  const certificates = loadJson("certificates.json");
+  const cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
+  if (!cert) {
+    return res.json({ valid: false, code, message: `No certificate record found for ID '${code}'. Please check the code and try again.` });
+  }
+  const users = loadJson("users.json");
+  const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
+  const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
+  const issueDateFormatted = cert.issue_date ? new Date(cert.issue_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "August 23, 2026";
+  return res.json({
+    valid: true,
+    certificate: {
+      certificate_id: cert.certificate_id,
+      student_name: student.name || cert.student_name || "Jane Student",
+      student_email: cert.student_email || (student ? student.email : ""),
+      certificate_type: cert.certificate_type || "Course Completion",
+      course_title: course.title || course.name || cert.course_title || cert.course_id,
+      grade: cert.grade || "Distinction",
+      issue_date: issueDateFormatted,
+      duration: cert.duration || "",
+      project_title: cert.project_title || "",
+      mentor_name: cert.mentor_name || ""
+    }
+  });
 });
 app.get("/verify-certificate/:cert_id", (req, res) => {
   const certIdStr = req.params.cert_id.trim();

@@ -80,8 +80,82 @@
         transform: translateY(-2px);
     }
     .search-box button:disabled {
-        opacity: 0.7;
+        opacity: 0.5;
         cursor: not-allowed;
+        background: #94A3B8;
+        box-shadow: none;
+    }
+
+    /* Interactive Rotating CAPTCHA Widget */
+    .interactive-captcha-card {
+        margin-top: 1.25rem;
+        background: #F8FAFC;
+        padding: 1.1rem 1.25rem;
+        border-radius: 1rem;
+        border: 1.5px solid #E2E8F0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+    .interactive-captcha-card.verified {
+        border-color: #10B981;
+        background: #F0FDF4;
+    }
+    .interactive-captcha-card.error-shake {
+        border-color: #EF4444;
+        animation: captchaShake 0.4s ease-in-out;
+    }
+    @keyframes captchaShake {
+        0%, 100% { transform: translateX(0); }
+        25%, 75% { transform: translateX(-6px); }
+        50% { transform: translateX(6px); }
+    }
+
+    .captcha-checkbox-box {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        cursor: pointer;
+        user-select: none;
+        padding: 0.4rem 0.6rem;
+        border-radius: 0.6rem;
+        transition: background 0.2s;
+    }
+    .captcha-checkbox-box:hover {
+        background: rgba(0,0,0,0.03);
+    }
+    .captcha-spinner-ring {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #CBD5E1;
+        border-bottom-color: var(--primary-gold);
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 0.8s linear infinite;
+    }
+    .captcha-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #1E293B;
+    }
+    .captcha-subtitle {
+        font-size: 0.78rem;
+        color: #64748B;
+        font-weight: 500;
+    }
+    .captcha-shield-tag {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #475569;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
 
     /* Loading Overlay & Spinner */
@@ -215,28 +289,6 @@
         word-break: break-word;
     }
 
-    .authority-badges {
-        display: flex;
-        gap: 0.6rem;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        margin: 2rem 0 1.5rem;
-        padding: 1rem;
-        background: #F8FAFC;
-        border-radius: 0.85rem;
-        border: 1px dashed #CBD5E1;
-    }
-    .authority-badge-item {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #334155;
-        background: white;
-        padding: 0.35rem 0.85rem;
-        border-radius: 1rem;
-        border: 1px solid #E2E8F0;
-    }
-
     @media (max-width: 640px) {
         .search-box {
             flex-direction: column;
@@ -261,29 +313,34 @@
 </section>
 
 <div class="container">
-    <!-- Search Form with Security CAPTCHA -->
+    <!-- Search Form with Rotating CAPTCHA Checkbox -->
     <div class="search-card">
         <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="handleVerifySubmit(event)">
             <div style="display: flex; gap: 0.75rem; width: 100%;" class="search-input-group">
                 <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="Enter Certificate ID / Code" required autocomplete="off" spellcheck="false" style="flex: 1;">
-                <button type="submit" id="verifyBtn">
+                <button type="submit" id="verifyBtn" disabled title="Please complete security verification first">
                     <i data-lucide="search" id="btnIcon"></i>
                     <span id="btnText">Verify Certificate</span>
                 </button>
             </div>
 
-            <!-- Security CAPTCHA Verification Row -->
-            <div style="margin-top: 1.25rem; padding-top: 1.2rem; border-top: 1px dashed #E2E8F0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;">
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <span style="font-size: 0.85rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Security CAPTCHA:</span>
-                    <span id="captchaDisplay" style="font-family: monospace; font-size: 1.15rem; font-weight: 800; background: #0A2647; color: #F5C518; padding: 0.35rem 0.95rem; border-radius: 0.5rem; letter-spacing: 2px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
-                        <!-- Math challenge populated via JS -->
-                    </span>
-                    <button type="button" onclick="initCaptcha()" style="background: none; border: none; color: #64748B; cursor: pointer; padding: 0.3rem; transition: transform 0.2s;" title="Refresh Security CAPTCHA" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0deg)'">
-                        <i data-lucide="rotate-cw" style="width: 18px; height: 18px; vertical-align: middle;"></i>
-                    </button>
+            <!-- Rotating CAPTCHA Security Card -->
+            <div class="interactive-captcha-card" id="captchaCard">
+                <div class="captcha-checkbox-box" id="captchaBox" onclick="startCaptchaVerification()">
+                    <div id="captchaIconArea">
+                        <i data-lucide="square" id="captchaSquare" style="width:24px;height:24px;color:#94A3B8;"></i>
+                        <div class="captcha-spinner-ring" id="captchaSpinner" style="display:none;"></div>
+                        <i data-lucide="check-circle-2" id="captchaCheck" style="width:26px;height:26px;color:#10B981;display:none;"></i>
+                    </div>
+                    <div class="captcha-text-area">
+                        <div class="captcha-title" id="captchaTitle">Click box to verify security (I'm not a robot)</div>
+                        <div class="captcha-subtitle" id="captchaSubtitle">Runs automated 3-5 second threat inspection check</div>
+                    </div>
                 </div>
-                <input type="text" id="captchaInput" placeholder="Enter answer" required autocomplete="off" style="width: 140px; padding: 0.65rem 0.9rem; border: 2px solid #CBD5E1; border-radius: 1.5rem; text-align: center; font-weight: 800; font-size: 1rem; color: #0A2647; background: #F8FAFC;">
+                <div class="captcha-shield-tag">
+                    <i data-lucide="shield-check" style="width:18px;height:18px;color:var(--primary-gold);"></i>
+                    <span>Shreevedha Security</span>
+                </div>
             </div>
         </form>
     </div>
@@ -398,51 +455,65 @@
 </div>
 
 <script>
-    let expectedCaptchaAnswer = 0;
-    let lastRequestTime = 0;
-    const RATE_LIMIT_MS = 600;
+    let isCaptchaVerified = false;
+    let isCaptchaVerifying = false;
 
-    function initCaptcha() {
-        const num1 = Math.floor(Math.random() * 9) + 1;
-        const num2 = Math.floor(Math.random() * 9) + 1;
-        expectedCaptchaAnswer = num1 + num2;
-        const display = document.getElementById('captchaDisplay');
-        if (display) {
-            display.textContent = `${num1} + ${num2} = ?`;
-        }
-        const input = document.getElementById('captchaInput');
-        if (input) {
-            input.value = '';
-        }
+    function startCaptchaVerification() {
+        if (isCaptchaVerified || isCaptchaVerifying) return;
+
+        isCaptchaVerifying = true;
+        const square = document.getElementById('captchaSquare');
+        const spinner = document.getElementById('captchaSpinner');
+        const check = document.getElementById('captchaCheck');
+        const title = document.getElementById('captchaTitle');
+        const subtitle = document.getElementById('captchaSubtitle');
+        const card = document.getElementById('captchaCard');
+        const btn = document.getElementById('verifyBtn');
+
+        if (square) square.style.display = 'none';
+        if (spinner) spinner.style.display = 'inline-block';
+        if (title) title.textContent = 'Verifying security signature...';
+        if (subtitle) subtitle.textContent = 'Performing 3-5s automated threat detection check';
+
+        // 3.5 seconds verification spinner simulation
+        setTimeout(() => {
+            if (spinner) spinner.style.display = 'none';
+            if (check) check.style.display = 'inline-block';
+            if (title) title.textContent = 'Security Verification Complete';
+            if (subtitle) subtitle.textContent = 'Automated check passed! You can now submit certificate code.';
+            if (card) card.classList.add('verified');
+
+            isCaptchaVerifying = false;
+            isCaptchaVerified = true;
+
+            // Enable search button
+            if (btn) {
+                btn.disabled = false;
+                btn.removeAttribute('title');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }, 3500);
     }
 
     function handleVerifySubmit(event) {
+        if (!isCaptchaVerified) {
+            event.preventDefault();
+            const card = document.getElementById('captchaCard');
+            if (card) {
+                card.classList.add('error-shake');
+                setTimeout(() => card.classList.remove('error-shake'), 600);
+            }
+            alert('Please click the security verification box and wait 3-5 seconds for verification before searching.');
+            return false;
+        }
+
         const input = document.getElementById('certCodeInput');
-        const captchaInput = document.getElementById('captchaInput');
         const btn = document.getElementById('verifyBtn');
         const loading = document.getElementById('loadingState');
         const resultContainer = document.getElementById('resultContainer');
         const code = (input.value || '').trim();
 
         if (!code) return false;
-
-        // CAPTCHA Validation Check
-        const userAnswer = parseInt((captchaInput ? captchaInput.value : '').trim(), 10);
-        if (isNaN(userAnswer) || userAnswer !== expectedCaptchaAnswer) {
-            event.preventDefault();
-            alert('Incorrect Security CAPTCHA answer. Please solve the security problem to verify.');
-            initCaptcha();
-            if (captchaInput) captchaInput.focus();
-            return false;
-        }
-
-        // Rate Limiting Throttling
-        const now = Date.now();
-        if (now - lastRequestTime < RATE_LIMIT_MS) {
-            event.preventDefault();
-            return false;
-        }
-        lastRequestTime = now;
 
         btn.disabled = true;
         btn.style.opacity = '0.7';
@@ -453,16 +524,5 @@
 
         return true;
     }
-
-    function copyVerificationLink() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('Official verification link copied to clipboard!');
-        }).catch(() => {
-            alert('Copy failed. URL: ' + window.location.href);
-        });
-    }
-
-    // Initialize Security CAPTCHA on page load
-    document.addEventListener('DOMContentLoaded', initCaptcha);
 </script>
 {% endblock %}

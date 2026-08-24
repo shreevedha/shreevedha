@@ -87,24 +87,26 @@
         box-shadow: none;
     }
 
-    /* Compact Interactive Rotating CAPTCHA Widget */
-    .interactive-captcha-card {
+    /* Official Professional reCAPTCHA Style Widget */
+    .recaptcha-widget-card {
         margin-top: 1rem;
-        background: #F8FAFC;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        border: 1.5px solid #E2E8F0;
+        background: #F9FAFB;
+        border: 1px solid #D1D5DB;
+        border-radius: 4px;
+        padding: 10px 14px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 0.8rem;
-        transition: all 0.3s ease;
+        width: 300px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        user-select: none;
+        transition: all 0.2s ease;
     }
-    .interactive-captcha-card.verified {
+    .recaptcha-widget-card.verified {
         border-color: #10B981;
         background: #F0FDF4;
     }
-    .interactive-captcha-card.error-shake {
+    .recaptcha-widget-card.error-shake {
         border-color: #EF4444;
         animation: captchaShake 0.4s ease-in-out;
     }
@@ -114,42 +116,80 @@
         50% { transform: translateX(5px); }
     }
 
-    .captcha-checkbox-box {
+    .recaptcha-checkbox-area {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
+        gap: 12px;
         cursor: pointer;
-        user-select: none;
     }
-    .captcha-spinner-ring {
-        width: 20px;
-        height: 20px;
-        border: 2.5px solid #CBD5E1;
-        border-bottom-color: var(--primary-gold);
+    .recaptcha-box-outer {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .recaptcha-square {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border: 2px solid #C1C1C1;
+        border-radius: 2px;
+        transition: border-color 0.2s;
+    }
+    .recaptcha-checkbox-area:hover .recaptcha-square {
+        border-color: #A0A0A0;
+    }
+    .recaptcha-spinner-ring {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #E5E7EB;
+        border-bottom-color: #10B981;
         border-radius: 50%;
         display: inline-block;
         box-sizing: border-box;
         animation: rotation 0.8s linear infinite;
     }
-    .captcha-title {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #1E293B;
+    @keyframes rotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
-    .captcha-subtitle {
-        font-size: 0.72rem;
-        color: #64748B;
+    .recaptcha-checkmark-svg {
+        animation: checkPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes checkPop {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .recaptcha-text {
+        font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
         font-weight: 500;
+        color: #222222;
     }
-    .captcha-shield-tag {
+    .recaptcha-brand {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 0.3rem;
-        font-size: 0.7rem;
+        gap: 2px;
+        opacity: 0.85;
+    }
+    .recaptcha-brand-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1;
+    }
+    .recaptcha-brand-text span {
+        font-size: 9px;
         font-weight: 800;
-        color: #475569;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
+        color: #555555;
+        letter-spacing: 0.3px;
+    }
+    .recaptcha-brand-text small {
+        font-size: 7.5px;
+        color: #888888;
     }
 
     /* Loading Overlay & Spinner */
@@ -173,10 +213,6 @@
         display: inline-block;
         box-sizing: border-box;
         animation: rotation 0.8s linear infinite;
-    }
-    @keyframes rotation {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
     }
 
     /* Keyframe Animations for Status Badges */
@@ -263,14 +299,13 @@
         border-left: 3.5px solid var(--primary-gold);
     }
     .detail-item label {
-        font-size: 0.7%rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
         color: #64748B;
         font-weight: 800;
         display: block;
         margin-bottom: 0.2rem;
         letter-spacing: 0.5px;
-        font-size: 0.7rem;
     }
     .detail-item p {
         font-size: 0.95rem;
@@ -309,28 +344,35 @@
         <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="handleVerifySubmit(event)">
             <div class="search-input-group">
                 <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="Enter Certificate ID / Code" required autocomplete="off" spellcheck="false">
-                <button type="submit" id="verifyBtn" disabled title="Please complete security verification first">
+                <button type="submit" id="verifyBtn" disabled title="Please check 'I\'m not a robot' first">
                     <i data-lucide="search" id="btnIcon"></i>
                     <span id="btnText">Verify Certificate</span>
                 </button>
             </div>
 
-            <!-- Compact Rotating CAPTCHA Security Row -->
-            <div class="interactive-captcha-card" id="captchaCard">
-                <div class="captcha-checkbox-box" id="captchaBox" onclick="startCaptchaVerification()">
-                    <div id="captchaIconArea">
-                        <i data-lucide="square" id="captchaSquare" style="width:20px;height:20px;color:#94A3B8;"></i>
-                        <div class="captcha-spinner-ring" id="captchaSpinner" style="display:none;"></div>
-                        <i data-lucide="check-circle-2" id="captchaCheck" style="width:22px;height:22px;color:#10B981;display:none;"></i>
+            <!-- Professional reCAPTCHA Widget -->
+            <div class="recaptcha-widget-card" id="captchaCard">
+                <div class="recaptcha-checkbox-area" id="captchaBox" onclick="startCaptchaVerification()">
+                    <div class="recaptcha-box-outer">
+                        <div class="recaptcha-square" id="captchaSquare"></div>
+                        <div class="recaptcha-spinner-ring" id="captchaSpinner" style="display:none;"></div>
+                        <div class="recaptcha-checkmark-svg" id="captchaCheck" style="display:none;">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="#10B981" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="captcha-text-area">
-                        <div class="captcha-title" id="captchaTitle">Click box to verify security (I'm not a robot)</div>
-                        <div class="captcha-subtitle" id="captchaSubtitle">Runs 3-5s automated security threat check</div>
-                    </div>
+                    <span class="recaptcha-text" id="captchaTitle">I'm not a robot</span>
                 </div>
-                <div class="captcha-shield-tag">
-                    <i data-lucide="shield-check" style="width:16px;height:16px;color:var(--primary-gold);"></i>
-                    <span>Shreevedha Security</span>
+                <div class="recaptcha-brand">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary-blue)" stroke-width="2">
+                        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+                        <path d="M12 8v8M8 12h8" stroke="var(--primary-gold)" stroke-width="2"/>
+                    </svg>
+                    <div class="recaptcha-brand-text">
+                        <span>reCAPTCHA</span>
+                        <small>Privacy - Terms</small>
+                    </div>
                 </div>
             </div>
         </form>
@@ -451,32 +493,26 @@
         const square = document.getElementById('captchaSquare');
         const spinner = document.getElementById('captchaSpinner');
         const check = document.getElementById('captchaCheck');
-        const title = document.getElementById('captchaTitle');
-        const subtitle = document.getElementById('captchaSubtitle');
         const card = document.getElementById('captchaCard');
         const btn = document.getElementById('verifyBtn');
 
         if (square) square.style.display = 'none';
         if (spinner) spinner.style.display = 'inline-block';
-        if (title) title.textContent = 'Verifying security signature...';
-        if (subtitle) subtitle.textContent = 'Performing 3-5s automated threat detection check';
 
         // 3.5 seconds verification spinner simulation
         setTimeout(() => {
             if (spinner) spinner.style.display = 'none';
-            if (check) check.style.display = 'inline-block';
-            if (title) title.textContent = 'Security Verification Complete';
-            if (subtitle) subtitle.textContent = 'Automated check passed! You can now submit certificate code.';
+            if (check) check.style.display = 'block';
             if (card) card.classList.add('verified');
 
             isCaptchaVerifying = false;
             isCaptchaVerified = true;
 
+            // Enable search button (DO NOT auto-submit, user clicks manually)
             if (btn) {
                 btn.disabled = false;
                 btn.removeAttribute('title');
             }
-            if (window.lucide) window.lucide.createIcons();
         }, 3500);
     }
 
@@ -488,7 +524,7 @@
                 card.classList.add('error-shake');
                 setTimeout(() => card.classList.remove('error-shake'), 500);
             }
-            alert('Please click the security verification box and wait 3-5 seconds for verification before searching.');
+            alert('Please check "I\'m not a robot" and wait 3-5 seconds for verification checkmark before searching.');
             return false;
         }
 

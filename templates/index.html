@@ -720,6 +720,76 @@
     </div>
 </section>
 
+<!-- Featured Student Projects & Media Section -->
+<section class="section" style="background: #030A14; color: white;">
+    <div class="container">
+        <div style="text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 1.1rem; border-radius: 2rem; background: rgba(245, 166, 35, 0.15); border: 1px solid rgba(245, 166, 35, 0.5); color: var(--primary-gold); font-size: 0.78rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.8rem;">
+                <i data-lucide="rocket" style="width: 15px; height: 15px;"></i>
+                Student Showcase & Capstone Demos
+            </div>
+            <h2 class="section-title" style="color: white; margin-bottom: 0.5rem;">Featured Student Projects & Innovations</h2>
+            <p style="color: #94A3B8; max-width: 650px; margin: 0 auto 2.5rem;">Discover real-world AI neural models, Full-Stack applications, AWS DevOps pipelines, and IoT systems built by Shreevedha engineering students.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <!-- Card 1 -->
+            <div style="background: #0A2647; border-radius: 1.25rem; overflow: hidden; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <div style="height: 200px; overflow: hidden; position: relative;">
+                    <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.37_PM_thumb.jpg') }}" alt="AI Vision Model" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="play-circle" style="width: 48px; height: 48px; color: var(--primary-gold);"></i>
+                    </div>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <span style="color: var(--primary-gold); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.8px;">AI & MACHINE LEARNING</span>
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 800; margin: 0.4rem 0 0.6rem;">AI Computer Vision System</h3>
+                    <p style="color: #94A3B8; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.2rem;">Real-time computer vision detection and neural network classification API built with Python & PyTorch.</p>
+                    <a href="{{ url_for('projects') }}" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--primary-gold); font-weight: 800; font-size: 0.9rem; text-decoration: none;">Watch Media & Demo →</a>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div style="background: #0A2647; border-radius: 1.25rem; overflow: hidden; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <div style="height: 200px; overflow: hidden; position: relative;">
+                    <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_thumb.jpg') }}" alt="Cloud DevOps Pipeline" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="play-circle" style="width: 48px; height: 48px; color: var(--primary-gold);"></i>
+                    </div>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <span style="color: var(--primary-gold); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.8px;">CLOUD & DEVOPS</span>
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 800; margin: 0.4rem 0 0.6rem;">AWS Cloud DevOps CI/CD</h3>
+                    <p style="color: #94A3B8; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.2rem;">Terraform IaC, Dockerized microservices, and Kubernetes orchestration pipeline on AWS EKS.</p>
+                    <a href="{{ url_for('projects') }}" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--primary-gold); font-weight: 800; font-size: 0.9rem; text-decoration: none;">Watch Media & Demo →</a>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div style="background: #0A2647; border-radius: 1.25rem; overflow: hidden; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <div style="height: 200px; overflow: hidden; position: relative;">
+                    <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.56_PM_thumb.jpg') }}" alt="ServiceNow Workflow" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="play-circle" style="width: 48px; height: 48px; color: var(--primary-gold);"></i>
+                    </div>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <span style="color: var(--primary-gold); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.8px;">SERVICENOW & AUTOMATION</span>
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 800; margin: 0.4rem 0 0.6rem;">ServiceNow ITSM Automation</h3>
+                    <p style="color: #94A3B8; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.2rem;">Enterprise ServiceNow workflow design, automated incident dispatching, and REST integrations.</p>
+                    <a href="{{ url_for('projects') }}" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--primary-gold); font-weight: 800; font-size: 0.9rem; text-decoration: none;">Watch Media & Demo →</a>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2.5rem;">
+            <a href="{{ url_for('projects') }}" class="btn-gold" style="background: var(--primary-gold); color: #000; font-size: 1rem; padding: 0.85rem 2.2rem; border-radius: 2rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                Explore All Student Projects & Media Gallery →
+            </a>
+        </div>
+    </div>
+</section>
+
 <!-- Why Shreevedha -->
 <section class="section" style="background: #F8FAFC;">
     <div class="container">

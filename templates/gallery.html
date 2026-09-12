@@ -1,208 +1,240 @@
 {% extends "base.html" %}
 
-{% block title %}Project Gallery | Shreevedha Solutions{% endblock %}
+{% block title %}Project & Media Gallery | Shreevedha Solutions{% endblock %}
 
 {% block extra_css %}
 <style>
     .gallery-hero {
-        background: linear-gradient(135deg, #0A0A0A 0%, #0A2647 100%);
+        background: radial-gradient(circle at 50% 0%, #153E70 0%, #061329 60%, #020914 100%);
         color: white;
-        padding: 3rem 0;
+        padding: 3.5rem 1rem 3rem;
         text-align: center;
         position: relative;
+        border-bottom: 2px solid rgba(245, 166, 35, 0.3);
     }
     .gallery-hero h1 {
         font-size: 2.5rem;
         color: var(--primary-gold, #f5a623);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
     }
-    .add-btn {
+    .gallery-hero p {
+        font-size: 1.05rem;
+        color: #94A3B8;
+        max-width: 680px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Filter Bar */
+    .filter-container {
+        display: flex;
+        justify-content: center;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        margin: 2.5rem auto 1rem;
+        max-width: 1050px;
+    }
+    .filter-btn {
+        background: white;
+        border: 1.5px solid #E2E8F0;
+        color: #0A2647;
+        padding: 0.5rem 1.15rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .filter-btn:hover, .filter-btn.active {
+        background: linear-gradient(135deg, #0A2647 0%, #153E70 100%);
+        color: var(--primary-gold, #f5a623);
+        border-color: var(--primary-gold, #f5a623);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(10, 38, 71, 0.2);
+    }
+
+    /* Gallery Grid */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+        gap: 2rem;
+        margin: 2.5rem 0 4rem;
+    }
+    .gallery-card {
+        background: white;
+        border-radius: 1.15rem;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(10, 38, 71, 0.07);
+        border: 1.5px solid rgba(245, 166, 35, 0.25);
+        transition: all 0.35s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .gallery-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 36px rgba(10, 38, 71, 0.15);
+        border-color: var(--primary-gold, #f5a623);
+    }
+
+    .media-wrapper {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        background: #030A14;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    .media-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    .gallery-card:hover .media-wrapper img {
+        transform: scale(1.06);
+    }
+    .media-wrapper video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .video-play-overlay {
         position: absolute;
-        top: 1.5rem;
-        right: 2rem;
-        background: var(--primary-gold, #f5a623);
-        color: black;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
+        inset: 0;
+        background: rgba(0,0,0,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 10;
+        transition: background 0.3s;
     }
-    .add-btn:hover {
-        transform: scale(1.1);
-        background: var(--primary-blue, #1a3a6b);
-        color: white;
+    .media-wrapper:hover .video-play-overlay {
+        background: rgba(0,0,0,0.15);
     }
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 2rem;
-        margin: 3rem 0;
+    .play-btn-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: rgba(10, 38, 71, 0.85);
+        border: 2px solid var(--primary-gold, #f5a623);
+        color: var(--primary-gold, #f5a623);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+        transition: transform 0.3s ease;
     }
-    .flip-card {
-        background-color: transparent;
-        height: 380px;
-        perspective: 1000px;
-        cursor: pointer;
+    .media-wrapper:hover .play-btn-circle {
+        transform: scale(1.15);
+        background: var(--primary-gold, #f5a623);
+        color: #0A2647;
     }
-    .flip-card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.6s;
-        transform-style: preserve-3d;
-        border-radius: 1rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .flip-card.flipped .flip-card-inner {
-        transform: rotateY(180deg);
-    }
-    .flip-card-front, .flip-card-back {
+
+    .media-badge {
         position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-        border-radius: 1rem;
-        overflow: hidden;
+        top: 0.75rem;
+        left: 0.75rem;
+        background: rgba(10, 38, 71, 0.85);
+        color: var(--primary-gold, #f5a623);
+        border: 1px solid rgba(245, 166, 35, 0.5);
+        padding: 0.2rem 0.65rem;
+        border-radius: 1.5rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 5;
+        backdrop-filter: blur(4px);
     }
-    .flip-card-front {
-        background-color: white;
-        color: black;
-    }
-    .flip-card-front img {
-        width: 100%;
-        height: 280px;
-        object-fit: cover;
-    }
-    .front-content {
-        padding: 1rem;
-        background: white;
-    }
-    .front-content h3 {
-        font-size: 1.2rem;
-        color: var(--primary-blue, #1a3a6b);
-    }
-    .flip-card-back {
-        background: var(--primary-blue, #1a3a6b);
-        color: white;
-        transform: rotateY(180deg);
-        padding: 1.5rem;
+
+    .card-body {
+        padding: 1.25rem;
+        flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        text-align: left;
-        overflow-y: auto;
     }
-    .back-title {
-        font-size: 1.3rem;
-        margin-bottom: 0.5rem;
-        color: var(--primary-gold, #f5a623);
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #0A2647;
+        margin-bottom: 0.4rem;
+        line-height: 1.35;
     }
-    .back-description {
-        font-size: 0.9rem;
-        margin: 1rem 0;
+    .card-desc {
+        font-size: 0.86rem;
+        color: #64748B;
         line-height: 1.5;
-        flex-grow: 1;
-    }
-    .github-link {
-        background: var(--primary-gold, #f5a623);
-        color: black;
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        text-decoration: none;
-        display: inline-block;
-        font-weight: bold;
-        text-align: center;
-        margin-top: 1rem;
-    }
-    .github-link:hover {
-        background: white;
-        color: var(--primary-blue, #1a3a6b);
-    }
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(5px);
-        z-index: 1001;
-        display: none;
-        justify-content: center;
-        align-items: center;
-    }
-    .modal-overlay.active {
-        display: flex;
-    }
-    .modal-content {
-        background: white;
-        border-radius: 1rem;
-        width: 90%;
-        max-width: 550px;
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 2rem;
-        position: relative;
-        animation: slideUp 0.3s ease;
-    }
-    @keyframes slideUp {
-        from { transform: translateY(50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    .modal-close {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: none;
-        font-size: 1.8rem;
-        cursor: pointer;
-        color: #666;
-    }
-    .form-group {
         margin-bottom: 1rem;
     }
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.3rem;
-        color: var(--primary-blue, #1a3a6b);
-    }
-    .form-group input, .form-group textarea {
-        width: 100%;
-        padding: 0.6rem;
-        border: 1px solid #ccc;
-        border-radius: 0.5rem;
-    }
-    .btn-submit {
-        background: var(--primary-blue, #1a3a6b);
-        color: white;
-        border: none;
-        padding: 0.8rem;
-        border-radius: 0.5rem;
+    .btn-view-media {
+        background: #F1F5F9;
+        color: #0A2647;
+        border: 1px solid #CBD5E1;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.82rem;
+        font-weight: 800;
         cursor: pointer;
         width: 100%;
-        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: all 0.3s ease;
     }
-    .btn-submit:hover {
+    .btn-view-media:hover {
         background: var(--primary-gold, #f5a623);
-        color: black;
+        color: #0A2647;
+        border-color: var(--primary-gold, #f5a623);
     }
-    .no-projects {
-        text-align: center;
-        padding: 3rem;
-        color: #666;
-        grid-column: 1/-1;
+
+    /* Fullscreen HD Lightbox Modal */
+    .lightbox-modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(3, 10, 20, 0.95);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
     }
+    .lightbox-modal.active { display: flex; }
+    .lightbox-content {
+        position: relative;
+        max-width: 1000px;
+        width: 100%;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .lightbox-content img, .lightbox-content video {
+        max-width: 100%;
+        max-height: 75vh;
+        border-radius: 0.85rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .lightbox-close {
+        position: absolute;
+        top: -2.5rem; right: 0;
+        color: white; font-size: 2rem;
+        cursor: pointer; background: none; border: none;
+    }
+    .lightbox-close:hover { color: var(--primary-gold); }
+
     @media (max-width: 768px) {
-        .add-btn { width: 40px; height: 40px; top: 1rem; right: 1rem; }
-        .flip-card { height: 350px; }
+        .gallery-hero { padding: 2.5rem 1rem 2rem; }
+        .gallery-hero h1 { font-size: 1.85rem; }
+        .gallery-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
@@ -210,52 +242,297 @@
 {% block content %}
 <section class="gallery-hero">
     <div class="container">
-        <h1>Gallery</h1>
-        <p>Explore innovative projects built by our students – flip each card to see details</p>
+        <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 1.1rem; border-radius: 2rem; background: rgba(245, 166, 35, 0.12); border: 1px solid rgba(245, 166, 35, 0.4); color: var(--primary-gold); font-size: 0.78rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.8rem;">
+            <i data-lucide="image" style="width: 15px; height: 15px;"></i>
+            Industrial Media Showcase
+        </div>
+        <h1>Project & Media Gallery</h1>
+        <p>Explore high-resolution project screenshots, live demonstration videos, and capstone software resources built by Shreevedha engineering trainees.</p>
     </div>
 </section>
 
 <div class="container">
-    <div class="gallery-grid" id="projectsGrid">
-        {% if projects %}
-            {% for project in projects %}
-            <div class="flip-card" data-id="{{ project._id }}">
-                <div class="flip-card-inner">
-                    <div class="flip-card-front">
-                        <img src="{{ project.image_url or (url_for('static', filename='uploads/gallery/' + project.image_filename) if project.image_filename else 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop') }}" alt="{{ project.title }}">
-                        <div class="front-content">
-                            <h3>{{ project.title }}</h3>
-                        </div>
-                    </div>
-                    <div class="flip-card-back">
-                        <div>
-                            <div class="back-title">{{ project.title }}</div>
-                            <div class="back-description">{{ project.description | truncateWords(25) }}</div>
-                        </div>
-                        <div>
-                            {% if project.github_link %}
-                            <a href="{{ project.github_link }}" target="_blank" class="github-link"><i data-lucide="github" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"></i> View on GitHub</a>
-                            {% else %}
-                            <span style="opacity:0.7;">No GitHub link provided</span>
-                            {% endif %}
-                        </div>
-                    </div>
+    <!-- Category Filter Bar -->
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterGallery('all')">
+            <i data-lucide="grid" style="width: 15px; height: 15px;"></i> All Media (24)
+        </button>
+        <button class="filter-btn" onclick="filterGallery('video')">
+            <i data-lucide="video" style="width: 15px; height: 15px;"></i> Videos (14)
+        </button>
+        <button class="filter-btn" onclick="filterGallery('image')">
+            <i data-lucide="camera" style="width: 15px; height: 15px;"></i> Photos (10)
+        </button>
+        <button class="filter-btn" onclick="filterGallery('ai')">
+            <i data-lucide="cpu" style="width: 15px; height: 15px;"></i> AI & ML
+        </button>
+        <button class="filter-btn" onclick="filterGallery('fullstack')">
+            <i data-lucide="code" style="width: 15px; height: 15px;"></i> Full Stack Web
+        </button>
+        <button class="filter-btn" onclick="filterGallery('cloud')">
+            <i data-lucide="cloud" style="width: 15px; height: 15px;"></i> Cloud & DevOps
+        </button>
+        <button class="filter-btn" onclick="filterGallery('mobile')">
+            <i data-lucide="smartphone" style="width: 15px; height: 15px;"></i> Mobile & IoT
+        </button>
+        <button class="filter-btn" onclick="filterGallery('servicenow')">
+            <i data-lucide="settings" style="width: 15px; height: 15px;"></i> ServiceNow
+        </button>
+    </div>
+
+    <!-- Multi-Media Grid -->
+    <div class="gallery-grid" id="galleryGrid">
+        
+        <!-- PROJECT 1 MEDIA (AI & ML) -->
+        <div class="gallery-card" data-type="video" data-category="ai">
+            <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.37_PM.mp4') }}', 'video')">
+                <span class="media-badge">🎥 Video • AI & ML</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.37_PM_thumb.jpg') }}" alt="AI Vision Model Demo Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop';">
+                <div class="video-play-overlay">
+                    <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-projects">
-                <i data-lucide="folder-open" style="width: 48px; height: 48px; color: var(--primary-gold, #f5a623);"></i>
-                <p>No projects added yet. Check back soon for updates!</p>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">AI Computer Vision Model Demo</div>
+                    <div class="card-desc">Real-time object detection and PyTorch neural network classification demo video.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.37_PM.mp4') }}', 'video')">
+                    <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
+                </button>
             </div>
-        {% endif %}
+        </div>
+
+        <div class="gallery-card" data-type="image" data-category="ai">
+            <div class="media-wrapper" onclick="openLightbox(this.querySelector('img').src, 'image')">
+                <span class="media-badge">🖼️ Photo • AI & ML</span>
+                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.38_PM.jpeg') }}" alt="AI Vision Interface" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop';">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">AI Vision Detection UI</div>
+                    <div class="card-desc">High-precision neural network detection bounding boxes and confidence score overlay.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.38_PM.jpeg') }}', 'image')">
+                    <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i> View Full HD Image
+                </button>
+            </div>
+        </div>
+
+        <div class="gallery-card" data-type="image" data-category="ai">
+            <div class="media-wrapper" onclick="openLightbox(this.querySelector('img').src, 'image')">
+                <span class="media-badge">🖼️ Photo • AI & ML</span>
+                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.39_PM.jpeg') }}" alt="Neural Network Training" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop';">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">Neural Network Training Curve</div>
+                    <div class="card-desc">Loss/accuracy metrics chart during deep neural network model optimization.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.39_PM.jpeg') }}', 'image')">
+                    <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i> View Full HD Image
+                </button>
+            </div>
+        </div>
+
+        <!-- PROJECT 2 MEDIA (FULL STACK WEB) -->
+        <div class="gallery-card" data-type="video" data-category="fullstack">
+            <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}', 'video')">
+                <span class="media-badge">🎥 Video • Full Stack</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.41_PM_thumb.jpg') }}" alt="Full Stack SaaS Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop';">
+                <div class="video-play-overlay">
+                    <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">Full Stack E-Commerce & Portal Demo</div>
+                    <div class="card-desc">React.js & Node.js microservices marketplace portal walkthrough video.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}', 'video')">
+                    <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
+                </button>
+            </div>
+        </div>
+
+        <div class="gallery-card" data-type="video" data-category="fullstack">
+            <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.42_PM.mp4') }}', 'video')">
+                <span class="media-badge">🎥 Video • Full Stack</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.42_PM_thumb.jpg') }}" alt="React Dashboard Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop';">
+                <div class="video-play-overlay">
+                    <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">React Admin Dashboard Walkthrough</div>
+                    <div class="card-desc">Interactive dashboard analytics, inventory management, and RBAC security controls.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.42_PM.mp4') }}', 'video')">
+                    <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
+                </button>
+            </div>
+        </div>
+
+        <!-- PROJECT 3 MEDIA (CLOUD & DEVOPS) -->
+        <div class="gallery-card" data-type="video" data-category="cloud">
+            <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM.mp4') }}', 'video')">
+                <span class="media-badge">🎥 Video • Cloud DevOps</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_thumb.jpg') }}" alt="AWS DevOps Pipeline Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop';">
+                <div class="video-play-overlay">
+                    <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">AWS EKS Kubernetes Pipeline Demo</div>
+                    <div class="card-desc">Terraform IaC and Kubernetes container deployment pipeline video demonstration.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM.mp4') }}', 'video')">
+                    <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
+                </button>
+            </div>
+        </div>
+
+        <div class="gallery-card" data-type="image" data-category="cloud">
+            <div class="media-wrapper" onclick="openLightbox(this.querySelector('img').src, 'image')">
+                <span class="media-badge">🖼️ Photo • Cloud DevOps</span>
+                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}" alt="AWS Infrastructure Blueprint" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop';">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">AWS Architecture & Security Blueprint</div>
+                    <div class="card-desc">High-availability Multi-AZ VPC cloud infrastructure topology diagram.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}', 'image')">
+                    <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i> View Full HD Image
+                </button>
+            </div>
+        </div>
+
+        <!-- PROJECT 4 MEDIA (MOBILE & IOT) -->
+        <div class="gallery-card" data-type="video" data-category="mobile">
+            <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.54_PM.mp4') }}', 'video')">
+                <span class="media-badge">🎥 Video • Mobile & IoT</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.54_PM_thumb.jpg') }}" alt="Flutter Mobile App Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop';">
+                <div class="video-play-overlay">
+                    <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">Smart Campus Mobile App Demo</div>
+                    <div class="card-desc">Flutter cross-platform mobile UI linked with IoT hardware sensor data stream.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.54_PM.mp4') }}', 'video')">
+                    <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
+                </button>
+            </div>
+        </div>
+
+        <div class="gallery-card" data-type="image" data-category="mobile">
+            <div class="media-wrapper" onclick="openLightbox(this.querySelector('img').src, 'image')">
+                <span class="media-badge">🖼️ Photo • Mobile & IoT</span>
+                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.53_PM.jpeg') }}" alt="IoT Hardware Panel" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop';">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">NodeMCU IoT Hardware Controller</div>
+                    <div class="card-desc">Micro-controller circuit board wired with RFID biometrics and cloud WiFi module.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.53_PM.jpeg') }}', 'image')">
+                    <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i> View Full HD Image
+                </button>
+            </div>
+        </div>
+
+        <!-- PROJECT 5 MEDIA (SERVICENOW) -->
+        <div class="gallery-card" data-type="video" data-category="servicenow">
+            <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.56_PM.mp4') }}', 'video')">
+                <span class="media-badge">🎥 Video • ServiceNow</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.56_PM_thumb.jpg') }}" alt="ServiceNow ITSM Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop';">
+                <div class="video-play-overlay">
+                    <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">ServiceNow Incident Flow Automation</div>
+                    <div class="card-desc">ServiceNow Flow Designer automation video for IT ticket routing and SLA triggers.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.56_PM.mp4') }}', 'video')">
+                    <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
+                </button>
+            </div>
+        </div>
+
+        <div class="gallery-card" data-type="image" data-category="servicenow">
+            <div class="media-wrapper" onclick="openLightbox(this.querySelector('img').src, 'image')">
+                <span class="media-badge">🖼️ Photo • ServiceNow</span>
+                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.55_PM.jpeg') }}" alt="ServiceNow Portal UI" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop';">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="card-title">ServiceNow IT Service Catalog UI</div>
+                    <div class="card-desc">Enterprise Service Portal catalog items and automated request workflow.</div>
+                </div>
+                <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.55_PM.jpeg') }}', 'image')">
+                    <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i> View Full HD Image
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Fullscreen Lightbox Modal -->
+<div class="lightbox-modal" id="lightboxModal">
+    <div class="lightbox-content">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <div id="lightboxMediaContainer"></div>
     </div>
 </div>
 
 <script>
-    // Flip card on click
-    document.querySelectorAll('.flip-card').forEach(card => {
-        card.addEventListener('click', () => card.classList.toggle('flipped'));
+    function filterGallery(filter) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        const cards = document.querySelectorAll('.gallery-card');
+        cards.forEach(card => {
+            const type = card.dataset.type;
+            const category = card.dataset.category;
+
+            if (filter === 'all' || filter === type || filter === category) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function openLightbox(src, type) {
+        const modal = document.getElementById('lightboxModal');
+        const container = document.getElementById('lightboxMediaContainer');
+        
+        if (type === 'video') {
+            container.innerHTML = `<video src="${src}" controls autoplay style="max-width:100%; max-height:75vh; border-radius:0.85rem;"></video>`;
+        } else {
+            container.innerHTML = `<img src="${src}" style="max-width:100%; max-height:75vh; border-radius:0.85rem;" alt="Gallery Media" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop';">`;
+        }
+        
+        modal.classList.add('active');
+    }
+
+    function closeLightbox() {
+        const modal = document.getElementById('lightboxModal');
+        const container = document.getElementById('lightboxMediaContainer');
+        container.innerHTML = '';
+        modal.classList.remove('active');
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
     });
 </script>
 {% endblock %}

@@ -1,26 +1,42 @@
 [
   {
-    "title": "E-Commerce Platform",
-    "description": "A complete MERN stack e-commerce application with payment gateway integration and admin dashboard.",
+    "_id": 1,
+    "title": "Full Stack E-Commerce Engine",
+    "description": "Enterprise React & Node.js microservices marketplace with Stripe payment integration, real-time inventory, and Redis caching.",
     "github_link": "https://github.com/shreevedha",
-    "image_filename": "20260407_005117_grp5.jpg",
-    "created_at": "2026-05-27 19:19:58.970001",
-    "_id": 1
+    "image_url": "https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop",
+    "created_at": "2026-05-27 19:19:58.970001"
   },
   {
-    "title": "AI Chatbot Assistant",
-    "description": "An intelligent chatbot built using Python, NLP, and OpenAI API for customer support automation.",
-    "github_link": "",
-    "image_filename": "20260407_005117_grp5.jpg",
-    "created_at": "2026-05-27 19:19:58.971050",
-    "_id": 2
+    "_id": 2,
+    "title": "AI Medical Image Diagnostics",
+    "description": "Deep Learning CNN model trained to detect chest X-ray anomalies with 96.4% precision and real-time report generation.",
+    "github_link": "https://github.com/shreevedha",
+    "image_url": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop",
+    "created_at": "2026-05-27 19:19:58.971050"
   },
   {
-    "title": "Student Management System",
-    "description": "Full-fledged student management portal with attendance, grades, and report generation.",
+    "_id": 3,
+    "title": "Cloud Microservices Pipeline",
+    "description": "Automated CI/CD Kubernetes deployment pipeline on AWS EC2/EKS with Terraform infrastructure as code.",
     "github_link": "https://github.com/shreevedha",
-    "image_filename": "20260407_005117_grp5.jpg",
-    "created_at": "2026-05-27 19:19:58.988633",
-    "_id": 3
+    "image_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop",
+    "created_at": "2026-05-27 19:19:58.988633"
+  },
+  {
+    "_id": 4,
+    "title": "Cyber Threat Analytics System",
+    "description": "Real-time SIEM network packet inspection and anomaly detection engine powered by Snort and Python analytics.",
+    "github_link": "https://github.com/shreevedha",
+    "image_url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop",
+    "created_at": "2026-05-27 19:19:58.989000"
+  },
+  {
+    "_id": 5,
+    "title": "ServiceNow Automated Workflow",
+    "description": "Custom ServiceNow IT Service Management portal with automated incident ticket routing and SLA escalation triggers.",
+    "github_link": "https://github.com/shreevedha",
+    "image_url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop",
+    "created_at": "2026-05-27 19:19:58.990000"
   }
 ]

@@ -266,17 +266,11 @@
         <button class="filter-btn" onclick="filterGallery('ai')">
             <i data-lucide="cpu" style="width: 15px; height: 15px;"></i> AI & ML
         </button>
-        <button class="filter-btn" onclick="filterGallery('fullstack')">
-            <i data-lucide="code" style="width: 15px; height: 15px;"></i> Full Stack Web
-        </button>
-        <button class="filter-btn" onclick="filterGallery('cloud')">
-            <i data-lucide="cloud" style="width: 15px; height: 15px;"></i> Cloud & DevOps
-        </button>
         <button class="filter-btn" onclick="filterGallery('mobile')">
             <i data-lucide="smartphone" style="width: 15px; height: 15px;"></i> Mobile & IoT
         </button>
         <button class="filter-btn" onclick="filterGallery('servicenow')">
-            <i data-lucide="settings" style="width: 15px; height: 15px;"></i> ServiceNow
+            <i data-lucide="settings" style="width: 15px; height: 15px;"></i> ServiceNow & Automation
         </button>
     </div>
 
@@ -335,19 +329,19 @@
             </div>
         </div>
 
-        <!-- PROJECT 2 MEDIA (FULL STACK WEB) -->
-        <div class="gallery-card" data-type="video" data-category="fullstack">
+        <!-- PROJECT 2 MEDIA (MOBILE & IOT) -->
+        <div class="gallery-card" data-type="video" data-category="mobile">
             <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}', 'video')">
-                <span class="media-badge">🎥 Video • Full Stack</span>
-                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.41_PM_thumb.jpg') }}" alt="Full Stack SaaS Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop';">
+                <span class="media-badge">🎥 Video • Mobile & IoT</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.41_PM_thumb.jpg') }}" alt="Mobile System Demo Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop';">
                 <div class="video-play-overlay">
                     <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
                 </div>
             </div>
             <div class="card-body">
                 <div>
-                    <div class="card-title">Full Stack E-Commerce & Portal Demo</div>
-                    <div class="card-desc">React.js & Node.js microservices marketplace portal walkthrough video.</div>
+                    <div class="card-title">Mobile App Feature Demo</div>
+                    <div class="card-desc">Cross-platform application UI and real-time backend API data flow video walkthrough.</div>
                 </div>
                 <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}', 'video')">
                     <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
@@ -355,18 +349,18 @@
             </div>
         </div>
 
-        <div class="gallery-card" data-type="video" data-category="fullstack">
+        <div class="gallery-card" data-type="video" data-category="mobile">
             <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.42_PM.mp4') }}', 'video')">
-                <span class="media-badge">🎥 Video • Full Stack</span>
-                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.42_PM_thumb.jpg') }}" alt="React Dashboard Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop';">
+                <span class="media-badge">🎥 Video • Mobile & IoT</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.42_PM_thumb.jpg') }}" alt="Smart Device Control Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop';">
                 <div class="video-play-overlay">
                     <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
                 </div>
             </div>
             <div class="card-body">
                 <div>
-                    <div class="card-title">React Admin Dashboard Walkthrough</div>
-                    <div class="card-desc">Interactive dashboard analytics, inventory management, and RBAC security controls.</div>
+                    <div class="card-title">Smart Device Control App Walkthrough</div>
+                    <div class="card-desc">Interactive mobile interface for controlling connected hardware sensors and telemetry logs.</div>
                 </div>
                 <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.42_PM.mp4') }}', 'video')">
                     <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
@@ -374,19 +368,18 @@
             </div>
         </div>
 
-        <!-- PROJECT 3 MEDIA (CLOUD & DEVOPS) -->
-        <div class="gallery-card" data-type="video" data-category="cloud">
+        <div class="gallery-card" data-type="video" data-category="mobile">
             <div class="media-wrapper" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM.mp4') }}', 'video')">
-                <span class="media-badge">🎥 Video • Cloud DevOps</span>
-                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_thumb.jpg') }}" alt="AWS DevOps Pipeline Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop';">
+                <span class="media-badge">🎥 Video • Mobile & IoT</span>
+                <img src="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_thumb.jpg') }}" alt="IoT Network Demo Video" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop';">
                 <div class="video-play-overlay">
                     <div class="play-btn-circle"><i data-lucide="play" style="width: 22px; height: 22px; margin-left: 3px;"></i></div>
                 </div>
             </div>
             <div class="card-body">
                 <div>
-                    <div class="card-title">AWS EKS Kubernetes Pipeline Demo</div>
-                    <div class="card-desc">Terraform IaC and Kubernetes container deployment pipeline video demonstration.</div>
+                    <div class="card-title">IoT Network & Sensor Gateways Demo</div>
+                    <div class="card-desc">Real-time wireless sensor data transmission and micro-controller telemetry streaming.</div>
                 </div>
                 <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM.mp4') }}', 'video')">
                     <i data-lucide="play-circle" style="width: 15px; height: 15px;"></i> Watch Full Screen Video
@@ -394,15 +387,15 @@
             </div>
         </div>
 
-        <div class="gallery-card" data-type="image" data-category="cloud">
+        <div class="gallery-card" data-type="image" data-category="mobile">
             <div class="media-wrapper" onclick="openLightbox(this.querySelector('img').src, 'image')">
-                <span class="media-badge">🖼️ Photo • Cloud DevOps</span>
-                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}" alt="AWS Infrastructure Blueprint" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop';">
+                <span class="media-badge">🖼️ Photo • Mobile & IoT</span>
+                <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}" alt="Smart Campus Topology" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop';">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="card-title">AWS Architecture & Security Blueprint</div>
-                    <div class="card-desc">High-availability Multi-AZ VPC cloud infrastructure topology diagram.</div>
+                    <div class="card-title">Smart Campus IoT System Architecture</div>
+                    <div class="card-desc">High-availability sensor network topology and cloud connectivity diagram.</div>
                 </div>
                 <button class="btn-view-media" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}', 'image')">
                     <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i> View Full HD Image

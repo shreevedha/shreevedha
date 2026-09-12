@@ -1437,44 +1437,23 @@ app.get('/blog', (req, res) => {
 const defaultProjectsList = [
   {
     id: 'proj-1',
-    title: 'AI Medical Image Diagnostics',
-    description: 'Deep Learning CNN model trained to detect chest X-ray anomalies with 96.4% precision and real-time report generation.',
-    image_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop',
+    title: 'AI Computer Vision & Predictive Model',
+    description: 'Real-time computer vision detection, automated neural network validation, and intelligent image classification pipeline built with PyTorch.',
+    image_url: '/static/projects_media/WhatsApp_Image_2026-09-12_at_10.38.38_PM.jpeg',
     github_link: 'https://github.com/shreevedha'
   },
   {
     id: 'proj-2',
-    title: 'Full Stack E-Commerce Engine',
-    description: 'Enterprise React & Node.js microservices marketplace with Stripe payment integration, real-time inventory, and Redis caching.',
-    image_url: 'https://images.unsplash.com/photo-1556742049-0a67568d0d9f?w=600&auto=format&fit=crop',
+    title: 'Smart Campus & Biometric IoT Mobile System',
+    description: 'Hybrid cross-platform Flutter application synchronized with NodeMCU micro-controller sensors and cloud biometric logging.',
+    image_url: '/static/projects_media/WhatsApp_Image_2026-09-12_at_10.38.53_PM.jpeg',
     github_link: 'https://github.com/shreevedha'
   },
   {
     id: 'proj-3',
-    title: 'Cloud Microservices Pipeline',
-    description: 'Automated CI/CD Kubernetes deployment pipeline on AWS EC2/EKS with Terraform infrastructure as code.',
-    image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop',
-    github_link: 'https://github.com/shreevedha'
-  },
-  {
-    id: 'proj-4',
-    title: 'Cyber Threat Analytics System',
-    description: 'Real-time SIEM network packet inspection and anomaly detection engine powered by Snort and Python analytics.',
-    image_url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop',
-    github_link: 'https://github.com/shreevedha'
-  },
-  {
-    id: 'proj-5',
-    title: 'ServiceNow Automated Workflow',
-    description: 'Custom ServiceNow IT Service Management portal with automated incident ticket routing and SLA escalation triggers.',
-    image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop',
-    github_link: 'https://github.com/shreevedha'
-  },
-  {
-    id: 'proj-6',
-    title: 'Predictive Student Placement Analytics',
-    description: 'Data Science XGBoost model analyzing student skill assessments, project performance, and interview outcome probability.',
-    image_url: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&auto=format&fit=crop',
+    title: 'ServiceNow ITSM Workflow & Automated Dispatcher',
+    description: 'Custom ServiceNow enterprise workflows, IT service catalog development, automated incident response routing, and SLA escalation tracking.',
+    image_url: '/static/projects_media/WhatsApp_Image_2026-09-12_at_10.38.55_PM.jpeg',
     github_link: 'https://github.com/shreevedha'
   }
 ];

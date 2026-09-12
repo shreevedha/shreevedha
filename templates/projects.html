@@ -263,9 +263,7 @@
         justify-content: center;
         padding: 2rem;
     }
-    .lightbox-modal.active {
-        display: flex;
-    }
+    .lightbox-modal.active { display: flex; }
     .lightbox-content {
         position: relative;
         max-width: 1000px;
@@ -284,13 +282,9 @@
     }
     .lightbox-close {
         position: absolute;
-        top: -2.5rem;
-        right: 0;
-        color: white;
-        font-size: 2rem;
-        cursor: pointer;
-        background: none;
-        border: none;
+        top: -2.5rem; right: 0;
+        color: white; font-size: 2rem;
+        cursor: pointer; background: none; border: none;
         transition: color 0.2s;
     }
     .lightbox-close:hover { color: var(--primary-gold); }
@@ -312,24 +306,18 @@
             Innovation & Industry Projects
         </div>
         <h1>Student Projects & Media Showcase</h1>
-        <p>Explore real-world capstone projects, live software demos, AI neural models, and cloud infrastructure developed by Shreevedha Solutions students and engineering trainees.</p>
+        <p>Explore real-world capstone projects, live software demos, AI neural models, and IoT systems developed by Shreevedha Solutions students and engineering trainees.</p>
     </div>
 </section>
 
 <div class="container">
-    <!-- Category Filter Bar -->
+    <!-- Category Filter Bar (Full Stack & Cloud Removed) -->
     <div class="filter-container">
         <button class="filter-btn active" onclick="filterProjects('all')">
             <i data-lucide="grid" style="width: 15px; height: 15px;"></i> All Projects
         </button>
         <button class="filter-btn" onclick="filterProjects('ai')">
             <i data-lucide="cpu" style="width: 15px; height: 15px;"></i> AI & Machine Learning
-        </button>
-        <button class="filter-btn" onclick="filterProjects('fullstack')">
-            <i data-lucide="code" style="width: 15px; height: 15px;"></i> Full Stack Web
-        </button>
-        <button class="filter-btn" onclick="filterProjects('cloud')">
-            <i data-lucide="cloud" style="width: 15px; height: 15px;"></i> Cloud & DevOps
         </button>
         <button class="filter-btn" onclick="filterProjects('mobile')">
             <i data-lucide="smartphone" style="width: 15px; height: 15px;"></i> Mobile & IoT
@@ -349,25 +337,20 @@
                 <span class="slide-counter" id="counter-p1">1 / 5</span>
                 
                 <div class="media-slides-wrapper" id="wrapper-p1">
-                    <!-- Slide 1: Video -->
                     <div class="media-slide">
                         <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.37_PM_thumb.jpg') }}">
                             <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.37_PM.mp4') }}" type="video/mp4">
                         </video>
                     </div>
-                    <!-- Slide 2: Image -->
                     <div class="media-slide">
                         <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.38_PM.jpeg') }}" alt="AI Vision Model Demo" onclick="openLightbox(this.src, 'image')">
                     </div>
-                    <!-- Slide 3: Image -->
                     <div class="media-slide">
                         <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.39_PM.jpeg') }}" alt="Neural Net Analytics" onclick="openLightbox(this.src, 'image')">
                     </div>
-                    <!-- Slide 4: Image -->
                     <div class="media-slide">
                         <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.40_PM.jpeg') }}" alt="AI Model Performance" onclick="openLightbox(this.src, 'image')">
                     </div>
-                    <!-- Slide 5: Video -->
                     <div class="media-slide">
                         <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.40_PM_thumb.jpg') }}">
                             <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.40_PM.mp4') }}" type="video/mp4">
@@ -402,126 +385,13 @@
             </div>
         </div>
 
-        <!-- PROJECT 2: Full Stack Web -->
-        <div class="project-card" data-category="fullstack">
+        <!-- PROJECT 2: Mobile & IoT -->
+        <div class="project-card" data-category="mobile">
             <div class="media-carousel-container" id="carousel-p2">
-                <span class="media-type-badge">💻 FULL STACK WEB</span>
-                <span class="slide-counter" id="counter-p2">1 / 3</span>
+                <span class="media-type-badge">📱 MOBILE & IOT</span>
+                <span class="slide-counter" id="counter-p2">1 / 10</span>
                 
                 <div class="media-slides-wrapper" id="wrapper-p2">
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.41_PM_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.42_PM_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.42_PM.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.43_PM_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.43_PM.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                </div>
-
-                <button class="carousel-nav-btn prev" onclick="moveSlide('p2', -1)">❮</button>
-                <button class="carousel-nav-btn next" onclick="moveSlide('p2', 1)">❯</button>
-            </div>
-
-            <div class="project-info">
-                <div>
-                    <span class="project-category-badge">✦ Full Stack Web Track</span>
-                    <h3>Enterprise Multi-Tenant SaaS Portal</h3>
-                    <p>Production-ready web application with role-based dashboard control, dynamic data visualizer, secure JWT authentication, and SQL DB synchronization.</p>
-                    
-                    <div class="tech-stack-container">
-                        <span class="tech-pill">React.js</span>
-                        <span class="tech-pill">Node.js</span>
-                        <span class="tech-pill">Express</span>
-                        <span class="tech-pill">PostgreSQL</span>
-                        <span class="tech-pill">Tailwind</span>
-                    </div>
-                </div>
-
-                <div class="project-actions">
-                    <button class="btn-media-demo" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}', 'video')">
-                        <i data-lucide="play-circle" style="width: 16px; height: 16px;"></i> Watch Live Portal Demo
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PROJECT 3: Cloud & DevOps -->
-        <div class="project-card" data-category="cloud">
-            <div class="media-carousel-container" id="carousel-p3">
-                <span class="media-type-badge">☁️ CLOUD & DEVOPS</span>
-                <span class="slide-counter" id="counter-p3">1 / 6</span>
-                
-                <div class="media-slides-wrapper" id="wrapper-p3">
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_1_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM_1.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.51_PM_2_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM_2.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="media-slide">
-                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.52_PM_thumb.jpg') }}">
-                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.52_PM.mp4') }}" type="video/mp4">
-                        </video>
-                    </div>
-                    <div class="media-slide">
-                        <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}" alt="DevOps Infra Architecture" onclick="openLightbox(this.src, 'image')">
-                    </div>
-                    <div class="media-slide">
-                        <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM_1.jpeg') }}" alt="Cloud Monitoring Dashboard" onclick="openLightbox(this.src, 'image')">
-                    </div>
-                </div>
-
-                <button class="carousel-nav-btn prev" onclick="moveSlide('p3', -1)">❮</button>
-                <button class="carousel-nav-btn next" onclick="moveSlide('p3', 1)">❯</button>
-            </div>
-
-            <div class="project-info">
-                <div>
-                    <span class="project-category-badge">✦ Cloud & DevOps Track</span>
-                    <h3>AWS Cloud Automation & Kubernetes CI/CD</h3>
-                    <p>Infrastructure as Code with Terraform, automated zero-downtime microservices orchestration, and Jenkins CI/CD pipeline deployment on AWS EC2 & EKS.</p>
-                    
-                    <div class="tech-stack-container">
-                        <span class="tech-pill">AWS EC2/S3</span>
-                        <span class="tech-pill">Docker</span>
-                        <span class="tech-pill">Kubernetes</span>
-                        <span class="tech-pill">Terraform</span>
-                        <span class="tech-pill">Jenkins</span>
-                    </div>
-                </div>
-
-                <div class="project-actions">
-                    <button class="btn-media-demo" onclick="openLightbox('{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.51_PM.mp4') }}', 'video')">
-                        <i data-lucide="play-circle" style="width: 16px; height: 16px;"></i> Watch Pipeline Demo
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PROJECT 4: Mobile & IoT -->
-        <div class="project-card" data-category="mobile">
-            <div class="media-carousel-container" id="carousel-p4">
-                <span class="media-type-badge">📱 MOBILE & IOT</span>
-                <span class="slide-counter" id="counter-p4">1 / 6</span>
-                
-                <div class="media-slides-wrapper" id="wrapper-p4">
                     <div class="media-slide">
                         <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.53_PM.jpeg') }}" alt="Mobile App Screen" onclick="openLightbox(this.src, 'image')">
                     </div>
@@ -546,10 +416,28 @@
                             <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.54_PM_2.mp4') }}" type="video/mp4">
                         </video>
                     </div>
+                    <div class="media-slide">
+                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.41_PM_thumb.jpg') }}">
+                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.41_PM.mp4') }}" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="media-slide">
+                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.42_PM_thumb.jpg') }}">
+                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.42_PM.mp4') }}" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="media-slide">
+                        <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.43_PM_thumb.jpg') }}">
+                            <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.43_PM.mp4') }}" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="media-slide">
+                        <img src="{{ url_for('static', filename='projects_media/WhatsApp_Image_2026-09-12_at_10.38.52_PM.jpeg') }}" alt="IoT System Architecture" onclick="openLightbox(this.src, 'image')">
+                    </div>
                 </div>
 
-                <button class="carousel-nav-btn prev" onclick="moveSlide('p4', -1)">❮</button>
-                <button class="carousel-nav-btn next" onclick="moveSlide('p4', 1)">❯</button>
+                <button class="carousel-nav-btn prev" onclick="moveSlide('p2', -1)">❮</button>
+                <button class="carousel-nav-btn next" onclick="moveSlide('p2', 1)">❯</button>
             </div>
 
             <div class="project-info">
@@ -575,13 +463,13 @@
             </div>
         </div>
 
-        <!-- PROJECT 5: ServiceNow & Automation -->
+        <!-- PROJECT 3: ServiceNow & Automation -->
         <div class="project-card" data-category="servicenow">
-            <div class="media-carousel-container" id="carousel-p5">
+            <div class="media-carousel-container" id="carousel-p3">
                 <span class="media-type-badge">⚡ SERVICENOW & AUTOMATION</span>
-                <span class="slide-counter" id="counter-p5">1 / 4</span>
+                <span class="slide-counter" id="counter-p3">1 / 4</span>
                 
-                <div class="media-slides-wrapper" id="wrapper-p5">
+                <div class="media-slides-wrapper" id="wrapper-p3">
                     <div class="media-slide">
                         <video controls preload="metadata" poster="{{ url_for('static', filename='projects_media/thumbs/WhatsApp_Video_2026-09-12_at_10.38.56_PM_thumb.jpg') }}">
                             <source src="{{ url_for('static', filename='projects_media/WhatsApp_Video_2026-09-12_at_10.38.56_PM.mp4') }}" type="video/mp4">
@@ -600,8 +488,8 @@
                     </div>
                 </div>
 
-                <button class="carousel-nav-btn prev" onclick="moveSlide('p5', -1)">❮</button>
-                <button class="carousel-nav-btn next" onclick="moveSlide('p5', 1)">❯</button>
+                <button class="carousel-nav-btn prev" onclick="moveSlide('p3', -1)">❮</button>
+                <button class="carousel-nav-btn next" onclick="moveSlide('p3', 1)">❯</button>
             </div>
 
             <div class="project-info">
@@ -639,13 +527,10 @@
 </div>
 
 <script>
-    // Slider state tracker
     const slideState = {
         p1: { current: 0, total: 5 },
-        p2: { current: 0, total: 3 },
-        p3: { current: 0, total: 6 },
-        p4: { current: 0, total: 6 },
-        p5: { current: 0, total: 4 }
+        p2: { current: 0, total: 10 },
+        p3: { current: 0, total: 4 }
     };
 
     function moveSlide(projectId, direction) {

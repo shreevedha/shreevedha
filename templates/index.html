@@ -375,6 +375,106 @@
         border-radius: 6px;
     }
 
+    /* Executive Leadership Section */
+    .leadership-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    .leadership-card {
+        background: white;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(10, 38, 71, 0.08);
+        border: 1.5px solid rgba(245, 166, 35, 0.3);
+        transition: all 0.35s ease;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+    }
+    .leadership-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 45px rgba(10, 38, 71, 0.16);
+        border-color: var(--primary-gold);
+    }
+    .leadership-img-box {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: #061329;
+    }
+    .leadership-img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        transition: transform 0.5s ease;
+    }
+    .leadership-card:hover .leadership-img-box img {
+        transform: scale(1.06);
+    }
+    .leadership-role-badge {
+        position: absolute;
+        bottom: 0.75rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #0A2647 0%, #153E70 100%);
+        color: var(--primary-gold);
+        border: 1px solid rgba(245, 166, 35, 0.6);
+        padding: 0.35rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .leadership-content {
+        padding: 1.5rem 1.25rem 1.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .leadership-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 0.3rem;
+    }
+    .leadership-subrole {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary-gold);
+        margin-bottom: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .leadership-desc {
+        font-size: 0.88rem;
+        color: #64748B;
+        line-height: 1.55;
+        margin-bottom: 1rem;
+    }
+    .leadership-company {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #0A2647;
+        background: #F1F5F9;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.5rem;
+        display: inline-block;
+    }
+    @media (max-width: 992px) {
+        .leadership-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+        .leadership-grid { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 768px) {
         .hero .container {
             grid-template-columns: 1fr;
@@ -555,6 +655,70 @@
     </div>
 </section>
 {% endif %}
+
+<!-- Executive Leadership Section -->
+<section class="section" style="background: white;">
+    <div class="container">
+        <h2 class="section-title">Executive Leadership Team</h2>
+        <p style="text-align: center; color: var(--text-light, #666); max-width: 650px; margin: -1.5rem auto 2.5rem;">Guiding Shreevedha Solutions towards global excellence in tech education, institutional partnerships, and student transformation.</p>
+        
+        <div class="leadership-grid">
+            <!-- CEO Card -->
+            <div class="leadership-card">
+                <div class="leadership-img-box">
+                    <img src="{{ url_for('static', filename='images/leadership/ceo.png') }}" alt="Chief Executive Officer (CEO)">
+                    <div class="leadership-role-badge">Chief Executive Officer</div>
+                </div>
+                <div class="leadership-content">
+                    <div>
+                        <div class="leadership-name">CEO</div>
+                        <div class="leadership-subrole">Chief Executive Officer</div>
+                        <div class="leadership-desc">Driving strategic vision, corporate expansion, and global technology partnerships to empower learners with industry-ready capabilities.</div>
+                    </div>
+                    <div>
+                        <span class="leadership-company">Shreevedha Solutions India Pvt Ltd</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Managing Director Card -->
+            <div class="leadership-card">
+                <div class="leadership-img-box">
+                    <img src="{{ url_for('static', filename='images/leadership/managing_director.png') }}" alt="Managing Director">
+                    <div class="leadership-role-badge">Managing Director</div>
+                </div>
+                <div class="leadership-content">
+                    <div>
+                        <div class="leadership-name">Managing Director</div>
+                        <div class="leadership-subrole">Managing Director</div>
+                        <div class="leadership-desc">Leading operational excellence, university MOUs, and 100% placement execution to ensure student career success across all programs.</div>
+                    </div>
+                    <div>
+                        <span class="leadership-company">Shreevedha Solutions India Pvt Ltd</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Director Card -->
+            <div class="leadership-card">
+                <div class="leadership-img-box">
+                    <img src="{{ url_for('static', filename='images/leadership/director.png') }}" alt="Director">
+                    <div class="leadership-role-badge">Director</div>
+                </div>
+                <div class="leadership-content">
+                    <div>
+                        <div class="leadership-name">Director</div>
+                        <div class="leadership-subrole">Director</div>
+                        <div class="leadership-desc">Overseeing curriculum innovation, technology tracks, and practical mentoring to bridge the gap between academia and industry expectations.</div>
+                    </div>
+                    <div>
+                        <span class="leadership-company">Shreevedha Solutions India Pvt Ltd</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Why Shreevedha -->
 <section class="section" style="background: #F8FAFC;">

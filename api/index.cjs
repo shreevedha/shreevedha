@@ -77434,6 +77434,50 @@ function seedData() {
   if (certificates.length === 0) {
     const seededCertificates = [
       {
+        id: 5,
+        certificate_id: "SSIPL-AWS-2026-140",
+        user_id: 105,
+        course_id: "aws-devops",
+        student_name: "V. Naga Lavanya",
+        reg_no: "25X51D5820",
+        roll_no: "25X51D5820",
+        qualification: "M.Tech (CSE)",
+        college_name: "Santhiram Engineering College",
+        course_title: "AWS & DevOps Training Program",
+        certificate_type: "Certificate of Completion",
+        duration: "45 DAYS (07/2026 - 08/2026)",
+        mode: "ONLINE",
+        certification_status: "TRAINING COMPLETED",
+        skill_areas: "AWS \u2022 DEVOPS \u2022 CLOUD \u2022 AUTOMATION",
+        issuing_organization: "Shreevedha Solutions India Pvt Ltd",
+        grade: "TRAINING COMPLETED",
+        issue_date: "2026-08-24T00:00:00.000Z",
+        student: { name: "V. Naga Lavanya" },
+        course: { title: "AWS & DevOps Training Program" }
+      },
+      {
+        id: 6,
+        certificate_id: "SSIPL-AWS-2026-141",
+        user_id: 106,
+        course_id: "aws-devops",
+        student_name: "N. Mounika",
+        reg_no: "25X51D5811",
+        roll_no: "25X51D5811",
+        qualification: "M.Tech (CSE)",
+        college_name: "Santhiram Engineering College",
+        course_title: "AWS & DevOps Training Program",
+        certificate_type: "Certificate of Completion",
+        duration: "45 DAYS (07/2026 - 08/2026)",
+        mode: "ONLINE",
+        certification_status: "TRAINING COMPLETED",
+        skill_areas: "AWS \u2022 DEVOPS \u2022 CLOUD \u2022 AUTOMATION",
+        issuing_organization: "Shreevedha Solutions India Pvt Ltd",
+        grade: "TRAINING COMPLETED",
+        issue_date: "2026-08-24T00:00:00.000Z",
+        student: { name: "N. Mounika" },
+        course: { title: "AWS & DevOps Training Program" }
+      },
+      {
         id: 1,
         certificate_id: "SSIPL-AWS-2026-136",
         user_id: 101,
@@ -79486,13 +79530,27 @@ function generateCertificateCode(certType, courseTitleOrId, issueDate) {
   const randomNum = Math.floor(1e3 + Math.random() * 9e3);
   return `${prefix}-${typeCode}-${ym}-${courseCode}-${randomNum}`;
 }
-app.get("/verify-certificate", (req, res) => {
+app.get("/verify-certificate", async (req, res) => {
   const code = (req.query.code || req.query.id || "").toString().trim();
   if (!code) {
     return res.render("verify_certificate.html", { queried_code: null, certificate: null });
   }
-  const certificates = loadJson("certificates.json");
-  const cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
+  let cert = null;
+  try {
+    const dbRes = await querySupabase(
+      `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
+      [code]
+    );
+    if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
+      cert = dbRes.rows[0];
+    }
+  } catch (err) {
+    console.warn("DB certificate lookup failed, falling back to local json:", err);
+  }
+  if (!cert) {
+    const certificates = loadJson("certificates.json");
+    cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
+  }
   if (!cert) {
     return res.render("verify_certificate.html", { queried_code: code, certificate: null });
   }
@@ -79503,27 +79561,41 @@ app.get("/verify-certificate", (req, res) => {
     ...cert,
     student,
     course,
-    issue_date: cert.issue_date ? new Date(cert.issue_date) : /* @__PURE__ */ new Date()
+    issue_date: cert.issue_date ? isNaN(Date.parse(cert.issue_date)) ? cert.issue_date : new Date(cert.issue_date) : /* @__PURE__ */ new Date()
   };
   res.render("verify_certificate.html", { queried_code: code, certificate: certData });
 });
 app.get("/verify", (req, res) => {
   res.redirect("/verify-certificate" + (req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : ""));
 });
-app.get("/api/verify-certificate", (req, res) => {
+app.get("/api/verify-certificate", async (req, res) => {
   const code = (req.query.code || req.query.id || "").toString().trim();
   if (!code) {
     return res.json({ valid: false, message: "Please enter a certificate ID to verify." });
   }
-  const certificates = loadJson("certificates.json");
-  const cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
+  let cert = null;
+  try {
+    const dbRes = await querySupabase(
+      `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
+      [code]
+    );
+    if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
+      cert = dbRes.rows[0];
+    }
+  } catch (err) {
+    console.warn("DB certificate lookup failed, falling back to local json:", err);
+  }
+  if (!cert) {
+    const certificates = loadJson("certificates.json");
+    cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
+  }
   if (!cert) {
     return res.json({ valid: false, code, message: `No certificate record found for ID '${code}'. Please check the code and try again.` });
   }
   const users = loadJson("users.json");
   const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
   const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
-  const issueDateFormatted = cert.issue_date ? "24-08-2026" : "24-08-2026";
+  const issueDateFormatted = cert.issue_date ? typeof cert.issue_date === "string" && cert.issue_date.includes("-") && !cert.issue_date.includes("T") ? cert.issue_date : "24-08-2026" : "24-08-2026";
   return res.json({
     valid: true,
     certificate: {

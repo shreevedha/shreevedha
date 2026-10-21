@@ -1,5 +1,27 @@
 [
   {
+    "id": 7,
+    "certificate_id": "SSIPL-AWS-2026-144",
+    "user_id": 107,
+    "course_id": "aws-devops",
+    "student_name": "M. Haritha",
+    "reg_no": "25X51D1307",
+    "roll_no": "25X51D1307",
+    "qualification": "M.Tech (CSE-AIML)",
+    "college_name": "Santhiram Engineering College",
+    "course_title": "AWS & DevOps Training Program",
+    "certificate_type": "Certificate of Completion",
+    "duration": "45 DAYS (07/2026 - 08/2026)",
+    "mode": "ONLINE",
+    "certification_status": "TRAINING COMPLETED",
+    "skill_areas": "AWS • DEVOPS • CLOUD • AUTOMATION",
+    "issuing_organization": "Shreevedha Solutions India Pvt Ltd",
+    "grade": "TRAINING COMPLETED",
+    "issue_date": "2026-08-24T00:00:00.000Z",
+    "student": { "name": "M. Haritha" },
+    "course": { "title": "AWS & DevOps Training Program" }
+  },
+  {
     "id": 5,
     "certificate_id": "SSIPL-AWS-2026-140",
     "user_id": 105,

@@ -18,6 +18,7 @@ import { listPrivateFolderFiles } from './googleDriveService.ts';
 import { uploadToSupabase } from './supabaseService.ts';
 import { queryNeon } from './dbNeon.ts';
 import { querySupabase } from './dbSupabase.ts';
+import { getCertificatesFromGoogleSheet } from './googleSheetsService.ts';
 
 async function getNeonCourses() {
   try {
@@ -3409,18 +3410,34 @@ app.get('/verify-certificate', async (req, res) => {
   }
 
   let cert: any = null;
+
+  // 1. Check Google Sheet (live)
   try {
-    const dbRes = await querySupabase(
-      `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
-      [code]
+    const sheetCerts = await getCertificatesFromGoogleSheet();
+    cert = sheetCerts.find((c: any) =>
+      (c.certificate_id || '').toLowerCase() === code.toLowerCase() ||
+      (c.certificate_code || '').toLowerCase() === code.toLowerCase()
     );
-    if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
-      cert = dbRes.rows[0];
-    }
-  } catch (err) {
-    console.warn('DB certificate lookup failed, falling back to local json:', err);
+  } catch (sheetErr) {
+    console.warn('Google Sheet certificate lookup error:', sheetErr);
   }
 
+  // 2. Check Database (PostgreSQL / Neon)
+  if (!cert) {
+    try {
+      const dbRes = await querySupabase(
+        `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
+        [code]
+      );
+      if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
+        cert = dbRes.rows[0];
+      }
+    } catch (err) {
+      console.warn('DB certificate lookup failed, falling back to local json:', err);
+    }
+  }
+
+  // 3. Fallback to local JSON
   if (!cert) {
     const certificates = loadJson('certificates.json');
     cert = certificates.find((c: any) => (c.certificate_id || '').toLowerCase() === code.toLowerCase());
@@ -3455,18 +3472,34 @@ app.get('/api/verify-certificate', async (req, res) => {
   }
 
   let cert: any = null;
+
+  // 1. Check Google Sheet (live)
   try {
-    const dbRes = await querySupabase(
-      `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
-      [code]
+    const sheetCerts = await getCertificatesFromGoogleSheet();
+    cert = sheetCerts.find((c: any) =>
+      (c.certificate_id || '').toLowerCase() === code.toLowerCase() ||
+      (c.certificate_code || '').toLowerCase() === code.toLowerCase()
     );
-    if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
-      cert = dbRes.rows[0];
-    }
-  } catch (err) {
-    console.warn('DB certificate lookup failed, falling back to local json:', err);
+  } catch (sheetErr) {
+    console.warn('Google Sheet certificate lookup error:', sheetErr);
   }
 
+  // 2. Check Database (PostgreSQL / Neon)
+  if (!cert) {
+    try {
+      const dbRes = await querySupabase(
+        `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
+        [code]
+      );
+      if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
+        cert = dbRes.rows[0];
+      }
+    } catch (err) {
+      console.warn('DB certificate lookup failed, falling back to local json:', err);
+    }
+  }
+
+  // 3. Fallback to local JSON
   if (!cert) {
     const certificates = loadJson('certificates.json');
     cert = certificates.find((c: any) => (c.certificate_id || '').toLowerCase() === code.toLowerCase());

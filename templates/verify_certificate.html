@@ -424,7 +424,7 @@
     <div class="search-card">
         <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="return handleVerifySubmit(event)">
             <div class="search-input-group">
-                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="ENTER CERTIFICATE ID / CODE" required autocomplete="off" spellcheck="false" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleVerifySubmit(event); }">
+                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="ENTER CERTIFICATE ID / CODE" required autocomplete="off" spellcheck="false" oninput="onCertInputChanged()" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleVerifySubmit(event); }">
                 <button type="submit" id="verifyBtn" disabled title="Please check 'I\'m not a robot' first">
                     <i data-lucide="search" id="btnIcon"></i>
                     <span id="btnText">Verify Credential</span>
@@ -507,6 +507,8 @@
 <script>
     let isCaptchaVerified = false;
     let isCaptchaVerifying = false;
+    let captchaTimer = null;
+    let lastVerifiedCode = '';
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -516,6 +518,85 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    function onCertInputChanged() {
+        const input = document.getElementById('certCodeInput');
+        const currentCode = (input && input.value ? input.value : '').trim();
+
+        // Reset CAPTCHA and require reverification whenever input changes from the verified code
+        if (isCaptchaVerified || isCaptchaVerifying || currentCode !== lastVerifiedCode) {
+            resetCaptcha(currentCode);
+        }
+    }
+
+    function resetCaptcha(currentCode) {
+        if (captchaTimer) {
+            clearTimeout(captchaTimer);
+            captchaTimer = null;
+        }
+        isCaptchaVerified = false;
+        isCaptchaVerifying = false;
+        lastVerifiedCode = '';
+
+        const square = document.getElementById('captchaSquare');
+        const spinner = document.getElementById('captchaSpinner');
+        const check = document.getElementById('captchaCheck');
+        const card = document.getElementById('captchaCard');
+        const title = document.getElementById('captchaTitle');
+        const btn = document.getElementById('verifyBtn');
+        const notice = document.getElementById('captchaNotice');
+
+        if (square) square.style.display = 'block';
+        if (spinner) spinner.style.display = 'none';
+        if (check) check.style.display = 'none';
+        if (card) {
+            card.classList.remove('verified');
+            card.classList.remove('error-shake');
+        }
+        if (title) title.textContent = "I'm not a robot";
+        if (notice) notice.style.display = 'none';
+
+        if (btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.title = "Please check 'I\'m not a robot' first";
+            const btnText = document.getElementById('btnText');
+            if (btnText) btnText.textContent = 'Verify Credential';
+        }
+
+        const resultContainer = document.getElementById('resultContainer');
+        if (resultContainer) {
+            if (currentCode) {
+                resultContainer.innerHTML = `
+                <div class="result-card verification-gate" id="verificationGateNotice" style="border: 2px dashed #CBD5E1; text-align: center; padding: 2.3rem 1.5rem; background: #F8FAFC;">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: #EFF6FF; border: 2px solid #3B82F6; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i data-lucide="shield-alert" style="width: 28px; height: 28px; color: #2563EB;"></i>
+                    </div>
+                    <h3 style="color: #0A2647; font-size: 1.35rem; font-weight: 800; margin: 0 0 0.5rem;">reCAPTCHA Reverification Required</h3>
+                    <p style="color: #64748B; font-size: 0.95rem; max-width: 540px; margin: 0 auto 1.25rem; line-height: 1.5;">
+                        Certificate ID has changed. Please check <strong>"I'm not a robot"</strong> above to reverify and search this credential.
+                    </p>
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #FEF3C7; border: 1px solid #F59E0B; padding: 0.45rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 700; color: #92400E;">
+                        <i data-lucide="key-round" style="width: 14px; height: 14px; color: #D97706;"></i>
+                        New Credential ID: <code style="background: white; padding: 2px 7px; border-radius: 4px; font-weight: 800; color: #0A2647; font-family: monospace;">${escapeHtml(currentCode)}</code>
+                    </div>
+                </div>`;
+            } else {
+                resultContainer.innerHTML = `
+                <div class="result-card verification-gate" id="initialPromptNotice" style="border: 2px dashed #E2E8F0; text-align: center; padding: 2.3rem 1.5rem; background: #FAFAFA;">
+                    <div style="width: 52px; height: 52px; border-radius: 50%; background: #F1F5F9; border: 1.5px solid #CBD5E1; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.85rem;">
+                        <i data-lucide="shield-check" style="width: 26px; height: 26px; color: #0A2647;"></i>
+                    </div>
+                    <h3 style="color: #0A2647; font-size: 1.25rem; font-weight: 800; margin: 0 0 0.4rem;">Official Central Academic Registry</h3>
+                    <p style="color: #64748B; font-size: 0.92rem; max-width: 500px; margin: 0 auto; line-height: 1.5;">
+                        Enter a Certificate ID above and complete the reCAPTCHA challenge to verify official credentials in real-time.
+                    </p>
+                </div>`;
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
     }
 
     function showCaptchaError(message) {
@@ -552,9 +633,10 @@
         if (notice) notice.style.display = 'none';
         if (square) square.style.display = 'none';
         if (spinner) spinner.style.display = 'inline-block';
+        if (title) title.textContent = "Verifying human...";
 
-        // 1.2s smooth verification simulation
-        setTimeout(() => {
+        // 4 to 5 seconds verification loading time (4500ms)
+        captchaTimer = setTimeout(() => {
             if (spinner) spinner.style.display = 'none';
             if (check) check.style.display = 'block';
             if (card) {
@@ -565,6 +647,11 @@
 
             isCaptchaVerifying = false;
             isCaptchaVerified = true;
+            captchaTimer = null;
+
+            const input = document.getElementById('certCodeInput');
+            const code = (input && input.value ? input.value : '').trim();
+            lastVerifiedCode = code;
 
             if (btn) {
                 btn.disabled = false;
@@ -573,13 +660,11 @@
                 btn.style.cursor = 'pointer';
             }
 
-            // If a certificate code is already present, automatically search and reveal it!
-            const input = document.getElementById('certCodeInput');
-            const code = (input && input.value ? input.value : '').trim();
+            // Automatically search and reveal certificate once reCAPTCHA completes!
             if (code) {
                 executeVerification(code);
             }
-        }, 1200);
+        }, 4500);
     }
 
     function handleVerifySubmit(event) {
@@ -767,6 +852,7 @@
             return;
         }
 
+        lastVerifiedCode = code;
         const btn = document.getElementById('verifyBtn');
         const loading = document.getElementById('loadingState');
         const resultContainer = document.getElementById('resultContainer');

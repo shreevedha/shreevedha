@@ -1,5 +1,27 @@
 [
   {
+    "id": 10,
+    "certificate_id": "SSIPL-AWS-2026-148",
+    "user_id": 110,
+    "course_id": "aws-devops",
+    "student_name": "S. Mohammed Azmatulla",
+    "reg_no": "25X51D5819",
+    "roll_no": "25X51D5819",
+    "qualification": "M.Tech (VLSI System Design)",
+    "college_name": "Santhiram Engineering College",
+    "course_title": "AWS & DevOps Training Program",
+    "certificate_type": "Certificate of Completion",
+    "duration": "45 DAYS (07/2026 - 08/2026)",
+    "mode": "ONLINE",
+    "certification_status": "TRAINING COMPLETED",
+    "skill_areas": "AWS • DEVOPS • CLOUD • AUTOMATION",
+    "issuing_organization": "Shreevedha Solutions India Pvt Ltd",
+    "grade": "TRAINING COMPLETED",
+    "issue_date": "2026-08-24T00:00:00.000Z",
+    "student": { "name": "S. Mohammed Azmatulla" },
+    "course": { "title": "AWS & DevOps Training Program" }
+  },
+  {
     "id": 8,
     "certificate_id": "SSIPL-AWS-2026-147",
     "user_id": 108,

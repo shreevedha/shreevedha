@@ -79724,56 +79724,26 @@ function generateCertificateCode(certType, courseTitleOrId, issueDate) {
   const randomNum = Math.floor(1e3 + Math.random() * 9e3);
   return `${prefix}-${typeCode}-${ym}-${courseCode}-${randomNum}`;
 }
-app.get("/verify-certificate", async (req, res) => {
+app.get("/verify-certificate", (req, res) => {
   const code = (req.query.code || req.query.id || "").toString().trim();
-  if (!code) {
-    return res.render("verify_certificate.html", { queried_code: null, certificate: null });
-  }
-  let cert = null;
-  try {
-    const sheetCerts = await getCertificatesFromGoogleSheet();
-    cert = sheetCerts.find(
-      (c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase() || (c.certificate_code || "").toLowerCase() === code.toLowerCase()
-    );
-  } catch (sheetErr) {
-    console.warn("Google Sheet certificate lookup error:", sheetErr);
-  }
-  if (!cert) {
-    try {
-      const dbRes = await querySupabase(
-        `SELECT * FROM certificates WHERE LOWER(certificate_id) = LOWER($1) OR LOWER(certificate_code) = LOWER($1) LIMIT 1`,
-        [code]
-      );
-      if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
-        cert = dbRes.rows[0];
-      }
-    } catch (err) {
-      console.warn("DB certificate lookup failed, falling back to local json:", err);
-    }
-  }
-  if (!cert) {
-    const certificates = loadJson("certificates.json");
-    cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
-  }
-  if (!cert) {
-    return res.render("verify_certificate.html", { queried_code: code, certificate: null });
-  }
-  const users = loadJson("users.json");
-  const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
-  const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
-  const certData = {
-    ...cert,
-    student,
-    course,
-    issue_date: cert.issue_date ? isNaN(Date.parse(cert.issue_date)) ? cert.issue_date : new Date(cert.issue_date) : /* @__PURE__ */ new Date()
-  };
-  res.render("verify_certificate.html", { queried_code: code, certificate: certData });
+  res.render("verify_certificate.html", { queried_code: code || null, certificate: null });
 });
 app.get("/verify", (req, res) => {
   res.redirect("/verify-certificate" + (req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : ""));
 });
+app.get("/certificates/verify", (req, res) => {
+  res.redirect("/verify-certificate" + (req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : ""));
+});
 app.get("/api/verify-certificate", async (req, res) => {
   const code = (req.query.code || req.query.id || "").toString().trim();
+  const captcha = (req.query.captcha || req.headers["x-captcha-verified"] || "").toString().trim();
+  if (!captcha || captcha !== "verified" && captcha !== "1" && captcha !== "true") {
+    return res.status(403).json({
+      valid: false,
+      error: "CAPTCHA_REQUIRED",
+      message: `reCAPTCHA verification required. Please check "I'm not a robot" before searching.`
+    });
+  }
   if (!code) {
     return res.json({ valid: false, message: "Please enter a certificate ID to verify." });
   }
@@ -79804,12 +79774,32 @@ app.get("/api/verify-certificate", async (req, res) => {
     cert = certificates.find((c) => (c.certificate_id || "").toLowerCase() === code.toLowerCase());
   }
   if (!cert) {
-    return res.json({ valid: false, code, message: `No certificate record found for ID '${code}'. Please check the code and try again.` });
+    return res.json({
+      valid: false,
+      code,
+      message: `The Certificate ID '${code}' is NOT VERIFIED. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.`
+    });
   }
   const users = loadJson("users.json");
   const student = users.find((u) => u.id === cert.user_id) || { name: cert.student_name || "Jane Student" };
   const course = COURSES_DATA.find((cr) => cr.id === cert.course_id) || { title: cert.course_title || cert.course_id, name: cert.course_title || cert.course_id };
-  const issueDateFormatted = cert.issue_date ? typeof cert.issue_date === "string" && cert.issue_date.includes("-") && !cert.issue_date.includes("T") ? cert.issue_date : "24-08-2026" : "24-08-2026";
+  let issueDateFormatted = "24-08-2026";
+  if (cert.issue_date) {
+    if (typeof cert.issue_date === "string" && cert.issue_date.includes("-") && !cert.issue_date.includes("T")) {
+      issueDateFormatted = cert.issue_date;
+    } else {
+      try {
+        const d = new Date(cert.issue_date);
+        if (!isNaN(d.getTime())) {
+          const dd = String(d.getDate()).padStart(2, "0");
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const yyyy = d.getFullYear();
+          issueDateFormatted = `${dd}-${mm}-${yyyy}`;
+        }
+      } catch (e) {
+      }
+    }
+  }
   return res.json({
     valid: true,
     certificate: {
@@ -80481,8 +80471,10 @@ if (!process.env.VERCEL && !process.env.VERCEL_ENV && !process.env.NOW_REGION) {
     console.log(`Express server running on http://0.0.0.0:${PORT}`);
   });
 }
-module.exports = app;
-module.exports.default = app;
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = app;
+  module.exports.default = app;
+}
 var server_default = app;
 /*! Bundled license information:
 

@@ -119,33 +119,41 @@
         background: #F9FAFB;
         border: 1.5px solid #D1D5DB;
         border-radius: 6px;
-        padding: 8px 12px;
+        padding: 9px 14px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 290px;
+        width: 300px;
         max-width: 100%;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         user-select: none;
+        transition: all 0.25s ease;
+    }
+    .recaptcha-widget-card:hover {
+        border-color: #9CA3AF;
+        background: #F3F4F6;
     }
     .recaptcha-widget-card.verified {
-        border-color: #10B981;
-        background: #F0FDF4;
+        border-color: #10B981 !important;
+        background: #F0FDF4 !important;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
     }
     .recaptcha-widget-card.error-shake {
-        border-color: #EF4444;
-        animation: captchaShake 0.4s ease-in-out;
+        border-color: #EF4444 !important;
+        background: #FEF2F2 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+        animation: captchaShake 0.45s ease-in-out;
     }
     @keyframes captchaShake {
         0%, 100% { transform: translateX(0); }
-        25%, 75% { transform: translateX(-6px); }
-        50% { transform: translateX(6px); }
+        20%, 60% { transform: translateX(-7px); }
+        40%, 80% { transform: translateX(7px); }
     }
 
     .recaptcha-checkbox-area {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         cursor: pointer;
     }
     .recaptcha-box-outer {
@@ -156,17 +164,21 @@
         justify-content: center;
     }
     .recaptcha-square {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
         background: white;
         border: 2px solid #C1C1C1;
         border-radius: 3px;
+        transition: border-color 0.2s ease;
+    }
+    .recaptcha-checkbox-area:hover .recaptcha-square {
+        border-color: #94A3B8;
     }
     .recaptcha-spinner-ring {
         width: 22px;
         height: 22px;
         border: 3px solid #E5E7EB;
-        border-bottom-color: #10B981;
+        border-bottom-color: #2563EB;
         border-radius: 50%;
         display: inline-block;
         box-sizing: border-box;
@@ -204,6 +216,27 @@
     .recaptcha-brand-text small {
         font-size: 7px;
         color: #94A3B8;
+    }
+
+    .captcha-notice-box {
+        margin-top: 0.65rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #DC2626;
+        display: none;
+        align-items: center;
+        gap: 0.4rem;
+        background: #FEE2E2;
+        border: 1px solid #FCA5A5;
+        padding: 0.4rem 0.85rem;
+        border-radius: 6px;
+        width: fit-content;
+        max-width: 100%;
+        animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     /* Loading Container */
@@ -389,9 +422,9 @@
 <div class="container">
     <!-- Compact Floating Search Form Card -->
     <div class="search-card">
-        <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="handleVerifySubmit(event)">
+        <form method="GET" action="{{ url_for('public_verify_certificate') }}" class="search-box" id="verifyForm" style="flex-direction: column;" onsubmit="return handleVerifySubmit(event)">
             <div class="search-input-group">
-                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="ENTER CERTIFICATE ID / CODE" required autocomplete="off" spellcheck="false">
+                <input type="text" name="code" id="certCodeInput" value="{{ queried_code or '' }}" placeholder="ENTER CERTIFICATE ID / CODE" required autocomplete="off" spellcheck="false" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); handleVerifySubmit(event); }">
                 <button type="submit" id="verifyBtn" disabled title="Please check 'I\'m not a robot' first">
                     <i data-lucide="search" id="btnIcon"></i>
                     <span id="btnText">Verify Credential</span>
@@ -405,7 +438,7 @@
                         <div class="recaptcha-square" id="captchaSquare"></div>
                         <div class="recaptcha-spinner-ring" id="captchaSpinner" style="display:none;"></div>
                         <div class="recaptcha-checkmark-svg" id="captchaCheck" style="display:none;">
-                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="#10B981" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="#10B981" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                         </div>
@@ -423,6 +456,12 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Inline reCAPTCHA Warning -->
+            <div id="captchaNotice" class="captcha-notice-box">
+                <i data-lucide="alert-circle" style="width: 15px; height: 15px; flex-shrink: 0;"></i>
+                <span id="captchaNoticeText">Please check "I'm not a robot" before searching.</span>
+            </div>
         </form>
     </div>
 
@@ -433,161 +472,34 @@
         <p style="font-size: 0.85rem; color: #64748B; margin: 0;">Validating official credential security signatures</p>
     </div>
 
-    <!-- Compact Result Details Card -->
+    <!-- Compact Result Details Card Container -->
     <div id="resultContainer">
     {% if queried_code %}
-        {% if certificate %}
-        <!-- GREEN VERIFIED STATE - EXACT SEQUENTIAL 12-FIELD ORDER -->
-        <div class="result-card success">
-            <div class="status-header">
-                <div class="status-badge success">
-                    <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
-                    VERIFIED • OFFICIALLY VALID CREDENTIAL
-                </div>
-                <div style="font-size: 0.8rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
-                    <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
-                    Issuing Authority: <strong style="color: #0A2647;">Shreevedha Solutions India Pvt Ltd</strong>
-                </div>
+        <!-- GATED WAITING STATE: Link or QR code arrived with a certificate ID -->
+        <div class="result-card verification-gate" id="verificationGateNotice" style="border: 2px dashed #CBD5E1; text-align: center; padding: 2.3rem 1.5rem; background: #F8FAFC;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: #EFF6FF; border: 2px solid #3B82F6; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i data-lucide="shield-alert" style="width: 28px; height: 28px; color: #2563EB;"></i>
             </div>
-
-            <!-- Student Honor Banner -->
-            <div class="achievement-banner">
-                <div>
-                    <h3 class="achievement-title">{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'N/A') }}</h3>
-                    <p class="achievement-subtitle">{{ certificate.course_title if certificate.course_title else (certificate.course.title if certificate.course else certificate.course_id) }}</p>
-                </div>
-                <div style="background: white; padding: 0.4rem 0.85rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; text-align: center;">
-                    <span style="font-size: 0.68rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
-                    <strong style="color: #059669; font-size: 0.9rem;">{{ certificate.certification_status if certificate.certification_status else 'TRAINING COMPLETED' }}</strong>
-                </div>
-            </div>
-
-            <!-- Exact 12-Field Sequential Order Grid -->
-            <div class="cert-details-grid">
-                <!-- 1. Student Full Name -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="user" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Student Full Name</label>
-                    </div>
-                    <p>{{ certificate.student_name if certificate.student_name else (certificate.student.name if certificate.student else 'N/A') }}</p>
-                </div>
-
-                <!-- 2. Reg. No. / Roll Number -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="hash" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Reg. No. / Roll Number</label>
-                    </div>
-                    <p style="font-family: monospace; letter-spacing: 0.5px;">{{ certificate.reg_no if certificate.reg_no else (certificate.roll_no if certificate.roll_no else 'N/A') }}</p>
-                </div>
-
-                <!-- 3. Qualification / Branch -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="graduation-cap" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Qualification / Branch</label>
-                    </div>
-                    <p>{{ certificate.qualification if certificate.qualification else 'N/A' }}</p>
-                </div>
-
-                <!-- 4. College / Institution -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="building-2" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>College / Institution</label>
-                    </div>
-                    <p>{{ certificate.college_name if certificate.college_name else 'N/A' }}</p>
-                </div>
-
-                <!-- 5. Program / Course Title -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="book-open" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Program / Course Title</label>
-                    </div>
-                    <p>{{ certificate.course_title if certificate.course_title else (certificate.course.title if certificate.course else certificate.course_id) }}</p>
-                </div>
-
-                <!-- 6. Certificate Code / ID -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="key-round" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Certificate Code / ID</label>
-                    </div>
-                    <p style="font-family: monospace; letter-spacing: 0.5px;"><code>{{ certificate.certificate_id }}</code></p>
-                </div>
-
-                <!-- 7. Course Duration -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="clock" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Course Duration</label>
-                    </div>
-                    <p>{{ certificate.duration if certificate.duration else 'N/A' }}</p>
-                </div>
-
-                <!-- 8. Training Mode -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="laptop" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Training Mode</label>
-                    </div>
-                    <p>{{ certificate.mode if certificate.mode else 'ONLINE' }}</p>
-                </div>
-
-                <!-- 9. Certification Status -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="award" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Certification Status</label>
-                    </div>
-                    <p><span style="color: #059669;">{{ certificate.certification_status if certificate.certification_status else (certificate.grade if certificate.grade else 'TRAINING COMPLETED') }}</span></p>
-                </div>
-
-                <!-- 10. Skill Areas -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="cpu" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Skill Areas</label>
-                    </div>
-                    <p style="font-size: 0.88rem; color: #0A2647;">{{ certificate.skill_areas if certificate.skill_areas else 'AWS • DEVOPS • CLOUD • AUTOMATION' }}</p>
-                </div>
-
-                <!-- 11. Date of Issuance -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="calendar" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Date of Issuance</label>
-                    </div>
-                    <p>24-08-2026</p>
-                </div>
-
-                <!-- 12. Issuing Organization -->
-                <div class="detail-item">
-                    <div class="detail-item-header">
-                        <i data-lucide="shield-check" style="width:14px;height:14px;color:#F5C518;"></i>
-                        <label>Issuing Organization</label>
-                    </div>
-                    <p>{{ certificate.issuing_organization if certificate.issuing_organization else 'Shreevedha Solutions India Pvt Ltd' }}</p>
-                </div>
+            <h3 style="color: #0A2647; font-size: 1.35rem; font-weight: 800; margin: 0 0 0.5rem;">Security Verification Required</h3>
+            <p style="color: #64748B; font-size: 0.95rem; max-width: 540px; margin: 0 auto 1.25rem; line-height: 1.5;">
+                To protect student privacy and ensure authenticated verification, please check <strong>"I'm not a robot"</strong> above to inspect this credential.
+            </p>
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #FEF3C7; border: 1px solid #F59E0B; padding: 0.45rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 700; color: #92400E;">
+                <i data-lucide="key-round" style="width: 14px; height: 14px; color: #D97706;"></i>
+                Pending Credential ID: <code style="background: white; padding: 2px 7px; border-radius: 4px; font-weight: 800; color: #0A2647; font-family: monospace;">{{ queried_code }}</code>
             </div>
         </div>
-        {% else %}
-        <!-- RED UNVERIFIED STATE -->
-        <div class="result-card error">
-            <div class="status-header">
-                <div class="status-badge error">
-                    <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
-                    NOT VERIFIED • INVALID CERTIFICATE ID
-                </div>
+    {% else %}
+        <!-- INITIAL EMPTY STATE -->
+        <div class="result-card verification-gate" id="initialPromptNotice" style="border: 2px dashed #E2E8F0; text-align: center; padding: 2.3rem 1.5rem; background: #FAFAFA;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: #F1F5F9; border: 1.5px solid #CBD5E1; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.85rem;">
+                <i data-lucide="shield-check" style="width: 26px; height: 26px; color: #0A2647;"></i>
             </div>
-            <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
-            <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
-                The Certificate ID <code>{{ queried_code }}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.
+            <h3 style="color: #0A2647; font-size: 1.25rem; font-weight: 800; margin: 0 0 0.4rem;">Official Central Academic Registry</h3>
+            <p style="color: #64748B; font-size: 0.92rem; max-width: 500px; margin: 0 auto; line-height: 1.5;">
+                Enter a Certificate ID above and complete the reCAPTCHA challenge to verify official credentials in real-time.
             </p>
         </div>
-        {% endif %}
     {% endif %}
     </div>
 </div>
@@ -595,6 +507,35 @@
 <script>
     let isCaptchaVerified = false;
     let isCaptchaVerifying = false;
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function showCaptchaError(message) {
+        const card = document.getElementById('captchaCard');
+        const notice = document.getElementById('captchaNotice');
+        const text = document.getElementById('captchaNoticeText');
+
+        if (card) {
+            card.classList.remove('error-shake');
+            void card.offsetWidth;
+            card.classList.add('error-shake');
+        }
+        if (notice) {
+            notice.style.display = 'inline-flex';
+            if (text && message) text.textContent = message;
+        }
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 
     function startCaptchaVerification() {
         if (isCaptchaVerified || isCaptchaVerifying) return;
@@ -604,16 +545,23 @@
         const spinner = document.getElementById('captchaSpinner');
         const check = document.getElementById('captchaCheck');
         const card = document.getElementById('captchaCard');
+        const title = document.getElementById('captchaTitle');
         const btn = document.getElementById('verifyBtn');
+        const notice = document.getElementById('captchaNotice');
 
+        if (notice) notice.style.display = 'none';
         if (square) square.style.display = 'none';
         if (spinner) spinner.style.display = 'inline-block';
 
-        // 3.5 seconds verification spinner simulation
+        // 1.2s smooth verification simulation
         setTimeout(() => {
             if (spinner) spinner.style.display = 'none';
             if (check) check.style.display = 'block';
-            if (card) card.classList.add('verified');
+            if (card) {
+                card.classList.add('verified');
+                card.classList.remove('error-shake');
+            }
+            if (title) title.textContent = "Verified Human";
 
             isCaptchaVerifying = false;
             isCaptchaVerified = true;
@@ -621,30 +569,204 @@
             if (btn) {
                 btn.disabled = false;
                 btn.removeAttribute('title');
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
             }
-        }, 3500);
+
+            // If a certificate code is already present, automatically search and reveal it!
+            const input = document.getElementById('certCodeInput');
+            const code = (input && input.value ? input.value : '').trim();
+            if (code) {
+                executeVerification(code);
+            }
+        }, 1200);
     }
 
     function handleVerifySubmit(event) {
+        if (event) event.preventDefault();
+
         if (!isCaptchaVerified) {
-            event.preventDefault();
-            const card = document.getElementById('captchaCard');
-            if (card) {
-                card.classList.add('error-shake');
-                setTimeout(() => card.classList.remove('error-shake'), 500);
-            }
-            alert('Please check "I\'m not a robot" and wait 3-5 seconds for verification checkmark before searching.');
+            showCaptchaError('Please check "I\'m not a robot" before searching.');
             return false;
         }
 
         const input = document.getElementById('certCodeInput');
-        const code = (input.value || '').trim();
+        const code = (input && input.value ? input.value : '').trim();
 
-        if (!code) return false;
+        if (!code) {
+            if (input) input.focus();
+            return false;
+        }
 
-        // Perform instant client-side AJAX fetch for smooth verification UI without page glitches
-        event.preventDefault();
-        
+        executeVerification(code);
+        return false;
+    }
+
+    function renderVerifiedCardHtml(cert) {
+        return `
+        <div class="result-card success">
+            <div class="status-header">
+                <div class="status-badge success">
+                    <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
+                    VERIFIED • OFFICIALLY VALID CREDENTIAL
+                </div>
+                <div style="font-size: 0.8rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+                    <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
+                    Issuing Authority: <strong style="color: #0A2647;">${escapeHtml(cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd')}</strong>
+                </div>
+            </div>
+
+            <div class="achievement-banner">
+                <div>
+                    <h3 class="achievement-title">${escapeHtml(cert.student_name || 'N/A')}</h3>
+                    <p class="achievement-subtitle">${escapeHtml(cert.course_title || 'N/A')}</p>
+                </div>
+                <div style="background: white; padding: 0.4rem 0.85rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; text-align: center;">
+                    <span style="font-size: 0.68rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
+                    <strong style="color: #059669; font-size: 0.9rem;">${escapeHtml(cert.certification_status || cert.grade || 'TRAINING COMPLETED')}</strong>
+                </div>
+            </div>
+
+            <div class="cert-details-grid">
+                <!-- 1. Student Full Name -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="user" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Student Full Name</label>
+                    </div>
+                    <p>${escapeHtml(cert.student_name || 'N/A')}</p>
+                </div>
+
+                <!-- 2. Reg. No. / Roll Number -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="hash" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Reg. No. / Roll Number</label>
+                    </div>
+                    <p style="font-family: monospace; letter-spacing: 0.5px;">${escapeHtml(cert.reg_no || cert.roll_no || 'N/A')}</p>
+                </div>
+
+                <!-- 3. Qualification / Branch -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="graduation-cap" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Qualification / Branch</label>
+                    </div>
+                    <p>${escapeHtml(cert.qualification || 'N/A')}</p>
+                </div>
+
+                <!-- 4. College / Institution -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="building-2" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>College / Institution</label>
+                    </div>
+                    <p>${escapeHtml(cert.college_name || 'N/A')}</p>
+                </div>
+
+                <!-- 5. Program / Course Title -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="book-open" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Program / Course Title</label>
+                    </div>
+                    <p>${escapeHtml(cert.course_title || 'N/A')}</p>
+                </div>
+
+                <!-- 6. Certificate Code / ID -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="key-round" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Certificate Code / ID</label>
+                    </div>
+                    <p style="font-family: monospace; letter-spacing: 0.5px;"><code>${escapeHtml(cert.certificate_id)}</code></p>
+                </div>
+
+                <!-- 7. Course Duration -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="clock" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Course Duration</label>
+                    </div>
+                    <p>${escapeHtml(cert.duration || 'N/A')}</p>
+                </div>
+
+                <!-- 8. Training Mode -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="laptop" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Training Mode</label>
+                    </div>
+                    <p>${escapeHtml(cert.mode || 'ONLINE')}</p>
+                </div>
+
+                <!-- 9. Certification Status -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="award" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Certification Status</label>
+                    </div>
+                    <p><span style="color: #059669;">${escapeHtml(cert.certification_status || cert.grade || 'TRAINING COMPLETED')}</span></p>
+                </div>
+
+                <!-- 10. Skill Areas -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="cpu" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Skill Areas</label>
+                    </div>
+                    <p style="font-size: 0.88rem; color: #0A2647;">${escapeHtml(cert.skill_areas || 'AWS • DEVOPS • CLOUD • AUTOMATION')}</p>
+                </div>
+
+                <!-- 11. Date of Issuance -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="calendar" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Date of Issuance</label>
+                    </div>
+                    <p>${escapeHtml(cert.issue_date || '24-08-2026')}</p>
+                </div>
+
+                <!-- 12. Issuing Organization -->
+                <div class="detail-item">
+                    <div class="detail-item-header">
+                        <i data-lucide="shield-check" style="width:14px;height:14px;color:#F5C518;"></i>
+                        <label>Issuing Organization</label>
+                    </div>
+                    <p>${escapeHtml(cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd')}</p>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function renderUnverifiedCardHtml(code, message) {
+        return `
+        <div class="result-card error">
+            <div class="status-header">
+                <div class="status-badge error">
+                    <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
+                    NOT VERIFIED • INVALID CERTIFICATE ID
+                </div>
+            </div>
+            <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
+            <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
+                ${message}
+            </p>
+        </div>`;
+    }
+
+    function executeVerification(code) {
+        if (!isCaptchaVerified) {
+            showCaptchaError('Please check "I\'m not a robot" before searching.');
+            return;
+        }
+
+        if (!code) {
+            const input = document.getElementById('certCodeInput');
+            if (input) input.focus();
+            return;
+        }
+
         const btn = document.getElementById('verifyBtn');
         const loading = document.getElementById('loadingState');
         const resultContainer = document.getElementById('resultContainer');
@@ -654,201 +776,52 @@
             btn.style.opacity = '0.7';
             document.getElementById('btnText').textContent = 'Verifying...';
         }
-        
+
         if (loading) loading.style.display = 'block';
-        if (resultContainer) resultContainer.style.opacity = '0.3';
+        if (resultContainer) resultContainer.style.opacity = '0.2';
 
-        fetch(`/api/verify-certificate?code=${encodeURIComponent(code)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (loading) loading.style.display = 'none';
-                if (resultContainer) resultContainer.style.opacity = '1';
-                
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    document.getElementById('btnText').textContent = 'Verify Credential';
-                }
+        fetch(`/api/verify-certificate?code=${encodeURIComponent(code)}&captcha=verified`, {
+            headers: {
+                'x-captcha-verified': 'true'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (loading) loading.style.display = 'none';
+            if (resultContainer) resultContainer.style.opacity = '1';
 
-                if (data.valid && data.certificate) {
-                    const cert = data.certificate;
-                    resultContainer.innerHTML = `
-                    <div class="result-card success">
-                        <div class="status-header">
-                            <div class="status-badge success">
-                                <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#10B981;"></i>
-                                VERIFIED • OFFICIALLY VALID CREDENTIAL
-                            </div>
-                            <div style="font-size: 0.8rem; color: #64748B; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
-                                <i data-lucide="award" style="width:15px;height:15px;color:#F5C518;"></i>
-                                Issuing Authority: <strong style="color: #0A2647;">${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</strong>
-                            </div>
-                        </div>
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                document.getElementById('btnText').textContent = 'Verify Credential';
+            }
 
-                        <div class="achievement-banner">
-                            <div>
-                                <h3 class="achievement-title">${cert.student_name || 'N/A'}</h3>
-                                <p class="achievement-subtitle">${cert.course_title || 'N/A'}</p>
-                            </div>
-                            <div style="background: white; padding: 0.4rem 0.85rem; border-radius: 0.5rem; border: 1px solid #E2E8F0; text-align: center;">
-                                <span style="font-size: 0.68rem; font-weight: 800; color: #64748B; text-transform: uppercase; display: block;">Status</span>
-                                <strong style="color: #059669; font-size: 0.9rem;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</strong>
-                            </div>
-                        </div>
+            if (data.valid && data.certificate) {
+                resultContainer.innerHTML = renderVerifiedCardHtml(data.certificate);
+            } else {
+                const errorMsg = data.message || `The Certificate ID <code>${escapeHtml(code)}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.`;
+                resultContainer.innerHTML = renderUnverifiedCardHtml(code, errorMsg);
+            }
 
-                        <div class="cert-details-grid">
-                            <!-- 1. Student Full Name -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="user" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Student Full Name</label>
-                                </div>
-                                <p>${cert.student_name || 'N/A'}</p>
-                            </div>
+            if (window.lucide) window.lucide.createIcons();
+        })
+        .catch(err => {
+            if (loading) loading.style.display = 'none';
+            if (resultContainer) resultContainer.style.opacity = '1';
 
-                            <!-- 2. Reg. No. / Roll Number -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="hash" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Reg. No. / Roll Number</label>
-                                </div>
-                                <p style="font-family: monospace; letter-spacing: 0.5px;">${cert.reg_no || cert.roll_no || 'N/A'}</p>
-                            </div>
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                document.getElementById('btnText').textContent = 'Verify Credential';
+            }
 
-                            <!-- 3. Qualification / Branch -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="graduation-cap" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Qualification / Branch</label>
-                                </div>
-                                <p>${cert.qualification || 'N/A'}</p>
-                            </div>
-
-                            <!-- 4. College / Institution -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="building-2" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>College / Institution</label>
-                                </div>
-                                <p>${cert.college_name || 'N/A'}</p>
-                            </div>
-
-                            <!-- 5. Program / Course Title -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="book-open" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Program / Course Title</label>
-                                </div>
-                                <p>${cert.course_title || 'N/A'}</p>
-                            </div>
-
-                            <!-- 6. Certificate Code / ID -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="key-round" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Certificate Code / ID</label>
-                                </div>
-                                <p style="font-family: monospace; letter-spacing: 0.5px;"><code>${cert.certificate_id}</code></p>
-                            </div>
-
-                            <!-- 7. Course Duration -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="clock" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Course Duration</label>
-                                </div>
-                                <p>${cert.duration || 'N/A'}</p>
-                            </div>
-
-                            <!-- 8. Training Mode -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="laptop" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Training Mode</label>
-                                </div>
-                                <p>${cert.mode || 'ONLINE'}</p>
-                            </div>
-
-                            <!-- 9. Certification Status -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="award" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Certification Status</label>
-                                </div>
-                                <p><span style="color: #059669;">${cert.certification_status || cert.grade || 'TRAINING COMPLETED'}</span></p>
-                            </div>
-
-                            <!-- 10. Skill Areas -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="cpu" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Skill Areas</label>
-                                </div>
-                                <p style="font-size: 0.88rem; color: #0A2647;">${cert.skill_areas || 'AWS • DEVOPS • CLOUD • AUTOMATION'}</p>
-                            </div>
-
-                            <!-- 11. Date of Issuance -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="calendar" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Date of Issuance</label>
-                                </div>
-                                <p>24-08-2026</p>
-                            </div>
-
-                            <!-- 12. Issuing Organization -->
-                            <div class="detail-item">
-                                <div class="detail-item-header">
-                                    <i data-lucide="shield-check" style="width:14px;height:14px;color:#F5C518;"></i>
-                                    <label>Issuing Organization</label>
-                                </div>
-                                <p>${cert.issuing_organization || 'Shreevedha Solutions India Pvt Ltd'}</p>
-                            </div>
-                        </div>
-                    </div>`;
-                } else {
-                    resultContainer.innerHTML = `
-                    <div class="result-card error">
-                        <div class="status-header">
-                            <div class="status-badge error">
-                                <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
-                                NOT VERIFIED • INVALID CERTIFICATE ID
-                            </div>
-                        </div>
-                        <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
-                        <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
-                            The Certificate ID <code>${code}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.
-                        </p>
-                    </div>`;
-                }
-
-                if (window.lucide) window.lucide.createIcons();
-            })
-            .catch(err => {
-                if (loading) loading.style.display = 'none';
-                if (resultContainer) resultContainer.style.opacity = '1';
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    document.getElementById('btnText').textContent = 'Verify Credential';
-                }
-                resultContainer.innerHTML = `
-                <div class="result-card error">
-                    <div class="status-header">
-                        <div class="status-badge error">
-                            <i data-lucide="x-circle" style="width:18px;height:18px;color:#EF4444;"></i>
-                            NOT VERIFIED • INVALID CERTIFICATE ID
-                        </div>
-                    </div>
-                    <h4 style="color: #991B1B; margin-bottom: 0.4rem; font-size: 1.2rem; text-align: left;">Certificate ID Not Verified</h4>
-                    <p style="color: #64748B; font-size: 0.9rem; text-align: left; line-height: 1.5; margin: 0;">
-                        The Certificate ID <code>${code}</code> is <strong>NOT VERIFIED</strong>. No matching record exists in our central academic registry. Please double check the ID printed on your certificate.
-                    </p>
-                </div>`;
-                if (window.lucide) window.lucide.createIcons();
-            });
-
-        return false;
+            resultContainer.innerHTML = renderUnverifiedCardHtml(code, `An error occurred while connecting to the central registry. Please try again.`);
+            if (window.lucide) window.lucide.createIcons();
+        });
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) window.lucide.createIcons();
+    });
 </script>
 {% endblock %}
